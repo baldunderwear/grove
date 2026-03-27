@@ -159,3 +159,32 @@ pub fn check_project_health(
 ) -> Result<HealthStatus, ConfigError> {
     Ok(persistence::check_health(&path, &merge_target))
 }
+
+/// Export the current configuration to a JSON file at the given path.
+#[tauri::command]
+pub fn export_config(
+    app_handle: tauri::AppHandle,
+    path: String,
+) -> Result<(), ConfigError> {
+    let config = persistence::load_or_create_config(&app_handle)?;
+    let json = serde_json::to_string_pretty(&config)?;
+    std::fs::write(&path, json)?;
+    Ok(())
+}
+
+/// Import configuration from a JSON file, replacing the current config.
+#[tauri::command]
+pub fn import_config(
+    app_handle: tauri::AppHandle,
+    path: String,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let contents = std::fs::read_to_string(&path)?;
+    let config: AppConfig = serde_json::from_str(&contents)?;
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}

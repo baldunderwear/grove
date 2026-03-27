@@ -18,6 +18,8 @@ pub fn run() {
             commands::config_commands::update_project,
             commands::config_commands::update_settings,
             commands::config_commands::check_project_health,
+            commands::config_commands::export_config,
+            commands::config_commands::import_config,
         ])
         .setup(|app| {
             // Build tray context menu
