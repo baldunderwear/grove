@@ -1,5 +1,6 @@
 mod commands;
 mod config;
+mod git;
 
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
