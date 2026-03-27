@@ -3,6 +3,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sidebar } from '@/layout/Sidebar';
 import { EmptyState } from '@/pages/EmptyState';
+import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
 import { useConfigStore } from '@/stores/config-store';
 
@@ -37,12 +38,7 @@ function App() {
           {activeView === 'empty' && (
             <EmptyState onAddProject={handleAddProject} />
           )}
-          {activeView === 'project' && (
-            <div className="p-8 text-gray-50">
-              {/* ProjectConfig — implemented in Task 2 */}
-              <p>Loading project config...</p>
-            </div>
-          )}
+          {activeView === 'project' && <ProjectConfig />}
           {activeView === 'settings' && <Settings />}
         </main>
       </div>
