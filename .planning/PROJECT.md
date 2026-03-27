@@ -85,6 +85,6 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 
 ## Current State
 
-Phase 01 complete — Tauri 2 + React 19 + TypeScript + Tailwind v4 project scaffolded with system tray icon, context menu, window show/hide, close-to-tray behavior, and GitHub Actions CI for Windows installer builds.
+Phase 02 complete — Project registry with config persistence, sidebar UI, per-project config editor, global settings, and export/import. Built on Phase 01 scaffold.
 
 Last updated: 2026-03-27
