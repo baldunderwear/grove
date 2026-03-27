@@ -45,9 +45,9 @@ Plans:
 - Atomic merge with rollback on failure
 - Event emission to frontend on git changes
 **Exit criteria:** All git operations work from Rust. Merge of a worktree branch bumps build number, renames changelog, creates commit. Rollback works if merge fails.
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 Plans:
-- [ ] 03-01-PLAN.md — Git module foundation: error types, branch listing, dirty status, Tauri commands
+- [x] 03-01-PLAN.md — Git module foundation: error types, branch listing, dirty status, Tauri commands
 - [ ] 03-02-PLAN.md — Merge workflow: preview, atomic execution, build bump, changelog rename
 - [x] 03-03-PLAN.md — File system watcher with NAS fallback and Tauri event emission
 

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
 status: executing
-last_updated: "2026-03-27T23:53:10.622Z"
+last_updated: "2026-03-27T23:55:21.458Z"
 last_activity: 2026-03-27
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 50
 ---
 
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (created 2026-03-27)
 ## Current Position
 
 Phase: 03 (git-operations-backend-rust) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-03-27
 
@@ -51,6 +51,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 02]: Settings auto-save on blur (numbers) and on change (checkboxes)
 - [Phase 03]: notify-debouncer-mini 0.7 (not 0.4) for notify 8.x compat
 - [Phase 03]: Box::leak for watcher lifetime; non-fatal setup pattern
+- [Phase 03]: Open git2 Repository fresh per-command; path string is shared state (not Send/Sync)
+- [Phase 03]: Branch OIDs resolved from main repo; dirty status checked per-worktree as separate repo
 
 ## Quick Tasks Completed
 
