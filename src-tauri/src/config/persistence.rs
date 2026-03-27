@@ -101,8 +101,7 @@ pub fn detect_repo_info(path: &str) -> Result<RepoInfo, ConfigError> {
     let branches: Vec<String> = repo
         .branches(Some(git2::BranchType::Local))
         .map_err(|e| {
-            ConfigError::Io(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            ConfigError::Io(std::io::Error::other(
                 format!("Failed to list branches: {}", e),
             ))
         })?

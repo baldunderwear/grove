@@ -1,3 +1,4 @@
+mod commands;
 mod config;
 
 use tauri::{
@@ -8,6 +9,16 @@ use tauri::{
 
 pub fn run() {
     tauri::Builder::default()
+        .manage(std::sync::Mutex::new(()))
+        .plugin(tauri_plugin_dialog::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::config_commands::get_config,
+            commands::config_commands::add_project,
+            commands::config_commands::remove_project,
+            commands::config_commands::update_project,
+            commands::config_commands::update_settings,
+            commands::config_commands::check_project_health,
+        ])
         .setup(|app| {
             // Build tray context menu
             let quit = MenuItem::with_id(app, "quit", "Quit Grove", true, None::<&str>)?;
