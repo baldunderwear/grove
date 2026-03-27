@@ -19,7 +19,7 @@ Plans:
 
 ### Phase 02: Project Registry & Configuration
 **Goal:** Users can register git repos and configure per-project merge rules.
-**Requirements:** FR-01.1–FR-01.6, FR-07.1–FR-07.4
+**Requirements:** FR-01.1-FR-01.6, FR-07.1-FR-07.4
 **Deliverables:**
 - Add/remove project UI (directory picker)
 - Per-project config editor (merge target, branch prefix, build files, changelog)
@@ -27,10 +27,16 @@ Plans:
 - Config persistence to JSON in app data directory
 - Project health check (path exists, is git repo, has expected branches)
 **Exit criteria:** Can register sol-lune with its build file patterns and a second repo without build files. Config survives restart.
+**Plans:** 4 plans
+Plans:
+- [ ] 02-01-PLAN.md — Rust config backend: data models, persistence, Tauri commands, git2 validation
+- [ ] 02-02-PLAN.md — Frontend foundation: shadcn/ui setup, TypeScript types, Zustand config store
+- [ ] 02-03-PLAN.md — Sidebar, project config editor, empty state, add/remove project UI
+- [ ] 02-04-PLAN.md — Global settings page, export/import config, full verification
 
 ### Phase 03: Git Operations Backend (Rust)
 **Goal:** Rust backend for all git operations — branch listing, status, merge, build bump.
-**Requirements:** FR-02.1–FR-02.3, FR-04.1–FR-04.8, FR-06.1–FR-06.4
+**Requirements:** FR-02.1-FR-02.3, FR-04.1-FR-04.8, FR-06.1-FR-06.4
 **Deliverables:**
 - Tauri commands: `list_branches`, `branch_status`, `branch_diff_preview`
 - Tauri commands: `merge_branch`, `resolve_build_conflicts`, `bump_build_number`, `rename_changelog`
@@ -42,7 +48,7 @@ Plans:
 
 ### Phase 04: Worktree Dashboard UI
 **Goal:** Main dashboard showing all worktree branches with status, activity, and actions.
-**Requirements:** FR-02.1–FR-02.8
+**Requirements:** FR-02.1-FR-02.8
 **Deliverables:**
 - Project selector (sidebar or dropdown)
 - Branch list with: name, commits ahead/behind, last commit, dirty/clean badge
@@ -55,7 +61,7 @@ Plans:
 
 ### Phase 05: Session Launch & Process Tracking
 **Goal:** Launch Claude Code sessions from the dashboard and track active processes.
-**Requirements:** FR-03.1–FR-03.5, FR-02.4, FR-02.6
+**Requirements:** FR-03.1-FR-03.5, FR-02.4, FR-02.6
 **Deliverables:**
 - Launch button per branch (spawns `claude --worktree <name>` in new terminal window)
 - Configurable launch flags
@@ -67,7 +73,7 @@ Plans:
 
 ### Phase 06: Merge Workflow UI
 **Goal:** Full merge flow with preview, confirmation, execution, and summary.
-**Requirements:** FR-04.1–FR-04.8
+**Requirements:** FR-04.1-FR-04.8
 **Deliverables:**
 - Merge button on merge-ready branches
 - Preview dialog: commits to merge, changelog fragments, build number change
@@ -79,7 +85,7 @@ Plans:
 
 ### Phase 07: System Tray & Notifications
 **Goal:** Full tray integration with quick actions and notifications.
-**Requirements:** FR-05.1–FR-05.6, FR-06.5
+**Requirements:** FR-05.1-FR-05.6, FR-06.5
 **Deliverables:**
 - Tray context menu: recent worktrees quick-launch, open dashboard, settings, quit
 - Tray notifications: merge-ready branches, stale branches, merge completed
@@ -90,7 +96,7 @@ Plans:
 
 ### Phase 08: Polish & Distribution
 **Goal:** Production-ready release with installer, auto-update, and documentation.
-**Requirements:** NFR-01.1–NFR-01.4, NFR-02.1–NFR-02.3, NFR-03.1–NFR-03.4, NFR-04.1–NFR-04.3
+**Requirements:** NFR-01.1-NFR-01.4, NFR-02.1-NFR-02.3, NFR-03.1-NFR-03.4, NFR-04.1-NFR-04.3
 **Deliverables:**
 - Performance audit: startup time, memory, refresh speed
 - Keyboard shortcuts for all common actions
