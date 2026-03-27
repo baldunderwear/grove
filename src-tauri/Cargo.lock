@@ -1190,6 +1190,7 @@ name = "grove"
 version = "0.1.0"
 dependencies = [
  "git2",
+ "glob",
  "notify",
  "notify-debouncer-mini",
  "serde",
