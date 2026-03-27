@@ -1,6 +1,12 @@
 # Grove Launcher
 # Right-click > Create Shortcut, then set shortcut target to:
 # powershell -ExecutionPolicy Bypass -NoExit -File "Z:\data\development\grove\grove-launcher.ps1"
+#
+# Or create a .bat file with:
+# @echo off
+# powershell -ExecutionPolicy Bypass -NoExit -File "%~dp0grove-launcher.ps1"
+
+$ErrorActionPreference = "Stop"
 $GroveRoot = "Z:\data\development\grove"
 if (-not (Test-Path $GroveRoot)) {
     Write-Host "`n  ERROR: Grove not found at $GroveRoot" -ForegroundColor Red
@@ -52,3 +58,5 @@ switch ($Selection.ToLower()) {
         Start-Sleep 2
     }
 }
+Write-Host ""
+Read-Host "  Press Enter to exit"
