@@ -1,0 +1,15 @@
+{
+  "gsd_version": "1.0",
+  "project": "grove",
+  "model_profile": "quality",
+  "git": {
+    "branching_strategy": "none",
+    "auto_commit": true
+  },
+  "workflow": {
+    "skip_research": false,
+    "skip_plan_checker": false,
+    "skip_verifier": false,
+    "max_plan_iterations": 2
+  }
+}
