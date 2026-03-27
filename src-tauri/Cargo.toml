@@ -19,4 +19,4 @@ git2 = { version = "0.20", default-features = false }
 uuid = { version = "1", features = ["v4", "serde"] }
 tauri-plugin-dialog = "2"
 notify = "8.2"
-notify-debouncer-mini = "0.4"
+notify-debouncer-mini = "0.7"

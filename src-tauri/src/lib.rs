@@ -1,6 +1,7 @@
 mod commands;
 mod config;
 mod git;
+mod watcher;
 
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
@@ -21,6 +22,9 @@ pub fn run() {
             commands::config_commands::check_project_health,
             commands::config_commands::export_config,
             commands::config_commands::import_config,
+            commands::git_commands::list_branches,
+            commands::git_commands::branch_status,
+            commands::git_commands::is_worktree_dirty,
         ])
         .setup(|app| {
             // Build tray context menu
@@ -77,6 +81,18 @@ pub fn run() {
                         let _ = w.hide();
                     }
                 });
+            }
+
+            // Start file watcher for registered project paths
+            let app_handle = app.handle().clone();
+            if let Ok(config) = crate::config::persistence::load_or_create_config(&app_handle) {
+                let paths: Vec<String> = config.projects.iter().map(|p| p.path.clone()).collect();
+                if !paths.is_empty() {
+                    // Start watcher in background -- log errors but don't block app startup
+                    if let Err(e) = crate::watcher::start_watcher(app_handle, paths) {
+                        eprintln!("[grove] Warning: file watcher failed to start: {}", e);
+                    }
+                }
             }
 
             Ok(())
