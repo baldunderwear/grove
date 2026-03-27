@@ -25,9 +25,8 @@ Write-Host "  Branch: $Branch" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  ----------------------------------------------" -ForegroundColor DarkGray
 Write-Host "   1 - Launch Claude Code" -ForegroundColor Yellow
-Write-Host "   2 - Launch Claude Code (autonomous)" -ForegroundColor Yellow
-Write-Host "   3 - Dev server (cargo tauri dev)" -ForegroundColor Yellow
-Write-Host "   4 - Build release (cargo tauri build)" -ForegroundColor Yellow
+Write-Host "   2 - Dev server (cargo tauri dev)" -ForegroundColor Yellow
+Write-Host "   3 - Build release (cargo tauri build)" -ForegroundColor Yellow
 Write-Host "   q - Quit" -ForegroundColor Yellow
 Write-Host ""
 $Selection = Read-Host "  Select"
@@ -43,18 +42,11 @@ switch ($Selection.ToLower()) {
     '2' {
         Set-Location $GroveRoot
         Write-Host ""
-        Write-Host "  Launching Claude Code (autonomous)..." -ForegroundColor Green
-        Write-Host ""
-        claude --dangerously-skip-permissions -p "/gsd:autonomous"
-    }
-    '3' {
-        Set-Location $GroveRoot
-        Write-Host ""
         Write-Host "  Starting Tauri dev server..." -ForegroundColor Green
         Write-Host ""
         cargo tauri dev
     }
-    '4' {
+    '3' {
         Set-Location $GroveRoot
         Write-Host ""
         Write-Host "  Building release..." -ForegroundColor Green
