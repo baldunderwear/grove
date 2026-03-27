@@ -159,7 +159,7 @@ Shown when a project is selected in sidebar.
 - Branch prefix (Input, placeholder: "wt/")
 
 **Section: Build Files** (optional)
-- Build file patterns list (each as Input with remove icon)
+- Build file patterns list (each as Input with remove icon button, `aria-label="Remove pattern"`)
 - "Add pattern" text button below list
 - Helper text: "Glob patterns for files containing build numbers. Leave empty for plain merge."
 
@@ -220,7 +220,7 @@ Shown when no projects registered.
 | Destructive confirmation title | "Remove Project" |
 | Destructive confirmation body | "Remove {project name} from Grove? This does not delete the repository." |
 | Destructive confirmation button | "Remove Project" |
-| Destructive cancel button | "Cancel" |
+| Destructive cancel button | "Keep Project" |
 | Auto-save feedback | No visible toast. Field border briefly flashes emerald-500/30 on successful save. |
 | Health: good | "Healthy" (with green dot) |
 | Health: path missing | "Path not found" (with red dot) |
