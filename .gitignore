@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+src-ui/dist/
+src-tauri/target/
+
+# Rust
+*.rs.bk
+
+# Generated
+src-tauri/gen/
+
+# Local development overrides (NAS workaround)
+src-ui/tsconfig.local.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

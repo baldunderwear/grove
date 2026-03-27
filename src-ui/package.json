@@ -1,0 +1,32 @@
+{
+  "name": "grove-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "config": {
+    "nm": "%USERPROFILE%/grove-src-ui/node_modules"
+  },
+  "scripts": {
+    "dev": "node ../scripts/with-modules.mjs vite",
+    "build": "node ../scripts/with-modules.mjs tsc -b && node ../scripts/with-modules.mjs vite build",
+    "preview": "node ../scripts/with-modules.mjs vite preview",
+    "typecheck": "node ../scripts/with-modules.mjs tsc -b --noEmit",
+    "lint": "node ../scripts/with-modules.mjs tsc -b --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@tauri-apps/api": "^2.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "~5.7.0",
+    "vite": "^6.0.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}
