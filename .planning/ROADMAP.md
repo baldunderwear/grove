@@ -27,12 +27,12 @@ Plans:
 - Config persistence to JSON in app data directory
 - Project health check (path exists, is git repo, has expected branches)
 **Exit criteria:** Can register sol-lune with its build file patterns and a second repo without build files. Config survives restart.
-**Plans:** 2/4 plans executed
+**Plans:** 4/4 plans complete
 Plans:
 - [x] 02-01-PLAN.md — Rust config backend: data models, persistence, Tauri commands, git2 validation
 - [x] 02-02-PLAN.md — Frontend foundation: shadcn/ui setup, TypeScript types, Zustand config store
-- [ ] 02-03-PLAN.md — Sidebar, project config editor, empty state, add/remove project UI
-- [ ] 02-04-PLAN.md — Global settings page, export/import config, full verification
+- [x] 02-03-PLAN.md — Sidebar, project config editor, empty state, add/remove project UI
+- [x] 02-04-PLAN.md — Global settings page, export/import config, full verification
 
 ### Phase 03: Git Operations Backend (Rust)
 **Goal:** Rust backend for all git operations — branch listing, status, merge, build bump.
