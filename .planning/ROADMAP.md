@@ -12,10 +12,10 @@
 - Tauri bundler producing Windows installer
 - CI: GitHub Actions building Windows release
 **Exit criteria:** App installs on Windows, shows tray icon, opens/closes window. Build pipeline produces MSI.
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 01-01-PLAN.md — Scaffold Tauri 2 project + system tray with window management
-- [ ] 01-02-PLAN.md — GitHub Actions CI workflow + gitignore
+- [x] 01-02-PLAN.md — GitHub Actions CI workflow + gitignore
 
 ### Phase 02: Project Registry & Configuration
 **Goal:** Users can register git repos and configure per-project merge rules.
