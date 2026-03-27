@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: true
 preset: zinc/neutral dark
 created: 2026-03-27
+revised: 2026-03-27
 ---
 
 # Phase 02 — UI Design Contract
@@ -27,7 +28,7 @@ created: 2026-03-27
 
 | Component | Usage |
 |-----------|-------|
-| Button | "Add Project" CTA, "Remove" destructive, form actions |
+| Button | "Add Project" CTA, "Remove Project" destructive, form actions |
 | Input | Text fields for branch prefix, build file patterns |
 | Label | Form field labels |
 | Card | Project config panel, settings sections |
@@ -35,7 +36,7 @@ created: 2026-03-27
 | Dialog | Remove project confirmation |
 | ScrollArea | Sidebar project list when it overflows |
 | Badge | Health status indicator (green/red dot) |
-| Tooltip | Health status explanation on hover |
+| Tooltip | Health status explanation on hover, settings gear accessible label |
 
 ---
 
@@ -59,17 +60,19 @@ Exceptions: Sidebar width fixed at 280px. Touch/click target minimum 32px height
 
 ## Typography
 
-| Role | Size | Weight | Line Height |
-|------|------|--------|-------------|
-| Body | 14px | 400 (regular) | 1.5 |
-| Label | 12px | 500 (medium) | 1.4 |
-| Heading | 20px | 600 (semibold) | 1.2 |
-| Display | 28px | 600 (semibold) | 1.2 |
+| Role | Size | Weight | Line Height | Extra |
+|------|------|--------|-------------|-------|
+| Body | 14px | 400 (regular) | 1.5 | -- |
+| Label | 12px | 400 (regular) | 1.4 | uppercase, letter-spacing: 0.05em |
+| Heading | 20px | 600 (semibold) | 1.2 | -- |
+| Display | 28px | 600 (semibold) | 1.2 | -- |
+
+**Weights used: 2 (400 regular, 600 semibold).**
 
 Notes:
 - Display is used only for the "Grove" app title or phase headers if shown.
 - Heading is used for section titles: "Projects", "Settings", config panel header.
-- Label is used for form field labels, health status text, sidebar project metadata.
+- Label is used for form field labels, health status text, sidebar project metadata. Differentiated from body by 12px size, uppercase transform, and wider letter-spacing -- not by weight.
 - Body is used for all other text: form inputs, descriptions, empty state copy.
 
 ---
@@ -103,6 +106,16 @@ Notes:
 
 ---
 
+## Visual Focal Points
+
+| State | Primary Visual Anchor |
+|-------|----------------------|
+| Empty state (no projects) | "Add Project" button in sidebar |
+| Project selected | Project name heading in config panel |
+| Settings page | "Settings" heading in main content |
+
+---
+
 ## Layout Contract
 
 ### Overall Structure
@@ -131,7 +144,7 @@ Notes:
 - Item layout: health dot (8px circle, 4px gap) + project name (14px, truncate with ellipsis)
 - Selected item: gray-800 background, white text
 - Hover item: gray-850 background
-- Bottom: Settings gear icon (lucide `Settings`), 16px padding from bottom edge
+- Bottom: Settings gear icon (lucide `Settings`), 16px padding from bottom edge. Must include `aria-label="Settings"` attribute. Wrap in Tooltip with content "Settings" for sighted mouse users.
 
 ### Main Content — Project Config Panel
 
@@ -203,10 +216,10 @@ Shown when no projects registered.
 | Empty state body | "Add a git repository to start managing worktrees." |
 | Error: not a git repo | "This directory is not a git repository. Select a folder that contains a .git directory." |
 | Error: path not found | "Project path no longer exists. Check if the drive is connected." |
-| Error: already registered | "This project is already registered." |
+| Error: already registered | "This project is already registered. Find it in the sidebar." |
 | Destructive confirmation title | "Remove Project" |
 | Destructive confirmation body | "Remove {project name} from Grove? This does not delete the repository." |
-| Destructive confirmation button | "Remove" |
+| Destructive confirmation button | "Remove Project" |
 | Destructive cancel button | "Cancel" |
 | Auto-save feedback | No visible toast. Field border briefly flashes emerald-500/30 on successful save. |
 | Health: good | "Healthy" (with green dot) |
