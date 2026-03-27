@@ -82,3 +82,9 @@ Each registered project has a config like:
 ```
 
 Projects without build numbers or changelogs simply omit those fields — Grove handles plain merges too.
+
+## Current State
+
+Phase 01 complete — Tauri 2 + React 19 + TypeScript + Tailwind v4 project scaffolded with system tray icon, context menu, window show/hide, close-to-tray behavior, and GitHub Actions CI for Windows installer builds.
+
+Last updated: 2026-03-27
