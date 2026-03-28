@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: executing
-last_updated: "2026-03-28T01:03:19.004Z"
+status: verifying
+last_updated: "2026-03-28T01:09:59.938Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (created 2026-03-27)
 
 Phase: 05 (session-launch-process-tracking) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -64,6 +64,9 @@ Progress: [█████░░░░░] 50%
 - [Phase 05]: GitError::Other variant added for create_worktree errors
 - [Phase 05]: create_worktree creates named branch from HEAD, then worktree referencing that branch
 - [Phase 05]: cmd.exe fallback uses cmd /k with cd /d for proper Windows drive handling
+- [Phase 05]: Session polling in separate Effect (Effect 5) dependent on branches array
+- [Phase 05]: Action buttons use group/opacity hover-reveal pattern on TableRow
+- [Phase 05]: NewWorktreeDialog handles launch_session directly after create_worktree (atomic create+launch)
 
 ## Quick Tasks Completed
 

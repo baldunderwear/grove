@@ -79,10 +79,10 @@ Plans:
 - Active session badge on branches
 - Open in Explorer / VS Code buttons
 **Exit criteria:** Can launch Claude Code from dashboard, see it marked as active, badge disappears when session ends.
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 05-01-PLAN.md — Rust backend: process module (launch/detect), session commands, create_worktree, opener plugin
-- [ ] 05-02-PLAN.md — Frontend: session store, BranchTable actions + badge, NewWorktreeDialog, Dashboard wiring
+- [x] 05-02-PLAN.md — Frontend: session store, BranchTable actions + badge, NewWorktreeDialog, Dashboard wiring
 
 ### Phase 06: Merge Workflow UI
 **Goal:** Full merge flow with preview, confirmation, execution, and summary.
