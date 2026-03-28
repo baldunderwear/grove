@@ -44,6 +44,13 @@ export function Dashboard() {
   const project = config?.projects.find((p) => p.id === selectedProjectId);
   const settings = config?.settings;
 
+  // Effect 0: Listen for keyboard shortcut events
+  useEffect(() => {
+    const handleNewWorktree = () => setShowNewWorktree(true);
+    window.addEventListener('grove:new-worktree', handleNewWorktree);
+    return () => window.removeEventListener('grove:new-worktree', handleNewWorktree);
+  }, []);
+
   // Effect 1: Initial fetch + project switch
   useEffect(() => {
     if (!project) return;
