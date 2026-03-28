@@ -63,9 +63,9 @@ Plans:
 - Manual refresh button
 - Responsive layout
 **Exit criteria:** Dashboard shows all 30+ sol-lune worktree branches with correct commit counts and status. Auto-refreshes every 30s.
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 04-01-PLAN.md — Data layer: types, branch store, utilities, shadcn components, view routing
+- [x] 04-01-PLAN.md — Data layer: types, branch store, utilities, shadcn components, view routing
 - [ ] 04-02-PLAN.md — Dashboard UI: header, branch table, empty state, auto-refresh wiring
 
 ### Phase 05: Session Launch & Process Tracking
