@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: verifying
-last_updated: "2026-03-28T01:09:59.938Z"
+status: executing
+last_updated: "2026-03-28T01:27:51.745Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 15
+  completed_plans: 14
   percent: 50
 ---
 
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (created 2026-03-27)
 
 **Core value:** Manage git worktrees and Claude Code sessions across any project — launch, track, merge cleanly.
-**Current focus:** Phase 05 — session-launch-process-tracking
+**Current focus:** Phase 06 — merge-workflow-ui
 
 ## Current Position
 
-Phase: 05 (session-launch-process-tracking) — EXECUTING
+Phase: 06 (merge-workflow-ui) — EXECUTING
 Plan: 2 of 2
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -67,6 +67,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 05]: Session polling in separate Effect (Effect 5) dependent on branches array
 - [Phase 05]: Action buttons use group/opacity hover-reveal pattern on TableRow
 - [Phase 05]: NewWorktreeDialog handles launch_session directly after create_worktree (atomic create+launch)
+- [Phase 06]: MergeStep type alias with 6 states for full merge dialog lifecycle
+- [Phase 06]: History timestamps stored as Date.now() ms, divided by 1000 for relativeTime (unix seconds)
 
 ## Quick Tasks Completed
 
