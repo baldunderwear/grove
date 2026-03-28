@@ -38,6 +38,7 @@ function App() {
           {activeView === 'empty' && (
             <EmptyState onAddProject={handleAddProject} />
           )}
+          {activeView === 'dashboard' && <ProjectConfig />}
           {activeView === 'project' && <ProjectConfig />}
           {activeView === 'settings' && <Settings />}
         </main>

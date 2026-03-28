@@ -7,7 +7,7 @@ interface ConfigState {
   loading: boolean;
   error: string | null;
   selectedProjectId: string | null;
-  activeView: 'project' | 'settings' | 'empty';
+  activeView: 'dashboard' | 'project' | 'settings' | 'empty';
 
   // Actions
   loadConfig: () => Promise<void>;
@@ -23,6 +23,7 @@ interface ConfigState {
   updateSettings: (updates: Partial<Pick<Settings, 'refresh_interval' | 'start_minimized' | 'start_with_windows'>>) => Promise<void>;
   checkHealth: (path: string, mergeTarget: string) => Promise<HealthStatus>;
   selectProject: (id: string) => void;
+  showProjectConfig: () => void;
   showSettings: () => void;
 }
 
@@ -37,7 +38,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
     set({ loading: true, error: null });
     try {
       const config = await invoke<AppConfig>('get_config');
-      const activeView = config.projects.length === 0 ? 'empty' : 'project';
+      const activeView = config.projects.length === 0 ? 'empty' : 'dashboard';
       const selectedProjectId = config.projects.length > 0 ? config.projects[0].id : null;
       set({ config, loading: false, activeView, selectedProjectId });
     } catch (e) {
@@ -50,7 +51,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
     try {
       const config = await invoke<AppConfig>('add_project', { path });
       const newProject = config.projects[config.projects.length - 1];
-      set({ config, selectedProjectId: newProject.id, activeView: 'project' });
+      set({ config, selectedProjectId: newProject.id, activeView: 'dashboard' });
     } catch (e) {
       set({ error: String(e) });
       throw e; // re-throw so UI can handle
@@ -60,7 +61,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   removeProject: async (id: string) => {
     try {
       const config = await invoke<AppConfig>('remove_project', { id });
-      const activeView = config.projects.length === 0 ? 'empty' : 'project';
+      const activeView = config.projects.length === 0 ? 'empty' : 'dashboard';
       const selectedProjectId = config.projects.length > 0 ? config.projects[0].id : null;
       set({ config, selectedProjectId, activeView, error: null });
     } catch (e) {
@@ -91,7 +92,11 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   },
 
   selectProject: (id: string) => {
-    set({ selectedProjectId: id, activeView: 'project' });
+    set({ selectedProjectId: id, activeView: 'dashboard' });
+  },
+
+  showProjectConfig: () => {
+    set({ activeView: 'project' });
   },
 
   showSettings: () => {
