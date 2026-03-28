@@ -7,6 +7,7 @@ import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
 import { useConfigStore } from '@/stores/config-store';
+import { UpdateChecker } from '@/components/UpdateChecker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
 
   return (
     <TooltipProvider>
+      <UpdateChecker />
       <div className="flex h-screen bg-gray-950">
         <Sidebar />
         <main className="flex-1 overflow-y-auto">
