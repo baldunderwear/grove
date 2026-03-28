@@ -1,0 +1,174 @@
+import { useMemo } from 'react';
+import { Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { isStale, relativeTime } from '@/lib/utils';
+import type { BranchInfo, SortMode } from '@/types/branch';
+
+interface BranchTableProps {
+  branches: BranchInfo[];
+  sortMode: SortMode;
+  loading: boolean;
+  refreshing: boolean;
+}
+
+function sortBranches(branches: BranchInfo[], mode: SortMode): BranchInfo[] {
+  const sorted = [...branches];
+  switch (mode) {
+    case 'activity':
+      return sorted.sort((a, b) => b.last_commit_timestamp - a.last_commit_timestamp);
+    case 'name':
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    case 'commits':
+      return sorted.sort((a, b) => b.ahead - a.ahead);
+  }
+}
+
+function SkeletonRows() {
+  return (
+    <>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <TableRow key={i} className="border-b border-gray-800 min-h-[48px]">
+          <TableCell className="w-[40px]">
+            <Skeleton className="w-2 h-2 rounded-full" />
+          </TableCell>
+          <TableCell className="flex-1 min-w-[200px]">
+            <Skeleton className="h-4 w-48 mb-1" />
+            <Skeleton className="h-3 w-64" />
+          </TableCell>
+          <TableCell className="w-[120px]">
+            <Skeleton className="h-4 w-16" />
+          </TableCell>
+          <TableCell className="w-[140px]">
+            <Skeleton className="h-4 w-20" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-5 w-14 rounded-full" />
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
+export function BranchTable({ branches, sortMode, loading, refreshing }: BranchTableProps) {
+  const sorted = useMemo(() => sortBranches(branches, sortMode), [branches, sortMode]);
+
+  return (
+    <ScrollArea className="flex-1">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-900 border-b border-gray-800 hover:bg-gray-900">
+            <TableHead className="w-[40px] text-xs uppercase tracking-wider text-gray-400 font-normal" />
+            <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-gray-400 font-normal">
+              Branch
+            </TableHead>
+            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-400 font-normal">
+              Ahead / Behind
+            </TableHead>
+            <TableHead className="w-[140px] text-xs uppercase tracking-wider text-gray-400 font-normal">
+              Last Activity
+            </TableHead>
+            <TableHead className="text-xs uppercase tracking-wider text-gray-400 font-normal" />
+          </TableRow>
+        </TableHeader>
+        <TableBody className={refreshing ? 'opacity-50 transition-opacity duration-200' : ''}>
+          {loading ? (
+            <SkeletonRows />
+          ) : (
+            sorted.map((branch) => {
+              const stale = isStale(branch.last_commit_timestamp);
+              const mergeReady = branch.ahead > 0 && !branch.is_dirty;
+
+              // Status dot color: dirty = amber, stale = gray, clean = emerald
+              const dotColor = branch.is_dirty
+                ? 'bg-amber-500'
+                : stale
+                  ? 'bg-gray-500'
+                  : 'bg-emerald-500';
+
+              return (
+                <TableRow
+                  key={branch.name}
+                  className="border-b border-gray-800 hover:bg-[#1e1e1e] min-h-[48px]"
+                >
+                  {/* Status dot */}
+                  <TableCell className="w-[40px]">
+                    <span className={`block w-2 h-2 rounded-full ${dotColor}`} />
+                  </TableCell>
+
+                  {/* Branch name + commit message */}
+                  <TableCell className="flex-1 min-w-[200px]">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-sm text-gray-50 truncate max-w-[300px]">
+                          {branch.name}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>{branch.name}</TooltipContent>
+                    </Tooltip>
+                    <div className="text-xs text-gray-400 truncate max-w-[400px]">
+                      {branch.last_commit_message}
+                    </div>
+                  </TableCell>
+
+                  {/* Ahead / Behind */}
+                  <TableCell className="w-[120px]">
+                    <span className={branch.ahead > 0 ? 'text-emerald-400' : 'text-gray-500'}>
+                      +{branch.ahead}
+                    </span>
+                    <span className="text-gray-500"> / -{branch.behind}</span>
+                  </TableCell>
+
+                  {/* Last Activity */}
+                  <TableCell className="w-[140px]">
+                    <span className={`text-sm flex items-center gap-1 ${stale ? 'text-gray-500' : 'text-gray-400'}`}>
+                      {stale && <Clock className="size-3.5 shrink-0" />}
+                      {relativeTime(branch.last_commit_timestamp)}
+                    </span>
+                  </TableCell>
+
+                  {/* Badges */}
+                  <TableCell>
+                    <div className="flex gap-2">
+                      {mergeReady && (
+                        <Badge className="bg-emerald-500/15 text-emerald-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                          Ready
+                        </Badge>
+                      )}
+                      {branch.is_dirty && (
+                        <Badge className="bg-amber-500/15 text-amber-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                          Dirty
+                        </Badge>
+                      )}
+                      {stale && (
+                        <Badge className="bg-gray-500/15 text-gray-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                          Stale
+                        </Badge>
+                      )}
+                      {/* FR-02.4: Active session badge wired in Phase 05 */}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          )}
+        </TableBody>
+      </Table>
+    </ScrollArea>
+  );
+}
