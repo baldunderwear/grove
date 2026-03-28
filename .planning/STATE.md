@@ -9,8 +9,8 @@ progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 22
-  completed_plans: 19
-  percent: 50
+  completed_plans: 20
+  percent: 91
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (created 2026-03-27)
 ## Current Position
 
 Phase: 08 (polish-distribution) — EXECUTING
-Plan: 2 of 4
-Status: Ready to execute
-Last activity: 2026-03-28
+Plan: 3 of 4
+Status: Executing Phase 08
+Last activity: 2026-03-28 -- Completed 08-02 (keyboard shortcuts, version 1.0.0, LICENSE)
 
-Progress: [█████░░░░░] 50%
+Progress: [█████████░] 91%
 
 ## Decisions
 
@@ -80,6 +80,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 07]: Event listener on git-changed in lib.rs rather than modifying watcher module
 - [Phase 08]: UPDATER_PUBKEY_PLACEHOLDER for pubkey -- real key generated at release time, never committed
 - [Phase 08]: opt-level s over z for better size/performance balance in release profile
+- [Phase 08]: manualRefresh for Ctrl+R/F5 (loading indicator) instead of fetchBranches
+- [Phase 08]: Custom DOM events (grove:new-worktree, grove:close-dialog) for cross-component communication
 
 ## Quick Tasks Completed
 
