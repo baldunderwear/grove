@@ -7,10 +7,13 @@ import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
 import { useConfigStore } from '@/stores/config-store';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 function App() {
   const activeView = useConfigStore((s) => s.activeView);
   const addProject = useConfigStore((s) => s.addProject);
+
+  useKeyboardShortcuts();
 
   useEffect(() => {
     useConfigStore.getState().loadConfig();
