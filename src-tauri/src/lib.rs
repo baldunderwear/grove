@@ -1,6 +1,7 @@
 mod commands;
 mod config;
 mod git;
+mod process;
 mod watcher;
 
 use tauri::{
