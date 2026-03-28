@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: executing
-last_updated: "2026-03-28T01:27:51.745Z"
+status: verifying
+last_updated: "2026-03-28T01:32:58.670Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (created 2026-03-27)
 
 Phase: 06 (merge-workflow-ui) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -69,6 +69,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 05]: NewWorktreeDialog handles launch_session directly after create_worktree (atomic create+launch)
 - [Phase 06]: MergeStep type alias with 6 states for full merge dialog lifecycle
 - [Phase 06]: History timestamps stored as Date.now() ms, divided by 1000 for relativeTime (unix seconds)
+- [Phase 06]: MergeDialog renders all steps inline (no sub-components) for simplicity
+- [Phase 06]: Merge button positioned before Play button in action group for visual priority
 
 ## Quick Tasks Completed
 

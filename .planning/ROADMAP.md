@@ -95,10 +95,10 @@ Plans:
 - Post-merge summary dialog
 - Merge history log
 **Exit criteria:** Can merge a sol-lune worktree branch from the UI — build bumps, changelog renames, no manual conflict resolution needed.
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 06-01-PLAN.md — Data layer: merge types, Zustand merge store, MergeHistory component
-- [ ] 06-02-PLAN.md — MergeDialog multi-step component, BranchTable merge button, Dashboard wiring
+- [x] 06-02-PLAN.md — MergeDialog multi-step component, BranchTable merge button, Dashboard wiring
 
 ### Phase 07: System Tray & Notifications
 **Goal:** Full tray integration with quick actions and notifications.
