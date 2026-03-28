@@ -41,7 +41,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "UPDATER_PUBKEY_PLACEHOLDER",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc5ODJGRUY3OEQxRkY5QUEKUldTcStSK045LzZDZVlTcmZRZlhvVUxtWGVza09oZk45dkF4bWxlSHFZOVo3dmNISVNTOWRHMXYK",
       "endpoints": [
         "https://github.com/baldunderwear/grove/releases/latest/download/latest.json"
       ]
