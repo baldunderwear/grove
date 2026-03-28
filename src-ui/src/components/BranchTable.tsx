@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, Code2, FolderOpen, Play } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -24,6 +25,10 @@ interface BranchTableProps {
   sortMode: SortMode;
   loading: boolean;
   refreshing: boolean;
+  activeSessions: Record<string, number>;
+  onLaunch: (branch: BranchInfo) => void;
+  onOpenVscode: (worktreePath: string) => void;
+  onOpenExplorer: (worktreePath: string) => void;
 }
 
 function sortBranches(branches: BranchInfo[], mode: SortMode): BranchInfo[] {
@@ -65,7 +70,16 @@ function SkeletonRows() {
   );
 }
 
-export function BranchTable({ branches, sortMode, loading, refreshing }: BranchTableProps) {
+export function BranchTable({
+  branches,
+  sortMode,
+  loading,
+  refreshing,
+  activeSessions,
+  onLaunch,
+  onOpenVscode,
+  onOpenExplorer,
+}: BranchTableProps) {
   const sorted = useMemo(() => sortBranches(branches, sortMode), [branches, sortMode]);
 
   return (
@@ -84,6 +98,9 @@ export function BranchTable({ branches, sortMode, loading, refreshing }: BranchT
               Last Activity
             </TableHead>
             <TableHead className="text-xs uppercase tracking-wider text-gray-400 font-normal" />
+            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-400 font-normal text-right">
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className={refreshing ? 'opacity-50 transition-opacity duration-200' : ''}>
@@ -104,7 +121,7 @@ export function BranchTable({ branches, sortMode, loading, refreshing }: BranchT
               return (
                 <TableRow
                   key={branch.name}
-                  className="border-b border-gray-800 hover:bg-[#1e1e1e] min-h-[48px]"
+                  className="group border-b border-gray-800 hover:bg-[#1e1e1e] min-h-[48px]"
                 >
                   {/* Status dot */}
                   <TableCell className="w-[40px]">
@@ -160,7 +177,64 @@ export function BranchTable({ branches, sortMode, loading, refreshing }: BranchT
                           Stale
                         </Badge>
                       )}
-                      {/* FR-02.4: Active session badge wired in Phase 05 */}
+                      {activeSessions[branch.worktree_path] && (
+                        <Badge className="bg-emerald-500/15 text-emerald-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                          <span className="relative flex h-2 w-2 mr-1">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                          </span>
+                          Active
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  {/* Action buttons */}
+                  <TableCell className="w-[120px]">
+                    <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => onLaunch(branch)}
+                            disabled={!!activeSessions[branch.worktree_path]}
+                            aria-label="Launch Claude Code"
+                          >
+                            <Play className="h-3.5 w-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Launch Claude Code</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => onOpenExplorer(branch.worktree_path)}
+                            aria-label="Open in Explorer"
+                          >
+                            <FolderOpen className="h-3.5 w-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Open in Explorer</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => onOpenVscode(branch.worktree_path)}
+                            aria-label="Open in VS Code"
+                          >
+                            <Code2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Open in VS Code</TooltipContent>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

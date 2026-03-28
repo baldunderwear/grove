@@ -1,4 +1,4 @@
-import { ArrowUpDown, Check, RefreshCw, Settings } from 'lucide-react';
+import { ArrowUpDown, Check, Plus, RefreshCw, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,6 +24,7 @@ interface DashboardHeaderProps {
   onSortChange: (mode: SortMode) => void;
   onRefresh: () => void;
   onShowConfig: () => void;
+  onNewWorktree: () => void;
 }
 
 const sortLabels: Record<SortMode, string> = {
@@ -41,6 +42,7 @@ export function DashboardHeader({
   onSortChange,
   onRefresh,
   onShowConfig,
+  onNewWorktree,
 }: DashboardHeaderProps) {
   return (
     <div>
@@ -103,6 +105,20 @@ export function DashboardHeader({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onNewWorktree}
+                aria-label="New worktree"
+              >
+                <Plus className="h-5 w-5 text-gray-400" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>New worktree</TooltipContent>
+          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>

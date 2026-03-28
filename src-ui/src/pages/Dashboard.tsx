@@ -107,6 +107,7 @@ export function Dashboard() {
           onSortChange={setSortMode}
           onRefresh={() => manualRefresh(project.path, project.branch_prefix, project.merge_target)}
           onShowConfig={showProjectConfig}
+          onNewWorktree={() => {}}
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -137,14 +138,15 @@ export function Dashboard() {
         onSortChange={setSortMode}
         onRefresh={() => manualRefresh(project.path, project.branch_prefix, project.merge_target)}
         onShowConfig={showProjectConfig}
+        onNewWorktree={() => {}}
       />
       <div className="flex-1 mt-6 overflow-hidden">
         {loading ? (
-          <BranchTable branches={[]} sortMode={sortMode} loading={true} refreshing={false} />
+          <BranchTable branches={[]} sortMode={sortMode} loading={true} refreshing={false} activeSessions={{}} onLaunch={() => {}} onOpenVscode={() => {}} onOpenExplorer={() => {}} />
         ) : branches.length === 0 ? (
           <BranchEmptyState prefix={project.branch_prefix} />
         ) : (
-          <BranchTable branches={branches} sortMode={sortMode} loading={false} refreshing={refreshing} />
+          <BranchTable branches={branches} sortMode={sortMode} loading={false} refreshing={refreshing} activeSessions={{}} onLaunch={() => {}} onOpenVscode={() => {}} onOpenExplorer={() => {}} />
         )}
       </div>
     </div>
