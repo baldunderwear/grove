@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: verifying
-last_updated: "2026-03-28T01:32:58.670Z"
+status: executing
+last_updated: "2026-03-28T03:47:09.899Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 18
+  completed_plans: 16
   percent: 50
 ---
 
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (created 2026-03-27)
 
 **Core value:** Manage git worktrees and Claude Code sessions across any project — launch, track, merge cleanly.
-**Current focus:** Phase 06 — merge-workflow-ui
+**Current focus:** Phase 07 — system-tray-notifications
 
 ## Current Position
 
-Phase: 06 (merge-workflow-ui) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 07 (system-tray-notifications) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -71,6 +71,9 @@ Progress: [█████░░░░░] 50%
 - [Phase 06]: History timestamps stored as Date.now() ms, divided by 1000 for relativeTime (unix seconds)
 - [Phase 06]: MergeDialog renders all steps inline (no sub-components) for simplicity
 - [Phase 06]: Merge button positioned before Play button in action group for visual priority
+- [Phase 07]: Menu event handler uses ID prefix matching (wt-*) for dynamic worktree items
+- [Phase 07]: Tray module owns both tray build and window close-intercept logic
+- [Phase 07]: rebuild_tray_menu loads config/branches fresh each call for accuracy
 
 ## Quick Tasks Completed
 
