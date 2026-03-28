@@ -114,7 +114,7 @@ Plans:
 Plans:
 - [x] 07-01-PLAN.md — Plugins, settings model, dynamic tray menu, autostart registration
 - [ ] 07-02-PLAN.md — Notification state tracking, auto-fetch background thread
-- [ ] 07-03-PLAN.md — Frontend settings UI for notifications, fetch interval, autostart wiring
+- [x] 07-03-PLAN.md — Frontend settings UI for notifications, fetch interval, autostart wiring
 
 ### Phase 08: Polish & Distribution
 **Goal:** Production-ready release with installer, auto-update, and documentation.
