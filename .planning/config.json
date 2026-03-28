@@ -10,6 +10,7 @@
     "skip_research": false,
     "skip_plan_checker": false,
     "skip_verifier": false,
-    "max_plan_iterations": 2
+    "max_plan_iterations": 2,
+    "_auto_chain_active": false
   }
 }

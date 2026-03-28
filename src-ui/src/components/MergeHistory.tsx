@@ -9,7 +9,7 @@ export function MergeHistory() {
 
   if (history.length === 0) {
     return (
-      <p className="text-sm text-gray-400">No merges this session</p>
+      <p className="text-sm text-[var(--grove-stone)]">No merges this session</p>
     );
   }
 
@@ -19,20 +19,20 @@ export function MergeHistory() {
         {history.map((entry, i) => (
           <li
             key={`${entry.source_branch}-${entry.timestamp}-${i}`}
-            className="flex flex-col gap-1 rounded border border-gray-800 px-3 py-2"
+            className="flex flex-col gap-1 rounded border border-[var(--grove-canopy)] px-3 py-2"
           >
             <div className="flex items-center gap-1.5 text-sm">
-              <GitMerge className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              <span className="text-gray-50 truncate">{entry.source_branch}</span>
-              <span className="text-gray-400">&rarr;</span>
-              <span className="text-gray-300 truncate">{entry.target_branch}</span>
+              <GitMerge className="h-3.5 w-3.5 text-[var(--grove-sprout)] shrink-0" />
+              <span className="text-[var(--grove-white)] truncate">{entry.source_branch}</span>
+              <span className="text-[var(--grove-stone)]">&rarr;</span>
+              <span className="text-[var(--grove-fog)] truncate">{entry.target_branch}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-300">
+            <div className="flex items-center gap-2 text-xs text-[var(--grove-fog)]">
               <span>{entry.result.commits_merged} commits</span>
 
               {entry.result.new_build != null && (
-                <Badge className="bg-emerald-900/50 text-emerald-300 border-emerald-800 text-xs px-1.5 py-0">
+                <Badge className="bg-[var(--grove-moss)]/30 text-[var(--grove-bright)] border-[var(--grove-moss)] text-xs px-1.5 py-0">
                   Build {entry.result.new_build}
                 </Badge>
               )}
@@ -43,7 +43,7 @@ export function MergeHistory() {
                 </Badge>
               )}
 
-              <span className="ml-auto text-gray-400">
+              <span className="ml-auto text-[var(--grove-stone)]">
                 {relativeTime(entry.timestamp / 1000)}
               </span>
             </div>

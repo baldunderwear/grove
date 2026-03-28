@@ -111,7 +111,7 @@ export function NewWorktreeDialog({
                 onChange={(e) => setLaunchAfter(e.target.checked)}
                 className="h-4 w-4 rounded border-gray-600 bg-transparent text-emerald-500 focus:ring-emerald-500/50"
               />
-              <span className="text-sm text-gray-300">Launch Claude Code after creation</span>
+              <span className="text-sm text-[var(--grove-fog)]">Launch Claude Code after creation</span>
             </label>
 
             {error && (

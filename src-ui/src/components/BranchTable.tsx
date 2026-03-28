@@ -50,7 +50,7 @@ function SkeletonRows() {
   return (
     <>
       {Array.from({ length: 6 }).map((_, i) => (
-        <TableRow key={i} className="border-b border-gray-800 min-h-[48px]">
+        <TableRow key={i} className="border-b border-[var(--grove-canopy)] min-h-[48px]">
           <TableCell className="w-[40px]">
             <Skeleton className="w-2 h-2 rounded-full" />
           </TableCell>
@@ -92,19 +92,19 @@ export function BranchTable({
     <ScrollArea className="flex-1">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-900 border-b border-gray-800 hover:bg-gray-900">
-            <TableHead className="w-[40px] text-xs uppercase tracking-wider text-gray-300 font-normal" />
-            <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-gray-300 font-normal">
+          <TableRow className="bg-[var(--grove-deep)] border-b border-[var(--grove-canopy)] hover:bg-[var(--grove-deep)]">
+            <TableHead className="w-[40px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
+            <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Branch
             </TableHead>
-            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-300 font-normal">
+            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Ahead / Behind
             </TableHead>
-            <TableHead className="w-[140px] text-xs uppercase tracking-wider text-gray-300 font-normal">
+            <TableHead className="w-[140px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Last Activity
             </TableHead>
-            <TableHead className="text-xs uppercase tracking-wider text-gray-300 font-normal" />
-            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-300 font-normal text-right">
+            <TableHead className="text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
+            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal text-right">
               Actions
             </TableHead>
           </TableRow>
@@ -122,12 +122,12 @@ export function BranchTable({
                 ? 'bg-amber-500'
                 : stale
                   ? 'bg-gray-500'
-                  : 'bg-emerald-500';
+                  : 'bg-[var(--grove-leaf)]';
 
               return (
                 <TableRow
                   key={branch.name}
-                  className="group border-b border-gray-800 hover:bg-[#1e1e1e] min-h-[48px]"
+                  className="group border-b border-[var(--grove-canopy)] hover:bg-[#1e1e1e] min-h-[48px]"
                 >
                   {/* Status dot */}
                   <TableCell className="w-[40px]">
@@ -138,28 +138,28 @@ export function BranchTable({
                   <TableCell className="flex-1 min-w-[200px]">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="text-sm text-gray-50 truncate max-w-[300px]">
+                        <div className="text-sm text-[var(--grove-white)] truncate max-w-[300px]">
                           {branch.name}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>{branch.name}</TooltipContent>
                     </Tooltip>
-                    <div className="text-xs text-gray-300 truncate max-w-[400px]">
+                    <div className="text-xs text-[var(--grove-fog)] truncate max-w-[400px]">
                       {branch.last_commit_message}
                     </div>
                   </TableCell>
 
                   {/* Ahead / Behind */}
                   <TableCell className="w-[120px]">
-                    <span className={branch.ahead > 0 ? 'text-emerald-400' : 'text-gray-400'}>
+                    <span className={branch.ahead > 0 ? 'text-[var(--grove-sprout)]' : 'text-[var(--grove-stone)]'}>
                       +{branch.ahead}
                     </span>
-                    <span className="text-gray-400"> / -{branch.behind}</span>
+                    <span className="text-[var(--grove-stone)]"> / -{branch.behind}</span>
                   </TableCell>
 
                   {/* Last Activity */}
                   <TableCell className="w-[140px]">
-                    <span className={`text-sm flex items-center gap-1 ${stale ? 'text-gray-400' : 'text-gray-300'}`}>
+                    <span className={`text-sm flex items-center gap-1 ${stale ? 'text-[var(--grove-stone)]' : 'text-[var(--grove-fog)]'}`}>
                       {stale && <Clock className="size-3.5 shrink-0" />}
                       {relativeTime(branch.last_commit_timestamp)}
                     </span>
@@ -169,7 +169,7 @@ export function BranchTable({
                   <TableCell>
                     <div className="flex gap-2">
                       {mergeReady && (
-                        <Badge className="bg-emerald-500/15 text-emerald-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                        <Badge className="bg-[var(--grove-leaf)]/15 text-emerald-500 border-0 text-xs px-2 py-0.5 rounded-full">
                           Ready
                         </Badge>
                       )}
@@ -179,15 +179,15 @@ export function BranchTable({
                         </Badge>
                       )}
                       {stale && (
-                        <Badge className="bg-gray-500/15 text-gray-400 border-0 text-xs px-2 py-0.5 rounded-full">
+                        <Badge className="bg-gray-500/15 text-[var(--grove-stone)] border-0 text-xs px-2 py-0.5 rounded-full">
                           Stale
                         </Badge>
                       )}
                       {activeSessions[branch.worktree_path] && (
-                        <Badge className="bg-emerald-500/15 text-emerald-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                        <Badge className="bg-[var(--grove-leaf)]/15 text-emerald-500 border-0 text-xs px-2 py-0.5 rounded-full">
                           <span className="relative flex h-2 w-2 mr-1">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--grove-leaf)]" />
                           </span>
                           Active
                         </Badge>
@@ -209,7 +209,7 @@ export function BranchTable({
                               disabled={mergeLoading}
                               aria-label={`Merge into ${mergeTarget}`}
                             >
-                              <GitMerge className="h-3.5 w-3.5 text-emerald-400" />
+                              <GitMerge className="h-3.5 w-3.5 text-[var(--grove-sprout)]" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Merge into {mergeTarget}</TooltipContent>

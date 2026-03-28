@@ -7,7 +7,7 @@ interface ConfigState {
   loading: boolean;
   error: string | null;
   selectedProjectId: string | null;
-  activeView: 'dashboard' | 'project' | 'settings' | 'empty';
+  activeView: 'dashboard' | 'project' | 'settings' | 'empty' | 'all-projects';
 
   // Actions
   loadConfig: () => Promise<void>;
@@ -28,6 +28,7 @@ interface ConfigState {
   selectProject: (id: string) => void;
   showProjectConfig: () => void;
   showSettings: () => void;
+  showAllProjects: () => void;
 }
 
 export const useConfigStore = create<ConfigState>()((set) => ({
@@ -41,8 +42,12 @@ export const useConfigStore = create<ConfigState>()((set) => ({
     set({ loading: true, error: null });
     try {
       const config = await invoke<AppConfig>('get_config');
-      const activeView = config.projects.length === 0 ? 'empty' : 'dashboard';
-      const selectedProjectId = config.projects.length > 0 ? config.projects[0].id : null;
+      const activeView = config.projects.length === 0
+        ? 'empty'
+        : config.projects.length > 1
+          ? 'all-projects'
+          : 'dashboard';
+      const selectedProjectId = config.projects.length === 1 ? config.projects[0].id : null;
       set({ config, loading: false, activeView, selectedProjectId });
     } catch (e) {
       set({ error: String(e), loading: false });
@@ -106,5 +111,9 @@ export const useConfigStore = create<ConfigState>()((set) => ({
 
   showSettings: () => {
     set({ selectedProjectId: null, activeView: 'settings' });
+  },
+
+  showAllProjects: () => {
+    set({ selectedProjectId: null, activeView: 'all-projects' });
   },
 }));

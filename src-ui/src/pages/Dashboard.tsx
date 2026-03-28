@@ -176,12 +176,12 @@ export function Dashboard() {
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-gray-300">
+            <p className="text-[var(--grove-fog)]">
               Failed to load branches. Check that the project path is accessible.
             </p>
             <Button
               variant="ghost"
-              className="mt-4 text-gray-300"
+              className="mt-4 text-[var(--grove-fog)]"
               onClick={() => fetchBranches(project.path, project.branch_prefix, project.merge_target)}
             >
               Try again

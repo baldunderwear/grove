@@ -99,7 +99,7 @@ export function ProjectConfig() {
 
   if (!project) return null;
 
-  const healthDotColor = health === 'Healthy' ? 'bg-emerald-500' : 'bg-red-500';
+  const healthDotColor = health === 'Healthy' ? 'bg-[var(--grove-leaf)]' : 'bg-red-500';
   const savedBorderClass = 'border-emerald-500/30';
 
   // Build files handlers
@@ -159,12 +159,12 @@ export function ProjectConfig() {
     <div className="p-8 max-w-2xl">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-50">{project.name}</h2>
-        <p className="text-xs text-gray-300 truncate">{project.path}</p>
+        <h2 className="text-xl font-semibold text-[var(--grove-white)]">{project.name}</h2>
+        <p className="text-xs text-[var(--grove-fog)] truncate">{project.path}</p>
         {health && (
           <div className="inline-flex items-center gap-1.5 mt-2">
             <span className={`w-2 h-2 rounded-full ${healthDotColor}`} />
-            <span className="text-xs text-gray-300">
+            <span className="text-xs text-[var(--grove-fog)]">
               {HEALTH_LABELS[health]}
             </span>
           </div>
@@ -173,12 +173,12 @@ export function ProjectConfig() {
 
       {/* Merge Settings */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-50 mb-3">
+        <h3 className="text-sm font-semibold text-[var(--grove-white)] mb-3">
           Merge Settings
         </h3>
         <div className="space-y-3">
           <div>
-            <Label className="text-xs uppercase tracking-wider text-gray-300">
+            <Label className="text-xs uppercase tracking-wider text-[var(--grove-fog)]">
               Merge target branch
             </Label>
             <Input
@@ -190,7 +190,7 @@ export function ProjectConfig() {
             />
           </div>
           <div>
-            <Label className="text-xs uppercase tracking-wider text-gray-300">
+            <Label className="text-xs uppercase tracking-wider text-[var(--grove-fog)]">
               Branch prefix
             </Label>
             <Input
@@ -206,10 +206,10 @@ export function ProjectConfig() {
 
       {/* Build Files */}
       <Card className="p-4 mt-6">
-        <h3 className="text-sm font-semibold text-gray-50 mb-1">
+        <h3 className="text-sm font-semibold text-[var(--grove-white)] mb-1">
           Build Files
         </h3>
-        <p className="text-xs text-gray-300 mb-3">
+        <p className="text-xs text-[var(--grove-fog)] mb-3">
           Glob patterns for files containing build numbers. Leave empty for
           plain merge.
         </p>
@@ -227,7 +227,7 @@ export function ProjectConfig() {
                 size="icon"
                 aria-label="Remove pattern"
                 onClick={() => handleRemovePattern(index)}
-                className="text-gray-300 hover:text-red-500 flex-shrink-0"
+                className="text-[var(--grove-fog)] hover:text-red-500 flex-shrink-0"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -237,7 +237,7 @@ export function ProjectConfig() {
         <button
           type="button"
           onClick={handleAddPattern}
-          className="mt-2 text-sm text-emerald-500 hover:text-emerald-400 inline-flex items-center gap-1"
+          className="mt-2 text-sm text-emerald-500 hover:text-[var(--grove-sprout)] inline-flex items-center gap-1"
         >
           <Plus className="h-3 w-3" />
           Add pattern
@@ -246,8 +246,8 @@ export function ProjectConfig() {
 
       {/* Changelog */}
       <Card className="p-4 mt-6">
-        <h3 className="text-sm font-semibold text-gray-50 mb-1">Changelog</h3>
-        <p className="text-xs text-gray-300 mb-3">
+        <h3 className="text-sm font-semibold text-[var(--grove-white)] mb-1">Changelog</h3>
+        <p className="text-xs text-[var(--grove-fog)] mb-3">
           Leave empty to skip changelog handling during merge.
         </p>
         {changelog === null ? (
@@ -255,14 +255,14 @@ export function ProjectConfig() {
             variant="outline"
             size="sm"
             onClick={handleEnableChangelog}
-            className="text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10"
+            className="text-emerald-500 border-emerald-500/50 hover:bg-[var(--grove-leaf)]/10"
           >
             Enable Changelog
           </Button>
         ) : (
           <div className="space-y-3">
             <div>
-              <Label className="text-xs uppercase tracking-wider text-gray-300">
+              <Label className="text-xs uppercase tracking-wider text-[var(--grove-fog)]">
                 Directory
               </Label>
               <Input
@@ -274,7 +274,7 @@ export function ProjectConfig() {
               />
             </div>
             <div>
-              <Label className="text-xs uppercase tracking-wider text-gray-300">
+              <Label className="text-xs uppercase tracking-wider text-[var(--grove-fog)]">
                 Fragment pattern
               </Label>
               <Input

@@ -75,14 +75,14 @@ export function Settings() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold text-gray-50">Settings</h1>
+      <h1 className="text-xl font-semibold text-[var(--grove-white)]">Settings</h1>
 
       {/* General */}
       <Card className="p-4 mt-4">
         <div className="space-y-6">
           {/* Refresh interval */}
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wider text-gray-300">
+            <Label className="text-xs uppercase tracking-wider text-[var(--grove-fog)]">
               Refresh interval
             </Label>
             <div className="flex items-center gap-2">
@@ -95,16 +95,16 @@ export function Settings() {
                 onBlur={handleRefreshBlur}
                 className="w-24"
               />
-              <span className="text-sm text-gray-300">seconds</span>
+              <span className="text-sm text-[var(--grove-fog)]">seconds</span>
             </div>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-[var(--grove-stone)]">
               How often to check git status, in seconds.
             </p>
           </div>
 
           {/* Auto-fetch interval */}
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wider text-gray-300">
+            <Label className="text-xs uppercase tracking-wider text-[var(--grove-fog)]">
               Remote fetch interval
             </Label>
             <div className="flex items-center gap-2">
@@ -117,9 +117,9 @@ export function Settings() {
                 onBlur={handleFetchBlur}
                 className="w-24"
               />
-              <span className="text-sm text-gray-300">seconds</span>
+              <span className="text-sm text-[var(--grove-fog)]">seconds</span>
             </div>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-[var(--grove-stone)]">
               How often to fetch from remote. Set to 0 to disable. Minimum 60 seconds.
             </p>
           </div>
@@ -133,9 +133,9 @@ export function Settings() {
               onChange={(e) =>
                 store.updateSettings({ start_minimized: e.target.checked })
               }
-              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+              className="h-4 w-4 rounded border-[var(--grove-canopy)] bg-[var(--grove-deep)] text-emerald-500 focus:ring-emerald-500/50"
             />
-            <Label htmlFor="start-minimized" className="text-sm text-gray-50 cursor-pointer">
+            <Label htmlFor="start-minimized" className="text-sm text-[var(--grove-white)] cursor-pointer">
               Start minimized to tray
             </Label>
           </div>
@@ -159,9 +159,9 @@ export function Settings() {
                   console.error('Autostart toggle failed:', err);
                 }
               }}
-              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+              className="h-4 w-4 rounded border-[var(--grove-canopy)] bg-[var(--grove-deep)] text-emerald-500 focus:ring-emerald-500/50"
             />
-            <Label htmlFor="start-with-windows" className="text-sm text-gray-50 cursor-pointer">
+            <Label htmlFor="start-with-windows" className="text-sm text-[var(--grove-white)] cursor-pointer">
               Launch when Windows starts
             </Label>
           </div>
@@ -170,7 +170,7 @@ export function Settings() {
 
       {/* Notifications */}
       <Card className="p-4 mt-6">
-        <h2 className="text-xs uppercase tracking-wider text-gray-300 mb-3">
+        <h2 className="text-xs uppercase tracking-wider text-[var(--grove-fog)] mb-3">
           Notifications
         </h2>
         <div className="space-y-3">
@@ -182,9 +182,9 @@ export function Settings() {
               onChange={(e) =>
                 store.updateSettings({ notify_merge_ready: e.target.checked })
               }
-              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+              className="h-4 w-4 rounded border-[var(--grove-canopy)] bg-[var(--grove-deep)] text-emerald-500 focus:ring-emerald-500/50"
             />
-            <Label htmlFor="notify-merge-ready" className="text-sm text-gray-50 cursor-pointer">
+            <Label htmlFor="notify-merge-ready" className="text-sm text-[var(--grove-white)] cursor-pointer">
               Notify when a branch is merge-ready
             </Label>
           </div>
@@ -196,9 +196,9 @@ export function Settings() {
               onChange={(e) =>
                 store.updateSettings({ notify_stale_branch: e.target.checked })
               }
-              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+              className="h-4 w-4 rounded border-[var(--grove-canopy)] bg-[var(--grove-deep)] text-emerald-500 focus:ring-emerald-500/50"
             />
-            <Label htmlFor="notify-stale" className="text-sm text-gray-50 cursor-pointer">
+            <Label htmlFor="notify-stale" className="text-sm text-[var(--grove-white)] cursor-pointer">
               Notify when a branch is stale (7+ days inactive)
             </Label>
           </div>
@@ -210,9 +210,9 @@ export function Settings() {
               onChange={(e) =>
                 store.updateSettings({ notify_merge_complete: e.target.checked })
               }
-              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+              className="h-4 w-4 rounded border-[var(--grove-canopy)] bg-[var(--grove-deep)] text-emerald-500 focus:ring-emerald-500/50"
             />
-            <Label htmlFor="notify-merge-complete" className="text-sm text-gray-50 cursor-pointer">
+            <Label htmlFor="notify-merge-complete" className="text-sm text-[var(--grove-white)] cursor-pointer">
               Notify when a merge completes
             </Label>
           </div>
@@ -221,15 +221,15 @@ export function Settings() {
 
       {/* Theme */}
       <Card className="p-4 mt-6">
-        <p className="text-sm text-gray-50">Dark mode</p>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-sm text-[var(--grove-white)]">Dark mode</p>
+        <p className="text-xs text-[var(--grove-stone)] mt-1">
           Light theme coming in a future version.
         </p>
       </Card>
 
       {/* Data / Configuration */}
       <Card className="p-4 mt-6">
-        <h2 className="text-xs uppercase tracking-wider text-gray-300 mb-3">
+        <h2 className="text-xs uppercase tracking-wider text-[var(--grove-fog)] mb-3">
           Configuration
         </h2>
         <div className="flex gap-3">
@@ -246,7 +246,7 @@ export function Settings() {
         {importError && (
           <p className="text-xs text-red-500 mt-2">{importError}</p>
         )}
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-[var(--grove-stone)] mt-3">
           Export saves your projects and settings. Import replaces current
           configuration.
         </p>

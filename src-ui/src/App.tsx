@@ -4,6 +4,7 @@ import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sidebar } from '@/layout/Sidebar';
+import { AllProjects } from '@/pages/AllProjects';
 import { Dashboard } from '@/pages/Dashboard';
 import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
@@ -64,12 +65,13 @@ function App() {
   return (
     <TooltipProvider>
       <UpdateChecker />
-      <div className="flex h-screen bg-gray-950">
+      <div className="flex h-screen" style={{ background: 'var(--grove-void)' }}>
         <Sidebar />
         <main className="flex-1 overflow-y-auto">
           {activeView === 'empty' && (
             <EmptyState onAddProject={handleAddProject} />
           )}
+          {activeView === 'all-projects' && <AllProjects />}
           {activeView === 'dashboard' && <Dashboard />}
           {activeView === 'project' && <ProjectConfig />}
           {activeView === 'settings' && <Settings />}

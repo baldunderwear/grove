@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
-import { Settings } from 'lucide-react';
+import { Settings, Trees } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -18,6 +18,7 @@ export function Sidebar() {
   const error = useConfigStore((s) => s.error);
   const addProject = useConfigStore((s) => s.addProject);
   const selectProject = useConfigStore((s) => s.selectProject);
+  const showAllProjects = useConfigStore((s) => s.showAllProjects);
   const showSettings = useConfigStore((s) => s.showSettings);
   const checkHealth = useConfigStore((s) => s.checkHealth);
 
@@ -65,45 +66,68 @@ export function Sidebar() {
   };
 
   return (
-    <div className="w-[280px] min-w-[280px] h-full bg-gray-900 flex flex-col">
+    <div className="w-[280px] min-w-[280px] h-full flex flex-col" style={{ background: 'var(--grove-deep)' }}>
       {/* Top section */}
       <div className="p-4">
-        <h1 className="text-xl font-semibold text-gray-50">Grove</h1>
+        <h1 className="text-xl font-semibold" style={{ color: 'var(--grove-white)' }}>Grove</h1>
         <Button
           onClick={handleAddProject}
-          className="w-full mt-3 bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="w-full mt-3 text-[var(--grove-void)] font-medium"
+          style={{ background: 'var(--grove-leaf)' }}
         >
           Add Project
         </Button>
         {error && (
-          <p className="mt-2 text-xs text-red-500">{error}</p>
+          <p className="mt-2 text-xs text-red-400">{error}</p>
         )}
       </div>
 
-      {/* Middle section — project list */}
-      <div className="flex-1 overflow-hidden">
+      {/* All Projects button */}
+      {projects.length > 1 && (
+        <div className="px-2">
+          <button
+            type="button"
+            onClick={showAllProjects}
+            className={`w-full h-10 px-3 py-2 flex items-center gap-2 cursor-pointer text-left rounded-md transition-colors ${
+              activeView === 'all-projects'
+                ? 'text-[var(--grove-bright)]'
+                : 'text-[var(--grove-stone)] hover:text-[var(--grove-fog)]'
+            }`}
+            style={activeView === 'all-projects' ? { background: 'var(--grove-canopy)' } : {}}
+          >
+            <Trees className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">All Projects</span>
+          </button>
+        </div>
+      )}
+
+      {/* Project list */}
+      <div className="flex-1 overflow-hidden mt-1">
         <ScrollArea className="h-full">
           {projects.map((project) => {
             const health = healthMap[project.id];
-            const isSelected = project.id === selectedProjectId;
+            const isSelected = project.id === selectedProjectId && activeView !== 'all-projects';
             const dotColor =
-              health === 'Healthy' ? 'bg-emerald-500' : 'bg-red-500';
+              health === 'Healthy'
+                ? 'bg-[var(--grove-leaf)]'
+                : 'bg-red-400';
 
             return (
               <button
                 key={project.id}
                 type="button"
                 onClick={() => selectProject(project.id)}
-                className={`w-full h-10 px-3 py-2 flex items-center gap-1.5 cursor-pointer text-left ${
+                className={`w-full h-10 px-3 py-2 flex items-center gap-1.5 cursor-pointer text-left transition-colors ${
                   isSelected
-                    ? 'bg-gray-800'
-                    : 'hover:bg-[#1e1e1e]'
+                    ? 'text-[var(--grove-white)]'
+                    : 'text-[var(--grove-pebble)] hover:text-[var(--grove-white)]'
                 }`}
+                style={isSelected ? { background: 'var(--grove-canopy)' } : {}}
               >
                 <span
                   className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`}
                 />
-                <span className="text-sm text-gray-50 truncate">
+                <span className="text-sm truncate">
                   {project.name}
                 </span>
               </button>
@@ -113,7 +137,7 @@ export function Sidebar() {
       </div>
 
       {/* Bottom section */}
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4" style={{ borderTop: '1px solid var(--grove-canopy)' }}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -123,8 +147,8 @@ export function Sidebar() {
               onClick={showSettings}
               className={
                 activeView === 'settings'
-                  ? 'text-gray-50'
-                  : 'text-gray-300'
+                  ? 'text-[var(--grove-white)]'
+                  : 'text-[var(--grove-stone)] hover:text-[var(--grove-fog)]'
               }
             >
               <Settings className="h-5 w-5" />
