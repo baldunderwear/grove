@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: executing
-last_updated: "2026-03-28T03:50:19.282Z"
+status: verifying
+last_updated: "2026-03-28T03:57:47.603Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (created 2026-03-27)
 
 Phase: 07 (system-tray-notifications) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -75,6 +75,9 @@ Progress: [█████░░░░░] 50%
 - [Phase 07]: Tray module owns both tray build and window close-intercept logic
 - [Phase 07]: rebuild_tray_menu loads config/branches fresh each call for accuracy
 - [Phase 07]: Fetch interval validation: 0 to disable, minimum 60s, maximum 3600s
+- [Phase 07]: State-transition tracking via HashMap per branch key for notification dedup
+- [Phase 07]: git CLI fetch instead of git2 for SSH agent and credential helper compatibility
+- [Phase 07]: Event listener on git-changed in lib.rs rather than modifying watcher module
 
 ## Quick Tasks Completed
 
