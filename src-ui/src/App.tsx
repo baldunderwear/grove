@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
+import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/core';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sidebar } from '@/layout/Sidebar';
 import { Dashboard } from '@/pages/Dashboard';
@@ -18,6 +20,30 @@ function App() {
 
   useEffect(() => {
     useConfigStore.getState().loadConfig();
+  }, []);
+
+  // Listen for tray events: launch-worktree and navigate
+  useEffect(() => {
+    const unlistenLaunch = listen<string>('launch-worktree', async (event) => {
+      try {
+        await invoke('launch_session', {
+          worktreePath: event.payload,
+          branchName: '',
+          launchFlags: [],
+        });
+      } catch (e) {
+        console.error('Failed to launch worktree from tray:', e);
+      }
+    });
+    const unlistenNavigate = listen<string>('navigate', (event) => {
+      if (event.payload === 'settings') {
+        useConfigStore.getState().showSettings();
+      }
+    });
+    return () => {
+      unlistenLaunch.then((fn) => fn());
+      unlistenNavigate.then((fn) => fn());
+    };
   }, []);
 
   const handleAddProject = async () => {

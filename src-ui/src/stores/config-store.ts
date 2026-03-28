@@ -55,6 +55,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       const config = await invoke<AppConfig>('add_project', { path });
       const newProject = config.projects[config.projects.length - 1];
       set({ config, selectedProjectId: newProject.id, activeView: 'dashboard' });
+      invoke('refresh_tray').catch(() => {});
     } catch (e) {
       set({ error: String(e) });
       throw e; // re-throw so UI can handle
@@ -67,6 +68,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       const activeView = config.projects.length === 0 ? 'empty' : 'dashboard';
       const selectedProjectId = config.projects.length > 0 ? config.projects[0].id : null;
       set({ config, selectedProjectId, activeView, error: null });
+      invoke('refresh_tray').catch(() => {});
     } catch (e) {
       set({ error: String(e) });
     }
