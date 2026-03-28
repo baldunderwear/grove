@@ -85,6 +85,6 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 
 ## Current State
 
-Phase 02 complete — Project registry with config persistence, sidebar UI, per-project config editor, global settings, and export/import. Built on Phase 01 scaffold.
+**v1.0 shipped** (2026-03-28) — Full worktree manager with project registry, git operations backend, dashboard UI, session launch, merge workflow, system tray with notifications, and auto-update distribution. 8 phases, 22 plans, 6,535 LOC (Rust + TypeScript).
 
-Last updated: 2026-03-27
+Last updated: 2026-03-28
