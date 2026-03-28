@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { save, open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
+import { enable, disable } from '@tauri-apps/plugin-autostart';
 import { useConfigStore } from '@/stores/config-store';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,9 @@ export function Settings() {
   const [refreshValue, setRefreshValue] = useState(
     String(settings?.refresh_interval ?? 30)
   );
+  const [fetchValue, setFetchValue] = useState(
+    String(settings?.auto_fetch_interval ?? 300)
+  );
   const [exportError, setExportError] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
 
@@ -24,6 +28,15 @@ export function Settings() {
     } else {
       // Reset to current value if invalid
       setRefreshValue(String(settings?.refresh_interval ?? 30));
+    }
+  };
+
+  const handleFetchBlur = async () => {
+    const parsed = parseInt(fetchValue, 10);
+    if (!isNaN(parsed) && (parsed === 0 || parsed >= 60) && parsed <= 3600) {
+      await store.updateSettings({ auto_fetch_interval: parsed });
+    } else {
+      setFetchValue(String(settings?.auto_fetch_interval ?? 300));
     }
   };
 
@@ -89,6 +102,28 @@ export function Settings() {
             </p>
           </div>
 
+          {/* Auto-fetch interval */}
+          <div className="space-y-1">
+            <Label className="text-xs uppercase tracking-wider text-gray-400">
+              Remote fetch interval
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={0}
+                max={3600}
+                value={fetchValue}
+                onChange={(e) => setFetchValue(e.target.value)}
+                onBlur={handleFetchBlur}
+                className="w-24"
+              />
+              <span className="text-sm text-gray-400">seconds</span>
+            </div>
+            <p className="text-xs text-gray-500">
+              How often to fetch from remote. Set to 0 to disable. Minimum 60 seconds.
+            </p>
+          </div>
+
           {/* Start minimized */}
           <div className="flex items-center gap-3">
             <input
@@ -111,13 +146,74 @@ export function Settings() {
               type="checkbox"
               id="start-with-windows"
               checked={settings.start_with_windows}
-              onChange={(e) =>
-                store.updateSettings({ start_with_windows: e.target.checked })
-              }
+              onChange={async (e) => {
+                const enabled = e.target.checked;
+                try {
+                  if (enabled) {
+                    await enable();
+                  } else {
+                    await disable();
+                  }
+                  await store.updateSettings({ start_with_windows: enabled });
+                } catch (err) {
+                  console.error('Autostart toggle failed:', err);
+                }
+              }}
               className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
             />
             <Label htmlFor="start-with-windows" className="text-sm text-gray-50 cursor-pointer">
               Launch when Windows starts
+            </Label>
+          </div>
+        </div>
+      </Card>
+
+      {/* Notifications */}
+      <Card className="p-4 mt-6">
+        <h2 className="text-xs uppercase tracking-wider text-gray-400 mb-3">
+          Notifications
+        </h2>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="notify-merge-ready"
+              checked={settings.notify_merge_ready}
+              onChange={(e) =>
+                store.updateSettings({ notify_merge_ready: e.target.checked })
+              }
+              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+            />
+            <Label htmlFor="notify-merge-ready" className="text-sm text-gray-50 cursor-pointer">
+              Notify when a branch is merge-ready
+            </Label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="notify-stale"
+              checked={settings.notify_stale_branch}
+              onChange={(e) =>
+                store.updateSettings({ notify_stale_branch: e.target.checked })
+              }
+              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+            />
+            <Label htmlFor="notify-stale" className="text-sm text-gray-50 cursor-pointer">
+              Notify when a branch is stale (7+ days inactive)
+            </Label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="notify-merge-complete"
+              checked={settings.notify_merge_complete}
+              onChange={(e) =>
+                store.updateSettings({ notify_merge_complete: e.target.checked })
+              }
+              className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-emerald-500 focus:ring-emerald-500/50"
+            />
+            <Label htmlFor="notify-merge-complete" className="text-sm text-gray-50 cursor-pointer">
+              Notify when a merge completes
             </Label>
           </div>
         </div>

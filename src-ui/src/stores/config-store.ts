@@ -20,7 +20,10 @@ interface ConfigState {
     build_files?: BuildFileConfig[];
     changelog?: ChangelogConfig | null;
   }) => Promise<void>;
-  updateSettings: (updates: Partial<Pick<Settings, 'refresh_interval' | 'start_minimized' | 'start_with_windows'>>) => Promise<void>;
+  updateSettings: (updates: Partial<Pick<Settings,
+    'refresh_interval' | 'start_minimized' | 'start_with_windows' |
+    'auto_fetch_interval' | 'notify_merge_ready' | 'notify_stale_branch' | 'notify_merge_complete'
+  >>) => Promise<void>;
   checkHealth: (path: string, mergeTarget: string) => Promise<HealthStatus>;
   selectProject: (id: string) => void;
   showProjectConfig: () => void;
