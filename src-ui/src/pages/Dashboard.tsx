@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { listen, TauriEvent } from '@tauri-apps/api/event';
 import { Button } from '@/components/ui/button';
 import { BranchEmptyState } from '@/components/BranchEmptyState';
 import { BranchTable } from '@/components/BranchTable';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { NewWorktreeDialog } from '@/components/NewWorktreeDialog';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
+import { useSessionStore } from '@/stores/session-store';
+import type { BranchInfo } from '@/types/branch';
 
 export function Dashboard() {
   const selectedProjectId = useConfigStore((s) => s.selectedProjectId);
@@ -24,6 +27,15 @@ export function Dashboard() {
   const setSortMode = useBranchStore((s) => s.setSortMode);
   const clear = useBranchStore((s) => s.clear);
 
+  const activeSessions = useSessionStore((s) => s.activeSessions);
+  const fetchSessions = useSessionStore((s) => s.fetchSessions);
+  const launchSession = useSessionStore((s) => s.launchSession);
+  const openInVscode = useSessionStore((s) => s.openInVscode);
+  const openInExplorer = useSessionStore((s) => s.openInExplorer);
+  const clearSessions = useSessionStore((s) => s.clear);
+
+  const [showNewWorktree, setShowNewWorktree] = useState(false);
+
   const project = config?.projects.find((p) => p.id === selectedProjectId);
   const settings = config?.settings;
 
@@ -31,9 +43,11 @@ export function Dashboard() {
   useEffect(() => {
     if (!project) return;
     clear();
+    clearSessions();
     fetchBranches(project.path, project.branch_prefix, project.merge_target);
     return () => {
       clear();
+      clearSessions();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.id, project?.path, project?.branch_prefix, project?.merge_target]);
@@ -74,7 +88,7 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.path, project?.branch_prefix, project?.merge_target]);
 
-  // Effect 4: Window focus refresh
+  // Effect 4: Window focus refresh (branches + sessions)
   useEffect(() => {
     if (!project) return;
     let cancelled = false;
@@ -83,6 +97,10 @@ export function Dashboard() {
       const currentLastRefreshed = useBranchStore.getState().lastRefreshed;
       if (currentLastRefreshed === null || Date.now() - currentLastRefreshed > 10_000) {
         silentRefresh(project.path, project.branch_prefix, project.merge_target);
+        const worktreePaths = useBranchStore.getState().branches.map((b) => b.worktree_path);
+        if (worktreePaths.length > 0) {
+          fetchSessions(worktreePaths);
+        }
       }
     });
     return () => {
@@ -91,6 +109,34 @@ export function Dashboard() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.path, project?.branch_prefix, project?.merge_target]);
+
+  // Effect 5: Session polling (runs when branches are loaded, polls alongside auto-refresh)
+  useEffect(() => {
+    if (!project || branches.length === 0) return;
+    const worktreePaths = branches.map((b) => b.worktree_path);
+    // Initial fetch
+    fetchSessions(worktreePaths);
+    // Poll on same interval as branch refresh
+    const intervalMs = (settings?.refresh_interval ?? 30) * 1000;
+    const timer = setInterval(() => {
+      fetchSessions(worktreePaths);
+    }, intervalMs);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branches, settings?.refresh_interval]);
+
+  // Action handlers
+  const handleLaunch = async (branch: BranchInfo) => {
+    if (!project) return;
+    const flags: string[] = [];
+    await launchSession(branch.worktree_path, branch.name, flags);
+  };
+
+  const handleWorktreeCreated = async (_worktreePath: string, _branchName: string) => {
+    if (!project) return;
+    // Refresh branches to show the new worktree
+    await fetchBranches(project.path, project.branch_prefix, project.merge_target);
+  };
 
   if (!project) return null;
 
@@ -107,7 +153,7 @@ export function Dashboard() {
           onSortChange={setSortMode}
           onRefresh={() => manualRefresh(project.path, project.branch_prefix, project.merge_target)}
           onShowConfig={showProjectConfig}
-          onNewWorktree={() => {}}
+          onNewWorktree={() => setShowNewWorktree(true)}
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -123,6 +169,13 @@ export function Dashboard() {
             </Button>
           </div>
         </div>
+        <NewWorktreeDialog
+          open={showNewWorktree}
+          onOpenChange={setShowNewWorktree}
+          projectPath={project.path}
+          branchPrefix={project.branch_prefix}
+          onCreated={handleWorktreeCreated}
+        />
       </div>
     );
   }
@@ -138,17 +191,42 @@ export function Dashboard() {
         onSortChange={setSortMode}
         onRefresh={() => manualRefresh(project.path, project.branch_prefix, project.merge_target)}
         onShowConfig={showProjectConfig}
-        onNewWorktree={() => {}}
+        onNewWorktree={() => setShowNewWorktree(true)}
       />
       <div className="flex-1 mt-6 overflow-hidden">
         {loading ? (
-          <BranchTable branches={[]} sortMode={sortMode} loading={true} refreshing={false} activeSessions={{}} onLaunch={() => {}} onOpenVscode={() => {}} onOpenExplorer={() => {}} />
+          <BranchTable
+            branches={[]}
+            sortMode={sortMode}
+            loading={true}
+            refreshing={false}
+            activeSessions={{}}
+            onLaunch={() => {}}
+            onOpenVscode={() => {}}
+            onOpenExplorer={() => {}}
+          />
         ) : branches.length === 0 ? (
           <BranchEmptyState prefix={project.branch_prefix} />
         ) : (
-          <BranchTable branches={branches} sortMode={sortMode} loading={false} refreshing={refreshing} activeSessions={{}} onLaunch={() => {}} onOpenVscode={() => {}} onOpenExplorer={() => {}} />
+          <BranchTable
+            branches={branches}
+            sortMode={sortMode}
+            loading={false}
+            refreshing={refreshing}
+            activeSessions={activeSessions}
+            onLaunch={handleLaunch}
+            onOpenVscode={(path) => openInVscode(path)}
+            onOpenExplorer={(path) => openInExplorer(path)}
+          />
         )}
       </div>
+      <NewWorktreeDialog
+        open={showNewWorktree}
+        onOpenChange={setShowNewWorktree}
+        projectPath={project.path}
+        branchPrefix={project.branch_prefix}
+        onCreated={handleWorktreeCreated}
+      />
     </div>
   );
 }
