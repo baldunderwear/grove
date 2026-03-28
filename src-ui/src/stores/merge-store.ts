@@ -27,6 +27,7 @@ interface MergeState {
   ) => Promise<void>;
   executeMerge: (
     projectPath: string,
+    projectName: string,
     sourceBranch: string,
     mergeTarget: string,
     buildPatterns: BuildFileConfig[],
@@ -71,6 +72,7 @@ export const useMergeStore = create<MergeState>()((set, get) => ({
 
   executeMerge: async (
     projectPath: string,
+    projectName: string,
     sourceBranch: string,
     mergeTarget: string,
     buildPatterns: BuildFileConfig[],
@@ -80,6 +82,7 @@ export const useMergeStore = create<MergeState>()((set, get) => ({
     try {
       const result = await invoke<MergeResult>('merge_branch', {
         projectPath,
+        projectName,
         sourceBranch,
         mergeTarget,
         buildPatterns,

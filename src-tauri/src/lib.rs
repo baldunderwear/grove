@@ -47,6 +47,17 @@ pub fn run() {
             // Build tray icon with dynamic menu and event handlers
             tray::build_tray(app)?;
 
+            // Show window on startup if start_minimized is false
+            let app_handle = app.handle().clone();
+            if let Ok(config) = crate::config::persistence::load_or_create_config(&app_handle) {
+                if !config.settings.start_minimized {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+            }
+
             // Start file watcher for registered project paths
             let app_handle = app.handle().clone();
             if let Ok(config) = crate::config::persistence::load_or_create_config(&app_handle) {

@@ -54,7 +54,9 @@ pub fn merge_preview(
 /// Returns error with conflict paths if non-build conflicts are found.
 #[tauri::command]
 pub fn merge_branch(
+    app_handle: tauri::AppHandle,
     project_path: String,
+    project_name: String,
     source_branch: String,
     merge_target: String,
     build_patterns: Vec<BuildFileConfig>,
@@ -64,13 +66,24 @@ pub fn merge_branch(
     let _guard = _lock.lock().map_err(|e| {
         GitError::MergeAborted(format!("Failed to acquire write lock: {}", e))
     })?;
-    crate::git::merge::merge_branch(
+    let result = crate::git::merge::merge_branch(
         &project_path,
         &source_branch,
         &merge_target,
         &build_patterns,
         &changelog_config,
-    )
+    )?;
+
+    // Fire merge-completed notification
+    let build_num = result.new_build.map(|n| n.to_string()).unwrap_or_else(|| "none".to_string());
+    crate::notifications::notify_merge_complete(
+        &app_handle,
+        &source_branch,
+        &project_name,
+        &build_num,
+    );
+
+    Ok(result)
 }
 
 /// Standalone build conflict resolution for partial merge recovery.

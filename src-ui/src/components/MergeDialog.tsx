@@ -71,6 +71,7 @@ export function MergeDialog({
     if (!branch) return;
     executeMerge(
       project.path,
+      project.name,
       branch.name,
       project.merge_target,
       project.build_files,
