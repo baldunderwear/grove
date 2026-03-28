@@ -13,7 +13,9 @@ use tauri::{
 pub fn run() {
     tauri::Builder::default()
         .manage(std::sync::Mutex::new(()))
+        .manage(std::sync::Mutex::new(process::detect::SessionDetector::new()))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             commands::config_commands::get_config,
             commands::config_commands::add_project,
@@ -29,6 +31,11 @@ pub fn run() {
             commands::git_commands::merge_preview,
             commands::git_commands::merge_branch,
             commands::git_commands::resolve_build_conflicts,
+            commands::session_commands::launch_session,
+            commands::session_commands::get_active_sessions,
+            commands::session_commands::open_in_vscode,
+            commands::session_commands::open_in_explorer,
+            commands::session_commands::create_worktree,
         ])
         .setup(|app| {
             // Build tray context menu

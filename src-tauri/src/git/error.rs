@@ -18,6 +18,9 @@ pub enum GitError {
 
     #[error("Merge aborted: {0}")]
     MergeAborted(String),
+
+    #[error("{0}")]
+    Other(String),
 }
 
 // Tauri requires command error types to be serializable.
