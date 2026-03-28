@@ -110,6 +110,11 @@ Plans:
 - Minimize to tray on close
 - Auto-fetch from remote (configurable interval)
 **Exit criteria:** App starts with Windows, lives in tray, notifies when a branch is merge-ready.
+**Plans:** 3 plans
+Plans:
+- [ ] 07-01-PLAN.md — Plugins, settings model, dynamic tray menu, autostart registration
+- [ ] 07-02-PLAN.md — Notification state tracking, auto-fetch background thread
+- [ ] 07-03-PLAN.md — Frontend settings UI for notifications, fetch interval, autostart wiring
 
 ### Phase 08: Polish & Distribution
 **Goal:** Production-ready release with installer, auto-update, and documentation.
