@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: executing
-last_updated: "2026-03-28T00:33:10.445Z"
+status: verifying
+last_updated: "2026-03-28T00:37:11.395Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (created 2026-03-27)
 
 Phase: 04 (worktree-dashboard-ui) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -59,6 +59,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 04]: Manual shadcn component creation due to NAS npx incompatibility
 - [Phase 04]: Module-level fetchCounter for race condition protection (not in Zustand state)
 - [Phase 04]: Separate branch store from config store to prevent unnecessary re-renders
+- [Phase 04]: relativeTime for lastRefreshed converts ms to seconds (store=Date.now, util=unix seconds)
+- [Phase 04]: Window focus refresh uses getState() to avoid stale closure over lastRefreshed
 
 ## Quick Tasks Completed
 
