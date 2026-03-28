@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: verifying
-last_updated: "2026-03-28T03:57:47.603Z"
+status: executing
+last_updated: "2026-03-28T04:25:44.769Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 22
+  completed_plans: 19
   percent: 50
 ---
 
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (created 2026-03-27)
 
 **Core value:** Manage git worktrees and Claude Code sessions across any project — launch, track, merge cleanly.
-**Current focus:** Phase 07 — system-tray-notifications
+**Current focus:** Phase 08 — polish-distribution
 
 ## Current Position
 
-Phase: 07 (system-tray-notifications) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 08 (polish-distribution) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-03-28
 
 Progress: [█████░░░░░] 50%
@@ -78,6 +78,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 07]: State-transition tracking via HashMap per branch key for notification dedup
 - [Phase 07]: git CLI fetch instead of git2 for SSH agent and credential helper compatibility
 - [Phase 07]: Event listener on git-changed in lib.rs rather than modifying watcher module
+- [Phase 08]: UPDATER_PUBKEY_PLACEHOLDER for pubkey -- real key generated at release time, never committed
+- [Phase 08]: opt-level s over z for better size/performance balance in release profile
 
 ## Quick Tasks Completed
 
