@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Clock, Code2, FolderOpen, Play } from 'lucide-react';
+import { Clock, Code2, FolderOpen, GitMerge, Play } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,6 +27,9 @@ interface BranchTableProps {
   refreshing: boolean;
   activeSessions: Record<string, number>;
   onLaunch: (branch: BranchInfo) => void;
+  onMerge: (branch: BranchInfo) => void;
+  mergeTarget: string;
+  mergeLoading: boolean;
   onOpenVscode: (worktreePath: string) => void;
   onOpenExplorer: (worktreePath: string) => void;
 }
@@ -77,6 +80,9 @@ export function BranchTable({
   refreshing,
   activeSessions,
   onLaunch,
+  onMerge,
+  mergeTarget,
+  mergeLoading,
   onOpenVscode,
   onOpenExplorer,
 }: BranchTableProps) {
@@ -192,6 +198,23 @@ export function BranchTable({
                   {/* Action buttons */}
                   <TableCell className="w-[120px]">
                     <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {mergeReady && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => onMerge(branch)}
+                              disabled={mergeLoading}
+                              aria-label={`Merge into ${mergeTarget}`}
+                            >
+                              <GitMerge className="h-3.5 w-3.5 text-emerald-400" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Merge into {mergeTarget}</TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button

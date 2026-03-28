@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { BranchEmptyState } from '@/components/BranchEmptyState';
 import { BranchTable } from '@/components/BranchTable';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { MergeDialog } from '@/components/MergeDialog';
+import { MergeHistory } from '@/components/MergeHistory';
 import { NewWorktreeDialog } from '@/components/NewWorktreeDialog';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
+import { useMergeStore } from '@/stores/merge-store';
 import { useSessionStore } from '@/stores/session-store';
 import type { BranchInfo } from '@/types/branch';
 
@@ -35,6 +38,8 @@ export function Dashboard() {
   const clearSessions = useSessionStore((s) => s.clear);
 
   const [showNewWorktree, setShowNewWorktree] = useState(false);
+  const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
+  const mergeLoading = useMergeStore((s) => s.loading);
 
   const project = config?.projects.find((p) => p.id === selectedProjectId);
   const settings = config?.settings;
@@ -138,6 +143,13 @@ export function Dashboard() {
     await fetchBranches(project.path, project.branch_prefix, project.merge_target);
   };
 
+  const handleMergeComplete = () => {
+    setMergeBranch(null);
+    if (project) {
+      fetchBranches(project.path, project.branch_prefix, project.merge_target);
+    }
+  };
+
   if (!project) return null;
 
   // Error state
@@ -176,6 +188,13 @@ export function Dashboard() {
           branchPrefix={project.branch_prefix}
           onCreated={handleWorktreeCreated}
         />
+        <MergeDialog
+          open={!!mergeBranch}
+          onOpenChange={(open) => { if (!open) setMergeBranch(null); }}
+          branch={mergeBranch}
+          project={project}
+          onComplete={handleMergeComplete}
+        />
       </div>
     );
   }
@@ -202,6 +221,9 @@ export function Dashboard() {
             refreshing={false}
             activeSessions={{}}
             onLaunch={() => {}}
+            onMerge={() => {}}
+            mergeTarget={project.merge_target}
+            mergeLoading={false}
             onOpenVscode={() => {}}
             onOpenExplorer={() => {}}
           />
@@ -215,10 +237,16 @@ export function Dashboard() {
             refreshing={refreshing}
             activeSessions={activeSessions}
             onLaunch={handleLaunch}
+            onMerge={setMergeBranch}
+            mergeTarget={project.merge_target}
+            mergeLoading={mergeLoading}
             onOpenVscode={(path) => openInVscode(path)}
             onOpenExplorer={(path) => openInExplorer(path)}
           />
         )}
+      </div>
+      <div className="mt-4 mb-4">
+        <MergeHistory />
       </div>
       <NewWorktreeDialog
         open={showNewWorktree}
@@ -226,6 +254,13 @@ export function Dashboard() {
         projectPath={project.path}
         branchPrefix={project.branch_prefix}
         onCreated={handleWorktreeCreated}
+      />
+      <MergeDialog
+        open={!!mergeBranch}
+        onOpenChange={(open) => { if (!open) setMergeBranch(null); }}
+        branch={mergeBranch}
+        project={project}
+        onComplete={handleMergeComplete}
       />
     </div>
   );
