@@ -60,6 +60,7 @@ pub fn create_worktree(
     let wt_path = parent.join(&full_branch);
 
     // Use git CLI — handles NAS paths where git2 fails on .git/worktrees/ creation
+    // Try creating with new branch first, fall back to existing branch
     let output = std::process::Command::new("git")
         .args(["worktree", "add", "-b", &full_branch, &wt_path.to_string_lossy()])
         .current_dir(&project_path)
@@ -68,7 +69,21 @@ pub fn create_worktree(
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(GitError::Other(format!("Failed to create worktree: {}", stderr.trim())));
+        // If branch already exists, try attaching it as a worktree without -b
+        if stderr.contains("already exists") {
+            let retry = std::process::Command::new("git")
+                .args(["worktree", "add", &wt_path.to_string_lossy(), &full_branch])
+                .current_dir(&project_path)
+                .output()
+                .map_err(|e| GitError::Other(format!("Failed to run git: {}", e)))?;
+
+            if !retry.status.success() {
+                let retry_stderr = String::from_utf8_lossy(&retry.stderr);
+                return Err(GitError::Other(format!("Failed to create worktree: {}", retry_stderr.trim())));
+            }
+        } else {
+            return Err(GitError::Other(format!("Failed to create worktree: {}", stderr.trim())));
+        }
     }
 
     Ok(wt_path.to_string_lossy().to_string())
