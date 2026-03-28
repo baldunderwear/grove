@@ -1,6 +1,10 @@
+use tauri::Manager;
+
 mod commands;
 mod config;
+mod fetch;
 mod git;
+mod notifications;
 mod process;
 mod tray;
 mod watcher;
@@ -9,6 +13,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage(std::sync::Mutex::new(()))
         .manage(std::sync::Mutex::new(process::detect::SessionDetector::new()))
+        .manage(std::sync::Mutex::new(notifications::NotificationState::new()))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
@@ -52,6 +57,32 @@ pub fn run() {
                         eprintln!("[grove] Warning: file watcher failed to start: {}", e);
                     }
                 }
+            }
+
+            // Run initial notification check
+            {
+                let app_handle_notify = app.handle().clone();
+                let notif_state =
+                    app.state::<std::sync::Mutex<notifications::NotificationState>>();
+                notifications::check_and_notify(&app_handle_notify, &notif_state);
+            }
+
+            // Re-check notifications and rebuild tray on git-changed events
+            {
+                use tauri::Listener;
+                let app_handle_for_notif = app.handle().clone();
+                app.listen("git-changed", move |_event| {
+                    let state = app_handle_for_notif
+                        .state::<std::sync::Mutex<notifications::NotificationState>>();
+                    notifications::check_and_notify(&app_handle_for_notif, &state);
+                    let _ = crate::tray::rebuild_tray_menu(&app_handle_for_notif);
+                });
+            }
+
+            // Start background auto-fetch thread
+            {
+                let app_handle_fetch = app.handle().clone();
+                fetch::start_auto_fetch(app_handle_fetch);
             }
 
             Ok(())
