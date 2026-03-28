@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use crate::config::models::{AppConfig, BuildFileConfig, ChangelogConfig, HealthStatus};
+use crate::config::models::{AppConfig, BuildFileConfig, ChangelogConfig, HealthStatus, ScanResult};
 use crate::config::persistence::{self, ConfigError};
 
 /// Return the current configuration (creating a default on first launch).
@@ -187,4 +187,11 @@ pub fn import_config(
     let config: AppConfig = serde_json::from_str(&contents)?;
     persistence::save_config(&app_handle, &config)?;
     Ok(config)
+}
+
+/// Deep scan a git repo for the project wizard.
+/// Returns branch patterns, worktree count, changelog detection, etc.
+#[tauri::command]
+pub fn scan_repo(path: String) -> Result<ScanResult, ConfigError> {
+    persistence::scan_repo(&path)
 }

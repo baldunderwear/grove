@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
+import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -9,13 +8,14 @@ import { Dashboard } from '@/pages/Dashboard';
 import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
+import { AddProjectWizard } from '@/components/AddProjectWizard';
 import { useConfigStore } from '@/stores/config-store';
 import { UpdateChecker } from '@/components/UpdateChecker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 function App() {
   const activeView = useConfigStore((s) => s.activeView);
-  const addProject = useConfigStore((s) => s.addProject);
+  const [emptyWizardOpen, setEmptyWizardOpen] = useState(false);
 
   useKeyboardShortcuts();
 
@@ -47,29 +47,15 @@ function App() {
     };
   }, []);
 
-  const handleAddProject = async () => {
-    const selected = await open({
-      directory: true,
-      multiple: false,
-      title: 'Select Git Repository',
-    });
-    if (selected) {
-      try {
-        await addProject(selected as string);
-      } catch {
-        // error is already in store.error
-      }
-    }
-  };
-
   return (
     <TooltipProvider>
       <UpdateChecker />
+      <AddProjectWizard open={emptyWizardOpen} onClose={() => setEmptyWizardOpen(false)} />
       <div className="flex h-screen" style={{ background: 'var(--grove-void)' }}>
         <Sidebar />
         <main className="flex-1 overflow-y-auto">
           {activeView === 'empty' && (
-            <EmptyState onAddProject={handleAddProject} />
+            <EmptyState onAddProject={() => setEmptyWizardOpen(true)} />
           )}
           {activeView === 'all-projects' && <AllProjects />}
           {activeView === 'dashboard' && <Dashboard />}

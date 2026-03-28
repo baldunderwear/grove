@@ -104,6 +104,29 @@ pub struct RepoInfo {
     pub branches: Vec<String>,
 }
 
+/// Rich scan result for the project wizard.
+#[derive(Debug, Clone, Serialize)]
+pub struct ScanResult {
+    pub name: String,
+    pub path: String,
+    pub merge_target: String,
+    pub suggested_merge_targets: Vec<String>,
+    pub branch_prefixes: Vec<PrefixSuggestion>,
+    pub total_branches: usize,
+    pub worktree_count: usize,
+    pub has_changelogs: bool,
+    pub changelog_dir: Option<String>,
+    pub remote_url: Option<String>,
+}
+
+/// A detected branch prefix with count.
+#[derive(Debug, Clone, Serialize)]
+pub struct PrefixSuggestion {
+    pub prefix: String,
+    pub count: usize,
+    pub example: String,
+}
+
 fn default_branch_prefix() -> String {
     "wt/".to_string()
 }

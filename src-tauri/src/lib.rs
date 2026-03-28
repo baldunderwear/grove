@@ -32,6 +32,7 @@ pub fn run() {
             commands::config_commands::check_project_health,
             commands::config_commands::export_config,
             commands::config_commands::import_config,
+            commands::config_commands::scan_repo,
             commands::git_commands::list_branches,
             commands::git_commands::branch_status,
             commands::git_commands::is_worktree_dirty,

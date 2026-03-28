@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
 import { Settings, Trees } from 'lucide-react';
+import { AddProjectWizard } from '@/components/AddProjectWizard';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -16,8 +16,8 @@ export function Sidebar() {
   const selectedProjectId = useConfigStore((s) => s.selectedProjectId);
   const activeView = useConfigStore((s) => s.activeView);
   const error = useConfigStore((s) => s.error);
-  const addProject = useConfigStore((s) => s.addProject);
   const selectProject = useConfigStore((s) => s.selectProject);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const showAllProjects = useConfigStore((s) => s.showAllProjects);
   const showSettings = useConfigStore((s) => s.showSettings);
   const checkHealth = useConfigStore((s) => s.checkHealth);
@@ -50,28 +50,16 @@ export function Sidebar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects.length, checkHealth]);
 
-  const handleAddProject = async () => {
-    const selected = await open({
-      directory: true,
-      multiple: false,
-      title: 'Select Git Repository',
-    });
-    if (selected) {
-      try {
-        await addProject(selected as string);
-      } catch {
-        // error is already in store.error
-      }
-    }
-  };
-
   return (
     <div className="w-[280px] min-w-[280px] h-full flex flex-col" style={{ background: 'var(--grove-deep)' }}>
+      {/* Wizard */}
+      <AddProjectWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
+
       {/* Top section */}
       <div className="p-4">
         <h1 className="text-xl font-semibold" style={{ color: 'var(--grove-white)' }}>Grove</h1>
         <Button
-          onClick={handleAddProject}
+          onClick={() => setWizardOpen(true)}
           className="w-full mt-3 text-[var(--grove-void)] font-medium"
           style={{ background: 'var(--grove-leaf)' }}
         >

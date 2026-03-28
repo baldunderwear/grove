@@ -39,3 +39,22 @@ export type HealthStatus =
   | "PathNotFound"
   | "NotGitRepo"
   | "MissingMergeTarget";
+
+export interface ScanResult {
+  name: string;
+  path: string;
+  merge_target: string;
+  suggested_merge_targets: string[];
+  branch_prefixes: PrefixSuggestion[];
+  total_branches: number;
+  worktree_count: number;
+  has_changelogs: boolean;
+  changelog_dir: string | null;
+  remote_url: string | null;
+}
+
+export interface PrefixSuggestion {
+  prefix: string;
+  count: number;
+  example: string;
+}
