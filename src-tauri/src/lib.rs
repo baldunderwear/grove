@@ -25,6 +25,9 @@ pub fn run() {
             commands::git_commands::list_branches,
             commands::git_commands::branch_status,
             commands::git_commands::is_worktree_dirty,
+            commands::git_commands::merge_preview,
+            commands::git_commands::merge_branch,
+            commands::git_commands::resolve_build_conflicts,
         ])
         .setup(|app| {
             // Build tray context menu

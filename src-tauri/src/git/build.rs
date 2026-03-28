@@ -89,8 +89,7 @@ fn extract_build_number(content: &str) -> Option<u32> {
         // Look for the key at start of line or after whitespace
         for line in content.lines() {
             let trimmed_line = line.trim();
-            if trimmed_line.starts_with(key) {
-                let after_key = &trimmed_line[key.len()..];
+            if let Some(after_key) = trimmed_line.strip_prefix(key) {
                 if let Some(num) = parse_number_after_separator(after_key, '=') {
                     return Some(num);
                 }
@@ -136,8 +135,7 @@ fn replace_build_number(content: &str, new_build: u32) -> String {
         // Find the key at the start of a line
         for (line_idx, line) in content.lines().enumerate() {
             let trimmed_line = line.trim();
-            if trimmed_line.starts_with(key) {
-                let after_key = &trimmed_line[key.len()..];
+            if let Some(after_key) = trimmed_line.strip_prefix(key) {
                 if let Some((num_start, num_end)) = find_number_span_after_separator(after_key, '=')
                 {
                     // Calculate the absolute position in the original string
