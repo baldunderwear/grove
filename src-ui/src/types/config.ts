@@ -28,6 +28,10 @@ export interface Settings {
   start_minimized: boolean;
   start_with_windows: boolean;
   theme: string;
+  auto_fetch_interval: number;
+  notify_merge_ready: boolean;
+  notify_stale_branch: boolean;
+  notify_merge_complete: boolean;
 }
 
 export type HealthStatus =

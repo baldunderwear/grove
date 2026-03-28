@@ -62,6 +62,14 @@ pub struct Settings {
     pub start_with_windows: bool,
     #[serde(default = "default_theme")]
     pub theme: String,
+    #[serde(default = "default_auto_fetch_interval")]
+    pub auto_fetch_interval: u32, // seconds, 0 = disabled
+    #[serde(default = "default_true")]
+    pub notify_merge_ready: bool,
+    #[serde(default = "default_true")]
+    pub notify_stale_branch: bool,
+    #[serde(default = "default_true")]
+    pub notify_merge_complete: bool,
 }
 
 impl Default for Settings {
@@ -71,6 +79,10 @@ impl Default for Settings {
             start_minimized: false,
             start_with_windows: false,
             theme: default_theme(),
+            auto_fetch_interval: default_auto_fetch_interval(),
+            notify_merge_ready: true,
+            notify_stale_branch: true,
+            notify_merge_complete: true,
         }
     }
 }
@@ -102,6 +114,14 @@ fn default_refresh_interval() -> u32 {
 
 fn default_theme() -> String {
     "dark".to_string()
+}
+
+fn default_auto_fetch_interval() -> u32 {
+    300 // 5 minutes
+}
+
+fn default_true() -> bool {
+    true
 }
 
 fn default_changelog_directory() -> String {
