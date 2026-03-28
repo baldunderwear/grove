@@ -127,9 +127,9 @@ Plans:
 - README with screenshots, installation guide, configuration examples
 - LICENSE (MIT)
 **Exit criteria:** v1.0 release on GitHub with installer. Auto-update works. README is complete.
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 Plans:
 - [x] 08-01-PLAN.md — Updater plugin backend: Rust registration, tauri.conf.json config, release profile optimization
 - [x] 08-02-PLAN.md — Keyboard shortcuts, version bump to 1.0.0, MIT LICENSE
 - [x] 08-03-PLAN.md — UpdateChecker frontend component, CI signing env vars
-- [ ] 08-04-PLAN.md — README.md with full feature documentation
+- [x] 08-04-PLAN.md — README.md with full feature documentation

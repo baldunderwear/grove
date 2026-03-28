@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Worktree Manager for Claude Code
-status: executing
-last_updated: "2026-03-28T04:32:48.361Z"
+status: verifying
+last_updated: "2026-03-28T04:35:11.429Z"
 last_activity: 2026-03-28
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 22
-  completed_plans: 21
+  completed_plans: 22
   percent: 91
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (created 2026-03-27)
 
 Phase: 08 (polish-distribution) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-28
 
 Progress: [█████████░] 91%
@@ -84,6 +84,7 @@ Progress: [█████████░] 91%
 - [Phase 08]: Custom DOM events (grove:new-worktree, grove:close-dialog) for cross-component communication
 - [Phase 08]: 5-second delayed update check to avoid blocking startup (NFR-01.1)
 - [Phase 08]: Silent failure on update check errors -- non-critical path
+- [Phase 08]: README kept direct and practical -- no marketing language, 131 lines
 
 ## Quick Tasks Completed
 
