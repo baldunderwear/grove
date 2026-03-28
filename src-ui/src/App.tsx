@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sidebar } from '@/layout/Sidebar';
+import { Dashboard } from '@/pages/Dashboard';
 import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
@@ -38,7 +39,7 @@ function App() {
           {activeView === 'empty' && (
             <EmptyState onAddProject={handleAddProject} />
           )}
-          {activeView === 'dashboard' && <ProjectConfig />}
+          {activeView === 'dashboard' && <Dashboard />}
           {activeView === 'project' && <ProjectConfig />}
           {activeView === 'settings' && <Settings />}
         </main>
