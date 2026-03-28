@@ -124,7 +124,7 @@ export function Sidebar() {
               className={
                 activeView === 'settings'
                   ? 'text-gray-50'
-                  : 'text-gray-400'
+                  : 'text-gray-300'
               }
             >
               <Settings className="h-5 w-5" />

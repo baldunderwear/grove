@@ -1,0 +1,83 @@
+/**
+ * Grove Design Tokens
+ * Version: 1.0.0
+ * ─────────────────────────────────────────
+ * Usage: import this file or copy variables
+ * into your Tailwind / CSS-in-JS config.
+ */
+
+:root {
+  /* ── Forest Green Ramp (Primary) ── */
+  --grove-void:    #080f0a;  /* App background, deepest surface     */
+  --grove-deep:    #0c1810;  /* Panel backgrounds                   */
+  --grove-forest:  #112416;  /* Card backgrounds                    */
+  --grove-canopy:  #1a3520;  /* Elevated card / hover surface       */
+  --grove-moss:    #2d5a38;  /* Borders (active), button fills      */
+  --grove-fern:    #3d7a4e;  /* Secondary borders, muted fills      */
+  --grove-leaf:    #4fa362;  /* PRIMARY interactive / CTA color     */
+  --grove-sprout:  #6dc280;  /* Hover / active state of leaf        */
+  --grove-bright:  #8edc9f;  /* Highlight text, active labels       */
+  --grove-mist:    #b8f0c5;  /* Very light tint, success bg text    */
+
+  /* ── Bark Amber Ramp (Accent / Alert) ── */
+  --grove-charcoal: #7a3f1a; /* Darkest amber surface               */
+  --grove-bark:     #c47a3a; /* Amber base                          */
+  --grove-amber:    #e89840; /* Warning fills, stale badges         */
+  --grove-dusk:     #f2b460; /* Warning text, ahead-badge labels    */
+
+  /* ── Stone Neutrals ── */
+  --grove-stone:   #a0a89e;  /* Secondary / muted text              */
+  --grove-pebble:  #d0d8ce;  /* Tertiary text                       */
+  --grove-fog:     #eaede8;  /* Primary body text on dark bg        */
+  --grove-white:   #f5f7f4;  /* Off-white, max-contrast text        */
+
+  /* ── Semantic Colors ── */
+  --grove-success-bg:   rgba(22, 101, 52, 0.3);
+  --grove-success-text: #86efac;
+  --grove-warning-bg:   rgba(146, 64, 14, 0.3);
+  --grove-warning-text: #fde68a;
+  --grove-error-bg:     rgba(153, 27, 27, 0.3);
+  --grove-error-text:   #fca5a5;
+  --grove-info-bg:      rgba(30, 58, 95, 0.3);
+  --grove-info-text:    #93c5fd;
+
+  /* ── Typography ── */
+  --grove-font-display: 'Syne', sans-serif;
+  --grove-font-mono:    'IBM Plex Mono', monospace;
+  --grove-font-serif:   'Instrument Serif', serif;
+
+  /* ── Type Scale ── */
+  --grove-text-xs:   11px;
+  --grove-text-sm:   13px;
+  --grove-text-base: 15px;
+  --grove-text-lg:   18px;
+  --grove-text-xl:   22px;
+  --grove-text-2xl:  28px;
+  --grove-text-3xl:  36px;
+  --grove-text-4xl:  48px;
+  --grove-text-hero: clamp(48px, 6vw, 88px);
+
+  /* ── Spacing ── */
+  --grove-radius-sm:  4px;
+  --grove-radius-md:  6px;
+  --grove-radius-lg:  10px;
+  --grove-radius-xl:  12px;
+  --grove-radius-2xl: 24px;
+
+  /* ── Borders ── */
+  --grove-border-subtle:  1px solid rgba(77, 163, 98, 0.08);
+  --grove-border-default: 1px solid rgba(77, 163, 98, 0.15);
+  --grove-border-strong:  1px solid rgba(77, 163, 98, 0.30);
+  --grove-border-active:  1px solid rgba(77, 163, 98, 0.50);
+
+  /* ── Shadows ── */
+  --grove-shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.3);
+  --grove-shadow-md:  0 8px 24px rgba(0, 0, 0, 0.5);
+  --grove-shadow-lg:  0 32px 80px rgba(0, 0, 0, 0.6);
+  --grove-shadow-glow: 0 0 24px rgba(77, 163, 98, 0.15);
+
+  /* ── Transitions ── */
+  --grove-transition-fast:   150ms ease;
+  --grove-transition-base:   200ms ease;
+  --grove-transition-slow:   600ms ease;
+}

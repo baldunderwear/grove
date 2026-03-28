@@ -43,15 +43,14 @@ pub fn open_in_explorer(worktree_path: String, app: tauri::AppHandle) -> Result<
 
 /// Create a new git worktree with the given branch name.
 /// Returns the path to the newly created worktree directory.
+/// Uses git CLI instead of git2 to handle NAS paths where git2 cannot create
+/// directories inside .git/worktrees/.
 #[tauri::command]
 pub fn create_worktree(
     project_path: String,
     branch_name: String,
     branch_prefix: String,
 ) -> Result<String, GitError> {
-    let repo = git2::Repository::open(&project_path)
-        .map_err(|_| GitError::RepoNotFound(project_path.clone()))?;
-
     let full_branch = format!("{}{}", branch_prefix, branch_name);
 
     // Create worktree directory alongside the main repo
@@ -60,19 +59,17 @@ pub fn create_worktree(
         .ok_or_else(|| GitError::Other("Cannot determine parent directory".into()))?;
     let wt_path = parent.join(&full_branch);
 
-    // Get HEAD commit to base the new branch on
-    let head = repo.head()?.peel_to_commit()?;
+    // Use git CLI — handles NAS paths where git2 fails on .git/worktrees/ creation
+    let output = std::process::Command::new("git")
+        .args(["worktree", "add", "-b", &full_branch, &wt_path.to_string_lossy()])
+        .current_dir(&project_path)
+        .output()
+        .map_err(|e| GitError::Other(format!("Failed to run git: {}", e)))?;
 
-    // Create the worktree with a new branch from HEAD
-    let _wt = repo
-        .worktree(
-            &full_branch,
-            &wt_path,
-            Some(git2::WorktreeAddOptions::new().reference(Some(
-                &repo.branch(&full_branch, &head, false)?.into_reference(),
-            ))),
-        )
-        .map_err(|e| GitError::Other(format!("Failed to create worktree: {}", e)))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(GitError::Other(format!("Failed to create worktree: {}", stderr.trim())));
+    }
 
     Ok(wt_path.to_string_lossy().to_string())
 }

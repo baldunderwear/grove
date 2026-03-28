@@ -1,0 +1,54 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" fill="#0c1810"/>
+  <radialGradient id="x-glow" cx="25%" cy="55%" r="55%">
+    <stop offset="0%" stop-color="#1a3520" stop-opacity="0.8"/>
+    <stop offset="100%" stop-color="#0c1810" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="675" fill="url(#x-glow)"/>
+
+  <!-- Large decorative tree -->
+  <g opacity="0.07" transform="translate(850, 80)">
+    <rect x="130" y="340" width="60" height="80" rx="8" fill="#4fa362"/>
+    <polygon points="160,10 20,220 300,220" fill="#4fa362"/>
+    <polygon points="160,70 36,254 284,254" fill="#6dc280"/>
+    <polygon points="160,130 50,288 270,288" fill="#8edc9f"/>
+  </g>
+
+  <!-- Icon + wordmark top left -->
+  <g transform="translate(72, 72)">
+    <rect x="20" y="34" width="8" height="10" rx="1.5" fill="#4fa362"/>
+    <polygon points="24,2 4,20 44,20" fill="#4fa362"/>
+    <polygon points="24,7 6,24 42,24" fill="#6dc280" opacity="0.75"/>
+    <polygon points="24,12 8,30 40,30" fill="#8edc9f" opacity="0.5"/>
+    <text x="58" y="28" font-family="Syne, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Grove</text>
+    <text x="58" y="44" font-family="IBM Plex Mono, monospace" font-size="11" fill="#4fa362">v1.0.0 · NOW AVAILABLE</text>
+  </g>
+
+  <!-- Headline -->
+  <text x="72" y="240" font-family="Syne, sans-serif" font-size="72" font-weight="800" letter-spacing="-0.04em" fill="#f5f7f4">Your Claude Code</text>
+  <text x="72" y="320" font-family="Syne, sans-serif" font-size="72" font-weight="800" letter-spacing="-0.04em" fill="#f5f7f4">worktree copilot.</text>
+
+  <!-- Sub -->
+  <text x="72" y="390" font-family="Syne, sans-serif" font-size="22" fill="#a0a89e">Tauri 2 desktop app — system tray, one-click sessions,</text>
+  <text x="72" y="418" font-family="Syne, sans-serif" font-size="22" fill="#a0a89e">smart merges with auto build-number bumping.</text>
+
+  <!-- Divider -->
+  <line x1="72" y1="468" x2="480" y2="468" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+
+  <!-- Tech row -->
+  <text x="72" y="496" font-family="IBM Plex Mono, monospace" font-size="13" fill="#4fa362">Rust + Tauri 2 · React 19 · TypeScript · Windows 10/11</text>
+  <text x="72" y="518" font-family="IBM Plex Mono, monospace" font-size="13" fill="#2d5a38">github.com/baldunderwear/grove · MIT License · Free</text>
+
+  <!-- Right side stats box -->
+  <rect x="860" y="180" width="280" height="300" rx="16" fill="#112416" stroke="#4fa362" stroke-opacity="0.2" stroke-width="1"/>
+  <text x="1000" y="230" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="0.15em" fill="#4fa362" text-anchor="middle">WHAT'S INSIDE</text>
+  <line x1="880" y1="244" x2="1120" y2="244" stroke="#4fa362" stroke-opacity="0.1" stroke-width="1"/>
+  <text x="890" y="276" font-family="Syne, sans-serif" font-size="14" font-weight="600" fill="#f5f7f4">✦  Worktree Dashboard</text>
+  <text x="890" y="306" font-family="Syne, sans-serif" font-size="14" font-weight="600" fill="#f5f7f4">✦  One-Click Session Launch</text>
+  <text x="890" y="336" font-family="Syne, sans-serif" font-size="14" font-weight="600" fill="#f5f7f4">✦  Smart Merge + Rollback</text>
+  <text x="890" y="366" font-family="Syne, sans-serif" font-size="14" font-weight="600" fill="#f5f7f4">✦  System Tray Resident</text>
+  <text x="890" y="396" font-family="Syne, sans-serif" font-size="14" font-weight="600" fill="#f5f7f4">✦  Auto-Fetch Background</text>
+  <text x="890" y="426" font-family="Syne, sans-serif" font-size="14" font-weight="600" fill="#f5f7f4">✦  Auto-Update via GitHub</text>
+  <line x1="880" y1="444" x2="1120" y2="444" stroke="#4fa362" stroke-opacity="0.1" stroke-width="1"/>
+  <text x="1000" y="464" font-family="IBM Plex Mono, monospace" font-size="11" fill="#4fa362" text-anchor="middle">Free · MIT · Windows 10/11</text>
+</svg>

@@ -51,13 +51,13 @@ export function DashboardHeader({
         <div>
           <h2 className="text-xl font-semibold text-gray-50">{projectName}</h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-300">
               {branchCount === 1 ? '1 branch' : `${branchCount} branches`}
             </span>
             {lastRefreshed !== null && (
               <>
-                <span className="text-xs text-gray-500">&middot;</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-400">&middot;</span>
+                <span className="text-xs text-gray-300">
                   Updated {relativeTime(Math.floor(lastRefreshed / 1000))}
                 </span>
               </>
@@ -75,7 +75,7 @@ export function DashboardHeader({
                 onClick={onShowConfig}
                 aria-label="Project settings"
               >
-                <Settings className="h-5 w-5 text-gray-400" />
+                <Settings className="h-5 w-5 text-gray-300" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Project settings</TooltipContent>
@@ -83,7 +83,7 @@ export function DashboardHeader({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-1.5 text-gray-400">
+              <Button variant="ghost" className="gap-1.5 text-gray-300">
                 <ArrowUpDown className="size-4" />
                 <span className="text-sm">{sortLabels[sortMode]}</span>
               </Button>
@@ -114,7 +114,7 @@ export function DashboardHeader({
                 onClick={onNewWorktree}
                 aria-label="New worktree"
               >
-                <Plus className="h-5 w-5 text-gray-400" />
+                <Plus className="h-5 w-5 text-gray-300" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>New worktree</TooltipContent>
@@ -129,7 +129,7 @@ export function DashboardHeader({
                 aria-label="Refresh branches"
               >
                 <RefreshCw
-                  className={`h-5 w-5 text-gray-400 ${refreshing ? 'animate-spin' : ''}`}
+                  className={`h-5 w-5 text-gray-300 ${refreshing ? 'animate-spin' : ''}`}
                 />
               </Button>
             </TooltipTrigger>

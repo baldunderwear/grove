@@ -1,0 +1,86 @@
+<svg width="800" height="900" viewBox="0 0 800 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="900" fill="#080f0a"/>
+
+  <!-- ── Card 1: Worktree Dashboard ── -->
+  <rect x="20" y="20" width="360" height="200" rx="12" fill="#112416" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+  <rect x="20" y="20" width="160" height="2" rx="1" fill="url(#c1-grad)"/>
+  <linearGradient id="c1-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4fa362"/><stop offset="100%" stop-color="#4fa362" stop-opacity="0"/></linearGradient>
+  <!-- Icon -->
+  <circle cx="60" cy="76" r="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <circle cx="53" cy="90" r="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <circle cx="67" cy="90" r="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <line x1="60" y1="78" x2="60" y2="83" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="60" y1="83" x2="55" y2="88" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="60" y1="83" x2="65" y2="88" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="44" y="116" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="0.15em" fill="#4fa362" text-transform="uppercase">WORKTREE DASHBOARD</text>
+  <text x="44" y="140" font-family="Syne, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Full branch visibility.</text>
+  <text x="44" y="162" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">Commits ahead/behind, dirty/clean,</text>
+  <text x="44" y="178" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">active sessions, stale indicators.</text>
+
+  <!-- ── Card 2: One-Click Launch ── -->
+  <rect x="420" y="20" width="360" height="200" rx="12" fill="#112416" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+  <rect x="420" y="20" width="160" height="2" rx="1" fill="url(#c2-grad)"/>
+  <linearGradient id="c2-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4fa362"/><stop offset="100%" stop-color="#4fa362" stop-opacity="0"/></linearGradient>
+  <polygon points="460,69 474,78 460,87" fill="none" stroke="#6dc280" stroke-width="1.5" stroke-linejoin="round"/>
+  <text x="444" y="116" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="0.15em" fill="#4fa362">ONE-CLICK LAUNCH</text>
+  <text x="444" y="140" font-family="Syne, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Sessions in seconds.</text>
+  <text x="444" y="162" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">Create worktree + launch Claude Code</text>
+  <text x="444" y="178" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">session in a single click.</text>
+
+  <!-- ── Card 3: Smart Merge ── -->
+  <rect x="20" y="240" width="360" height="200" rx="12" fill="#112416" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+  <rect x="20" y="240" width="160" height="2" rx="1" fill="url(#c3-grad)"/>
+  <linearGradient id="c3-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4fa362"/><stop offset="100%" stop-color="#4fa362" stop-opacity="0"/></linearGradient>
+  <circle cx="56" cy="288" r="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <circle cx="68" cy="288" r="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <circle cx="62" cy="302" r="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <path d="M56 290v4c0 2 2 4 6 4M68 290v4c0 2-2 4-6 4" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="44" y="336" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="0.15em" fill="#4fa362">SMART MERGE</text>
+  <text x="44" y="360" font-family="Syne, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Merge with confidence.</text>
+  <text x="44" y="382" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">Auto-bump build numbers, preview</text>
+  <text x="44" y="398" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">commits. Atomic with rollback.</text>
+
+  <!-- ── Card 4: System Tray ── -->
+  <rect x="420" y="240" width="360" height="200" rx="12" fill="#112416" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+  <rect x="420" y="240" width="160" height="2" rx="1" fill="url(#c4-grad)"/>
+  <linearGradient id="c4-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4fa362"/><stop offset="100%" stop-color="#4fa362" stop-opacity="0"/></linearGradient>
+  <rect x="450" y="283" width="18" height="8" rx="2" fill="none" stroke="#6dc280" stroke-width="1.5"/>
+  <line x1="452" y1="287" x2="452.1" y2="287" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="457" y1="287" x2="457.1" y2="287" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="462" y1="287" x2="462.1" y2="287" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="452" y1="283" x2="452" y2="279" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="459" y1="283" x2="459" y2="275" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="466" y1="283" x2="466" y2="279" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="444" y="336" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="0.15em" fill="#4fa362">SYSTEM TRAY</text>
+  <text x="444" y="360" font-family="Syne, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Always at hand.</text>
+  <text x="444" y="382" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">Background operation. Quick-launch</text>
+  <text x="444" y="398" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">worktrees direct from the tray.</text>
+
+  <!-- ── Card 5: Auto-Fetch ── -->
+  <rect x="20" y="460" width="360" height="200" rx="12" fill="#112416" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+  <rect x="20" y="460" width="160" height="2" rx="1" fill="url(#c5-grad)"/>
+  <linearGradient id="c5-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e89840"/><stop offset="100%" stop-color="#e89840" stop-opacity="0"/></linearGradient>
+  <polyline points="452,504 452,510 458,510" fill="none" stroke="#e89840" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M454.51 515a9 9 0 1 0 .49-4.5" fill="none" stroke="#e89840" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="44" y="556" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="0.15em" fill="#e89840">AUTO-FETCH</text>
+  <text x="44" y="580" font-family="Syne, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Stay in sync, always.</text>
+  <text x="44" y="602" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">Configurable 60s–3600s intervals.</text>
+  <text x="44" y="618" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">SSH agent &amp; credential helper compat.</text>
+
+  <!-- ── Card 6: Project-Agnostic ── -->
+  <rect x="420" y="460" width="360" height="200" rx="12" fill="#112416" stroke="#4fa362" stroke-opacity="0.15" stroke-width="1"/>
+  <rect x="420" y="460" width="160" height="2" rx="1" fill="url(#c6-grad)"/>
+  <linearGradient id="c6-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4fa362"/><stop offset="100%" stop-color="#4fa362" stop-opacity="0"/></linearGradient>
+  <path d="M458 498H450a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-12z" fill="none" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="458,498 458,504 464,504" fill="none" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="462" y1="509" x2="454" y2="509" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="462" y1="513" x2="454" y2="513" stroke="#6dc280" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="444" y="556" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="0.15em" fill="#4fa362">PROJECT-AGNOSTIC</text>
+  <text x="444" y="580" font-family="Syne, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.02em" fill="#f5f7f4">Works with any repo.</text>
+  <text x="444" y="602" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">Per-project config for merge rules,</text>
+  <text x="444" y="618" font-family="Syne, sans-serif" font-size="12" fill="#a0a89e">build files, and changelogs.</text>
+
+  <!-- Footer -->
+  <line x1="20" y1="700" x2="780" y2="700" stroke="#4fa362" stroke-opacity="0.1" stroke-width="1"/>
+  <text x="20" y="724" font-family="IBM Plex Mono, monospace" font-size="11" fill="#2d5a38">grove — feature cards v1.0 · github.com/baldunderwear/grove</text>
+</svg>

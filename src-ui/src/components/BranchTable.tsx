@@ -93,18 +93,18 @@ export function BranchTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-900 border-b border-gray-800 hover:bg-gray-900">
-            <TableHead className="w-[40px] text-xs uppercase tracking-wider text-gray-400 font-normal" />
-            <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-gray-400 font-normal">
+            <TableHead className="w-[40px] text-xs uppercase tracking-wider text-gray-300 font-normal" />
+            <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-gray-300 font-normal">
               Branch
             </TableHead>
-            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-400 font-normal">
+            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-300 font-normal">
               Ahead / Behind
             </TableHead>
-            <TableHead className="w-[140px] text-xs uppercase tracking-wider text-gray-400 font-normal">
+            <TableHead className="w-[140px] text-xs uppercase tracking-wider text-gray-300 font-normal">
               Last Activity
             </TableHead>
-            <TableHead className="text-xs uppercase tracking-wider text-gray-400 font-normal" />
-            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-400 font-normal text-right">
+            <TableHead className="text-xs uppercase tracking-wider text-gray-300 font-normal" />
+            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-gray-300 font-normal text-right">
               Actions
             </TableHead>
           </TableRow>
@@ -144,22 +144,22 @@ export function BranchTable({
                       </TooltipTrigger>
                       <TooltipContent>{branch.name}</TooltipContent>
                     </Tooltip>
-                    <div className="text-xs text-gray-400 truncate max-w-[400px]">
+                    <div className="text-xs text-gray-300 truncate max-w-[400px]">
                       {branch.last_commit_message}
                     </div>
                   </TableCell>
 
                   {/* Ahead / Behind */}
                   <TableCell className="w-[120px]">
-                    <span className={branch.ahead > 0 ? 'text-emerald-400' : 'text-gray-500'}>
+                    <span className={branch.ahead > 0 ? 'text-emerald-400' : 'text-gray-400'}>
                       +{branch.ahead}
                     </span>
-                    <span className="text-gray-500"> / -{branch.behind}</span>
+                    <span className="text-gray-400"> / -{branch.behind}</span>
                   </TableCell>
 
                   {/* Last Activity */}
                   <TableCell className="w-[140px]">
-                    <span className={`text-sm flex items-center gap-1 ${stale ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <span className={`text-sm flex items-center gap-1 ${stale ? 'text-gray-400' : 'text-gray-300'}`}>
                       {stale && <Clock className="size-3.5 shrink-0" />}
                       {relativeTime(branch.last_commit_timestamp)}
                     </span>
@@ -179,7 +179,7 @@ export function BranchTable({
                         </Badge>
                       )}
                       {stale && (
-                        <Badge className="bg-gray-500/15 text-gray-500 border-0 text-xs px-2 py-0.5 rounded-full">
+                        <Badge className="bg-gray-500/15 text-gray-400 border-0 text-xs px-2 py-0.5 rounded-full">
                           Stale
                         </Badge>
                       )}

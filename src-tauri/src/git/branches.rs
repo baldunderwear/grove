@@ -22,12 +22,48 @@ struct WorktreeInfo {
     path: String,
 }
 
+/// Parse `git worktree list --porcelain` output into WorktreeInfo entries.
+/// Uses CLI instead of git2's worktrees() which fails on NAS paths.
+fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
+    let output = match std::process::Command::new("git")
+        .args(["worktree", "list", "--porcelain"])
+        .current_dir(project_path)
+        .output()
+    {
+        Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
+        _ => return Vec::new(),
+    };
+
+    let mut worktrees = Vec::new();
+    let mut current_path: Option<String> = None;
+    let mut current_branch: Option<String> = None;
+
+    for line in output.lines() {
+        if let Some(path) = line.strip_prefix("worktree ") {
+            // Save previous entry
+            if let (Some(p), Some(b)) = (current_path.take(), current_branch.take()) {
+                worktrees.push(WorktreeInfo { branch: b, path: p });
+            }
+            current_path = Some(path.replace('\\', "/"));
+            current_branch = None;
+        } else if let Some(branch_ref) = line.strip_prefix("branch refs/heads/") {
+            current_branch = Some(branch_ref.to_string());
+        }
+    }
+    // Don't forget the last entry
+    if let (Some(p), Some(b)) = (current_path, current_branch) {
+        worktrees.push(WorktreeInfo { branch: b, path: p });
+    }
+
+    worktrees
+}
+
 /// List all worktree branches matching the given prefix, including ahead/behind
 /// counts relative to the merge target and dirty status.
 ///
-/// Opens the main repository at `project_path`, enumerates worktrees, and also
-/// checks the main repo's own HEAD branch. For each matching branch, computes
-/// ahead/behind against `merge_target` and checks dirty state.
+/// Uses `git worktree list --porcelain` (CLI) to enumerate worktrees — this
+/// works on NAS paths where git2's worktrees() API fails. Then uses git2 for
+/// ahead/behind computation and commit info.
 pub fn list_worktree_branches(
     project_path: &str,
     branch_prefix: &str,
@@ -36,57 +72,14 @@ pub fn list_worktree_branches(
     let repo = Repository::open(project_path)
         .map_err(|_| GitError::RepoNotFound(project_path.to_string()))?;
 
-    let mut worktrees = Vec::new();
+    // Use CLI to enumerate worktrees (git2 fails on NAS)
+    let all_worktrees = enumerate_worktrees_cli(project_path);
 
-    // Collect worktree branches
-    let wt_names = repo.worktrees()?;
-    for name in wt_names.iter() {
-        let name = match name {
-            Some(n) => n,
-            None => continue,
-        };
-
-        let wt = match repo.find_worktree(name) {
-            Ok(wt) => wt,
-            Err(_) => continue,
-        };
-
-        let wt_path = wt.path().to_string_lossy().to_string();
-        // Normalize Windows backslashes
-        let wt_path_normalized = wt_path.replace('\\', "/");
-
-        // Open worktree as its own repository to get HEAD
-        let wt_repo = match Repository::open(&wt_path_normalized) {
-            Ok(r) => r,
-            Err(_) => continue,
-        };
-
-        let head = match wt_repo.head() {
-            Ok(h) => h,
-            Err(_) => continue,
-        };
-
-        let branch_name = head.shorthand().unwrap_or("").to_string();
-
-        if branch_name.starts_with(branch_prefix) {
-            worktrees.push(WorktreeInfo {
-                branch: branch_name,
-                path: wt_path_normalized,
-            });
-        }
-    }
-
-    // Also check the main repo's own HEAD branch (worktrees() doesn't list it)
-    if let Ok(head) = repo.head() {
-        let main_branch = head.shorthand().unwrap_or("").to_string();
-        if main_branch.starts_with(branch_prefix) {
-            let main_path = project_path.replace('\\', "/");
-            worktrees.push(WorktreeInfo {
-                branch: main_branch,
-                path: main_path,
-            });
-        }
-    }
+    // Filter to matching prefix
+    let worktrees: Vec<WorktreeInfo> = all_worktrees
+        .into_iter()
+        .filter(|wt| wt.branch.starts_with(branch_prefix))
+        .collect();
 
     // Resolve merge target OID from the main repo
     let target_oid = match repo.find_branch(merge_target, BranchType::Local) {

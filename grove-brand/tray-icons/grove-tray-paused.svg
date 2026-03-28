@@ -1,0 +1,8 @@
+<svg width="16" height="18" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Trunk -->
+  <rect x="6" y="14" width="4" height="5" rx="1" fill="#9ca3af"/>
+  <!-- Canopy layer 1 -->
+  <polygon points="8,1 1,9 15,9" fill="#6b7280"/>
+  <!-- Canopy layer 2 -->
+  <polygon points="8,5 2,13 14,13" fill="#9ca3af" opacity="0.9"/>
+</svg>

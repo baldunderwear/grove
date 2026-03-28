@@ -176,7 +176,7 @@ export function Dashboard() {
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-gray-400">
+            <p className="text-gray-300">
               Failed to load branches. Check that the project path is accessible.
             </p>
             <Button

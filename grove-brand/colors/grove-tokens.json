@@ -1,0 +1,81 @@
+{
+  "$metadata": {
+    "name": "Grove Design Tokens",
+    "version": "1.0.0",
+    "description": "Complete design token set for Grove — worktree manager for Claude Code"
+  },
+  "color": {
+    "forest": {
+      "void":    { "value": "#080f0a", "description": "App background, deepest surface" },
+      "deep":    { "value": "#0c1810", "description": "Panel backgrounds" },
+      "forest":  { "value": "#112416", "description": "Card backgrounds" },
+      "canopy":  { "value": "#1a3520", "description": "Elevated card / hover surface" },
+      "moss":    { "value": "#2d5a38", "description": "Borders (active), button fills" },
+      "fern":    { "value": "#3d7a4e", "description": "Secondary borders, muted fills" },
+      "leaf":    { "value": "#4fa362", "description": "PRIMARY interactive / CTA color" },
+      "sprout":  { "value": "#6dc280", "description": "Hover / active state of leaf" },
+      "bright":  { "value": "#8edc9f", "description": "Highlight text, active labels" },
+      "mist":    { "value": "#b8f0c5", "description": "Very light tint, success bg text" }
+    },
+    "amber": {
+      "charcoal": { "value": "#7a3f1a", "description": "Darkest amber surface" },
+      "bark":     { "value": "#c47a3a", "description": "Amber base" },
+      "amber":    { "value": "#e89840", "description": "Warning fills, stale badges" },
+      "dusk":     { "value": "#f2b460", "description": "Warning text, ahead-badge labels" }
+    },
+    "neutral": {
+      "stone":  { "value": "#a0a89e", "description": "Secondary / muted text" },
+      "pebble": { "value": "#d0d8ce", "description": "Tertiary text" },
+      "fog":    { "value": "#eaede8", "description": "Primary body text on dark bg" },
+      "white":  { "value": "#f5f7f4", "description": "Off-white, max-contrast text" }
+    },
+    "semantic": {
+      "success": { "bg": "#166534", "text": "#86efac" },
+      "warning": { "bg": "#92400e", "text": "#fde68a" },
+      "error":   { "bg": "#991b1b", "text": "#fca5a5" },
+      "info":    { "bg": "#1e3a5f", "text": "#93c5fd" }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "display": { "value": "'Syne', sans-serif",           "description": "UI headings, wordmark, buttons" },
+      "mono":    { "value": "'IBM Plex Mono', monospace",   "description": "Code, metadata, labels, version strings" },
+      "serif":   { "value": "'Instrument Serif', serif",    "description": "Editorial accents, taglines" }
+    },
+    "fontSize": {
+      "xs":   { "value": "11px" },
+      "sm":   { "value": "13px" },
+      "base": { "value": "15px" },
+      "lg":   { "value": "18px" },
+      "xl":   { "value": "22px" },
+      "2xl":  { "value": "28px" },
+      "3xl":  { "value": "36px" },
+      "4xl":  { "value": "48px" }
+    },
+    "fontWeight": {
+      "regular": { "value": "400" },
+      "medium":  { "value": "500" },
+      "semibold":{ "value": "600" },
+      "bold":    { "value": "700" },
+      "extrabold":{ "value": "800" }
+    }
+  },
+  "borderRadius": {
+    "sm":  { "value": "4px" },
+    "md":  { "value": "6px" },
+    "lg":  { "value": "10px" },
+    "xl":  { "value": "12px" },
+    "2xl": { "value": "24px" }
+  },
+  "shadow": {
+    "sm":   { "value": "0 2px 8px rgba(0,0,0,0.3)" },
+    "md":   { "value": "0 8px 24px rgba(0,0,0,0.5)" },
+    "lg":   { "value": "0 32px 80px rgba(0,0,0,0.6)" },
+    "glow": { "value": "0 0 24px rgba(77,163,98,0.15)" }
+  },
+  "transition": {
+    "fast": { "value": "150ms ease" },
+    "base": { "value": "200ms ease" },
+    "slow": { "value": "600ms ease" }
+  }
+}

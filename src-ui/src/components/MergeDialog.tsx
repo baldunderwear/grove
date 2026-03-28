@@ -111,8 +111,8 @@ export function MergeDialog({
               <DialogTitle>Merge Preview</DialogTitle>
             </DialogHeader>
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-sm text-gray-400">Loading preview...</span>
+              <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+              <span className="ml-2 text-sm text-gray-300">Loading preview...</span>
             </div>
           </>
         )}
@@ -138,9 +138,9 @@ export function MergeDialog({
                   <ul className="space-y-1">
                     {preview.commits_to_merge.map((commit) => (
                       <li key={commit.oid} className="flex items-start gap-2 text-xs">
-                        <code className="text-gray-500 shrink-0">{commit.oid.slice(0, 7)}</code>
+                        <code className="text-gray-400 shrink-0">{commit.oid.slice(0, 7)}</code>
                         <span className="text-gray-300 truncate">{commit.message}</span>
-                        <span className="text-gray-500 shrink-0 ml-auto">{commit.author}</span>
+                        <span className="text-gray-400 shrink-0 ml-auto">{commit.author}</span>
                       </li>
                     ))}
                   </ul>
@@ -153,10 +153,10 @@ export function MergeDialog({
                   <h4 className="text-sm font-medium text-gray-300 mb-1">Changelog Fragments</h4>
                   <ul className="space-y-0.5">
                     {preview.changelog_fragments.map((frag) => (
-                      <li key={frag.path} className="flex items-center gap-2 text-xs text-gray-400">
+                      <li key={frag.path} className="flex items-center gap-2 text-xs text-gray-300">
                         <span>{frag.name}</span>
                         {frag.is_legacy && (
-                          <Badge className="bg-gray-700 text-gray-400 border-0 text-[10px] px-1 py-0">
+                          <Badge className="bg-gray-700 text-gray-300 border-0 text-[10px] px-1 py-0">
                             legacy
                           </Badge>
                         )}
@@ -169,9 +169,9 @@ export function MergeDialog({
               {/* Build Number */}
               {preview.current_build !== null && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-gray-400">Build</span>
+                  <span className="text-gray-300">Build</span>
                   <Badge className="bg-gray-700 text-gray-300 border-0">{preview.current_build}</Badge>
-                  <span className="text-gray-500">&rarr;</span>
+                  <span className="text-gray-400">&rarr;</span>
                   <Badge className="bg-emerald-900/50 text-emerald-300 border-emerald-800">{preview.next_build}</Badge>
                 </div>
               )}
@@ -216,22 +216,22 @@ export function MergeDialog({
               </p>
 
               {preview.current_build !== null && (
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-300">
                   Build number will bump from {preview.current_build} to {preview.next_build}
                 </p>
               )}
 
               {preview.changelog_fragments.length > 0 && (
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-300">
                   {preview.changelog_fragments.length} changelog fragment{preview.changelog_fragments.length !== 1 ? 's' : ''} will be renamed
                 </p>
               )}
 
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-300">
                 {preview.commits_to_merge.length} commit{preview.commits_to_merge.length !== 1 ? 's' : ''} will be merged
               </p>
 
-              <p className="text-xs text-gray-500 italic">
+              <p className="text-xs text-gray-400 italic">
                 This is a local merge only -- changes will not be pushed to remote.
               </p>
             </div>
@@ -258,7 +258,7 @@ export function MergeDialog({
             </DialogHeader>
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
-              <span className="ml-2 text-sm text-gray-400">
+              <span className="ml-2 text-sm text-gray-300">
                 Merging {preview.source_branch} into {preview.target_branch}...
               </span>
             </div>
@@ -282,7 +282,7 @@ export function MergeDialog({
 
               {result.new_build !== null && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">Build number:</span>
+                  <span className="text-sm text-gray-300">Build number:</span>
                   <Badge className="bg-emerald-900/50 text-emerald-300 border-emerald-800">
                     {result.new_build}
                   </Badge>
@@ -294,7 +294,7 @@ export function MergeDialog({
                   <h4 className="text-sm font-medium text-gray-300 mb-1">Changelog Renames</h4>
                   <ul className="space-y-0.5">
                     {result.changelog_renames.map(([from, to]) => (
-                      <li key={from} className="text-xs text-gray-400">
+                      <li key={from} className="text-xs text-gray-300">
                         {from} &rarr; {to}
                       </li>
                     ))}

@@ -9,7 +9,7 @@ export function MergeHistory() {
 
   if (history.length === 0) {
     return (
-      <p className="text-sm text-gray-500">No merges this session</p>
+      <p className="text-sm text-gray-400">No merges this session</p>
     );
   }
 
@@ -24,11 +24,11 @@ export function MergeHistory() {
             <div className="flex items-center gap-1.5 text-sm">
               <GitMerge className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
               <span className="text-gray-50 truncate">{entry.source_branch}</span>
-              <span className="text-gray-500">&rarr;</span>
-              <span className="text-gray-400 truncate">{entry.target_branch}</span>
+              <span className="text-gray-400">&rarr;</span>
+              <span className="text-gray-300 truncate">{entry.target_branch}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="flex items-center gap-2 text-xs text-gray-300">
               <span>{entry.result.commits_merged} commits</span>
 
               {entry.result.new_build != null && (
@@ -43,7 +43,7 @@ export function MergeHistory() {
                 </Badge>
               )}
 
-              <span className="ml-auto text-gray-500">
+              <span className="ml-auto text-gray-400">
                 {relativeTime(entry.timestamp / 1000)}
               </span>
             </div>

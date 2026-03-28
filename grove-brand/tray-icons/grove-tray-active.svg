@@ -1,0 +1,10 @@
+<svg width="16" height="18" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Trunk -->
+  <rect x="6" y="14" width="4" height="5" rx="1" fill="#e89840"/>
+  <!-- Canopy layer 1 -->
+  <polygon points="8,1 1,9 15,9" fill="#c47a3a"/>
+  <!-- Canopy layer 2 -->
+  <polygon points="8,5 2,13 14,13" fill="#e89840" opacity="0.9"/>
+  <!-- Active badge dot -->
+  <circle cx="13" cy="4" r="3.5" fill="#4fa362"/>
+</svg>

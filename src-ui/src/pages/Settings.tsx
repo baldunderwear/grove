@@ -82,7 +82,7 @@ export function Settings() {
         <div className="space-y-6">
           {/* Refresh interval */}
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wider text-gray-400">
+            <Label className="text-xs uppercase tracking-wider text-gray-300">
               Refresh interval
             </Label>
             <div className="flex items-center gap-2">
@@ -95,16 +95,16 @@ export function Settings() {
                 onBlur={handleRefreshBlur}
                 className="w-24"
               />
-              <span className="text-sm text-gray-400">seconds</span>
+              <span className="text-sm text-gray-300">seconds</span>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               How often to check git status, in seconds.
             </p>
           </div>
 
           {/* Auto-fetch interval */}
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wider text-gray-400">
+            <Label className="text-xs uppercase tracking-wider text-gray-300">
               Remote fetch interval
             </Label>
             <div className="flex items-center gap-2">
@@ -117,9 +117,9 @@ export function Settings() {
                 onBlur={handleFetchBlur}
                 className="w-24"
               />
-              <span className="text-sm text-gray-400">seconds</span>
+              <span className="text-sm text-gray-300">seconds</span>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               How often to fetch from remote. Set to 0 to disable. Minimum 60 seconds.
             </p>
           </div>
@@ -170,7 +170,7 @@ export function Settings() {
 
       {/* Notifications */}
       <Card className="p-4 mt-6">
-        <h2 className="text-xs uppercase tracking-wider text-gray-400 mb-3">
+        <h2 className="text-xs uppercase tracking-wider text-gray-300 mb-3">
           Notifications
         </h2>
         <div className="space-y-3">
@@ -222,14 +222,14 @@ export function Settings() {
       {/* Theme */}
       <Card className="p-4 mt-6">
         <p className="text-sm text-gray-50">Dark mode</p>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-400 mt-1">
           Light theme coming in a future version.
         </p>
       </Card>
 
       {/* Data / Configuration */}
       <Card className="p-4 mt-6">
-        <h2 className="text-xs uppercase tracking-wider text-gray-400 mb-3">
+        <h2 className="text-xs uppercase tracking-wider text-gray-300 mb-3">
           Configuration
         </h2>
         <div className="flex gap-3">
@@ -246,7 +246,7 @@ export function Settings() {
         {importError && (
           <p className="text-xs text-red-500 mt-2">{importError}</p>
         )}
-        <p className="text-xs text-gray-500 mt-3">
+        <p className="text-xs text-gray-400 mt-3">
           Export saves your projects and settings. Import replaces current
           configuration.
         </p>
