@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
 status: executing
-stopped_at: Completed 10-02-PLAN.md
-last_updated: "2026-03-29T17:29:12.560Z"
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-29T18:20:02.989Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 5
-  completed_plans: 4
+  completed_phases: 2
+  total_plans: 8
+  completed_plans: 6
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Claude Code command center -- embed sessions, detect state, configure Claude, orchestrate parallel work.
-**Current focus:** Phase 10 — multi-terminal-tabs
+**Current focus:** Phase 11 — session-intelligence
 
 ## Current Position
 
-Phase: 10 (multi-terminal-tabs) — EXECUTING
-Plan: 2 of 2
+Phase: 11 (session-intelligence) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
 Last activity: 2026-03-29
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09 P03 | 7min | 2 tasks | 4 files |
 | Phase 10 P01 | 28min | 2 tasks | 4 files |
 | Phase 10 P02 | 6min | 2 tasks | 5 files |
+| Phase 11 P01 | 11min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 10]: Win32 HANDLE stored as isize for Send-safe struct storage, cast back to *mut c_void at API boundaries
 - [Phase 10]: Graceful degradation for Job Object failures -- terminal spawns normally without tree cleanup
 - [Phase 10]: CSS display toggle for xterm.js tab switching -- preserves scrollback without unmount
+- [Phase 11]: LazyLock regex for ANSI stripping (no once_cell dep)
+- [Phase 11]: Arc<AtomicU64> shared between reader + idle timer threads for idle detection
+- [Phase 11]: Parser feeds after Channel send -- zero latency impact on xterm.js rendering
 
 ### Blockers/Concerns
 
@@ -81,6 +85,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T17:29:12.434Z
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-03-29T18:20:02.962Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None

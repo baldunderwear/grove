@@ -12,7 +12,7 @@
 - [x] **TERM-07**: Terminal preserves scrollback history per session
 
 ### Session Intelligence
-- [ ] **SESS-01**: Detect session state in real-time: waiting for input, working, idle, error
+- [x] **SESS-01**: Detect session state in real-time: waiting for input, working, idle, error
 - [ ] **SESS-02**: Dashboard shows aggregate status ("3 working, 2 waiting for input")
 - [ ] **SESS-03**: Status indicator per terminal tab (colored dot: green=working, amber=waiting, gray=idle, red=error)
 - [ ] **SESS-04**: Notification when a session transitions to "waiting for input"
@@ -69,7 +69,7 @@
 | TERM-05 | Phase 09 | Complete |
 | TERM-06 | Phase 10 | Complete |
 | TERM-07 | Phase 10 | Complete |
-| SESS-01 | Phase 11 | Pending |
+| SESS-01 | Phase 11 | Complete |
 | SESS-02 | Phase 11 | Pending |
 | SESS-03 | Phase 11 | Pending |
 | SESS-04 | Phase 11 | Pending |
