@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use std::sync::Mutex;
 
-use crate::config::models::{AppConfig, BuildFileConfig, ChangelogConfig, HealthStatus, ScanResult};
+use crate::config::models::{AppConfig, BuildFileConfig, ChangelogConfig, HealthStatus, Profile, ScanResult};
 use crate::config::persistence::{self, ConfigError};
 
 /// Return the current configuration (creating a default on first launch).
@@ -47,6 +48,7 @@ pub fn add_project(
         branch_prefix: "wt/".to_string(),
         build_files: Vec::new(),
         changelog: None,
+        profile_id: None,
     };
 
     config.projects.push(project);
@@ -194,4 +196,157 @@ pub fn import_config(
 #[tauri::command]
 pub fn scan_repo(path: String) -> Result<ScanResult, ConfigError> {
     persistence::scan_repo(&path)
+}
+
+/// Create a new profile with the given name.
+/// If this is the first profile, it is automatically set as default (PROF-05).
+#[tauri::command]
+pub fn add_profile(
+    app_handle: tauri::AppHandle,
+    name: String,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+
+    let is_first = config.profiles.is_empty();
+
+    let profile = Profile {
+        id: uuid::Uuid::new_v4().to_string(),
+        name,
+        claude_config_dir: None,
+        env_vars: HashMap::new(),
+        ssh_key: None,
+        launch_flags: Vec::new(),
+        is_default: is_first,
+    };
+
+    config.profiles.push(profile);
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}
+
+/// Update fields on an existing profile. Only provided (Some) fields are changed.
+/// If is_default is set to true, all other profiles have is_default cleared first.
+#[tauri::command]
+pub fn update_profile(
+    app_handle: tauri::AppHandle,
+    id: String,
+    name: Option<String>,
+    claude_config_dir: Option<Option<String>>,
+    env_vars: Option<HashMap<String, String>>,
+    ssh_key: Option<Option<String>>,
+    launch_flags: Option<Vec<String>>,
+    is_default: Option<bool>,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+
+    // If setting this profile as default, clear default on all others first
+    if is_default == Some(true) {
+        for p in &mut config.profiles {
+            p.is_default = false;
+        }
+    }
+
+    let profile = config
+        .profiles
+        .iter_mut()
+        .find(|p| p.id == id)
+        .ok_or_else(|| ConfigError::ProjectNotFound(format!("Profile not found: {}", id)))?;
+
+    if let Some(v) = name {
+        profile.name = v;
+    }
+    if let Some(v) = claude_config_dir {
+        profile.claude_config_dir = v;
+    }
+    if let Some(v) = env_vars {
+        profile.env_vars = v;
+    }
+    if let Some(v) = ssh_key {
+        profile.ssh_key = v;
+    }
+    if let Some(v) = launch_flags {
+        profile.launch_flags = v;
+    }
+    if let Some(v) = is_default {
+        profile.is_default = v;
+    }
+
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}
+
+/// Remove a profile by its ID.
+/// Clears profile_id on any projects referencing it.
+/// If the removed profile was default and others remain, the first remaining becomes default.
+#[tauri::command]
+pub fn remove_profile(
+    app_handle: tauri::AppHandle,
+    id: String,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+
+    let idx = config
+        .profiles
+        .iter()
+        .position(|p| p.id == id)
+        .ok_or_else(|| ConfigError::ProjectNotFound(format!("Profile not found: {}", id)))?;
+
+    let was_default = config.profiles[idx].is_default;
+    config.profiles.remove(idx);
+
+    // Clear profile_id on any projects referencing the removed profile
+    for project in &mut config.projects {
+        if project.profile_id.as_deref() == Some(&id) {
+            project.profile_id = None;
+        }
+    }
+
+    // If removed profile was default and others remain, set first as default
+    if was_default && !config.profiles.is_empty() {
+        config.profiles[0].is_default = true;
+    }
+
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}
+
+/// Set or clear the profile_id on a project.
+#[tauri::command]
+pub fn set_project_profile(
+    app_handle: tauri::AppHandle,
+    project_id: String,
+    profile_id: Option<String>,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+
+    let project = config
+        .projects
+        .iter_mut()
+        .find(|p| p.id == project_id)
+        .ok_or_else(|| ConfigError::ProjectNotFound(project_id))?;
+
+    project.profile_id = profile_id;
+
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
 }

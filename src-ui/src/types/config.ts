@@ -2,6 +2,7 @@ export interface AppConfig {
   version: number;
   projects: ProjectConfig[];
   settings: Settings;
+  profiles: Profile[];
 }
 
 export interface ProjectConfig {
@@ -12,6 +13,17 @@ export interface ProjectConfig {
   branch_prefix: string;
   build_files: BuildFileConfig[];
   changelog: ChangelogConfig | null;
+  profile_id: string | null;
+}
+
+export interface Profile {
+  id: string;
+  name: string;
+  claude_config_dir: string | null;
+  env_vars: Record<string, string>;
+  ssh_key: string | null;
+  launch_flags: string[];
+  is_default: boolean;
 }
 
 export interface BuildFileConfig {

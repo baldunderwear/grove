@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Top-level application configuration.
 /// Stored at %APPDATA%/com.grove.app/config.json
@@ -9,6 +10,8 @@ pub struct AppConfig {
     pub projects: Vec<ProjectConfig>,
     #[serde(default)]
     pub settings: Settings,
+    #[serde(default)]
+    pub profiles: Vec<Profile>,
 }
 
 impl Default for AppConfig {
@@ -17,8 +20,27 @@ impl Default for AppConfig {
             version: 1,
             projects: Vec::new(),
             settings: Settings::default(),
+            profiles: Vec::new(),
         }
     }
+}
+
+/// A named profile for Claude Code sessions.
+/// Profiles control config directory, environment variables, SSH keys, and launch flags.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Profile {
+    pub id: String,
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub claude_config_dir: Option<String>,
+    #[serde(default)]
+    pub env_vars: HashMap<String, String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ssh_key: Option<String>,
+    #[serde(default)]
+    pub launch_flags: Vec<String>,
+    #[serde(default)]
+    pub is_default: bool,
 }
 
 /// Configuration for a single registered project (git repository).
@@ -34,6 +56,8 @@ pub struct ProjectConfig {
     pub build_files: Vec<BuildFileConfig>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub changelog: Option<ChangelogConfig>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profile_id: Option<String>,
 }
 
 /// Glob pattern for build number files.
