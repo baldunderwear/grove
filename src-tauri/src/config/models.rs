@@ -12,6 +12,8 @@ pub struct AppConfig {
     pub settings: Settings,
     #[serde(default)]
     pub profiles: Vec<Profile>,
+    #[serde(default)]
+    pub templates: Vec<PromptTemplate>,
 }
 
 impl Default for AppConfig {
@@ -21,8 +23,20 @@ impl Default for AppConfig {
             projects: Vec::new(),
             settings: Settings::default(),
             profiles: Vec::new(),
+            templates: Vec::new(),
         }
     }
+}
+
+/// A reusable prompt template for Claude Code session launches.
+/// The body can contain {variable} placeholders that are extracted into the variables list.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PromptTemplate {
+    pub id: String,
+    pub name: String,
+    pub body: String,
+    #[serde(default)]
+    pub variables: Vec<String>,
 }
 
 /// A named profile for Claude Code sessions.

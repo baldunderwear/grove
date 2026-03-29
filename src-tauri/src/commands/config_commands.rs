@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use crate::config::models::{AppConfig, BuildFileConfig, ChangelogConfig, HealthStatus, Profile, ScanResult};
+use crate::config::models::{AppConfig, BuildFileConfig, ChangelogConfig, HealthStatus, Profile, PromptTemplate, ScanResult};
 use crate::config::persistence::{self, ConfigError};
 
 /// Return the current configuration (creating a default on first launch).
@@ -321,6 +321,108 @@ pub fn remove_profile(
         config.profiles[0].is_default = true;
     }
 
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}
+
+/// Extract {variable} placeholders from a template body string.
+/// Scans for `{word}` patterns, deduplicates, and returns the variable names.
+fn extract_variables(body: &str) -> Vec<String> {
+    let mut vars = Vec::new();
+    let mut chars = body.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '{' {
+            let mut name = String::new();
+            for inner in chars.by_ref() {
+                if inner == '}' {
+                    break;
+                }
+                name.push(inner);
+            }
+            let name = name.trim().to_string();
+            if !name.is_empty() && !vars.contains(&name) {
+                vars.push(name);
+            }
+        }
+    }
+    vars
+}
+
+/// Create a new prompt template with the given name and body.
+/// Variables are automatically extracted from {placeholder} patterns in the body.
+#[tauri::command]
+pub fn add_template(
+    app_handle: tauri::AppHandle,
+    name: String,
+    body: String,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+
+    let variables = extract_variables(&body);
+    let template = PromptTemplate {
+        id: uuid::Uuid::new_v4().to_string(),
+        name,
+        body,
+        variables,
+    };
+
+    config.templates.push(template);
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}
+
+/// Update fields on an existing prompt template. Only provided (Some) fields are changed.
+/// If the body is updated, variables are re-extracted automatically.
+#[tauri::command]
+pub fn update_template(
+    app_handle: tauri::AppHandle,
+    id: String,
+    name: Option<String>,
+    body: Option<String>,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+
+    let template = config
+        .templates
+        .iter_mut()
+        .find(|t| t.id == id)
+        .ok_or_else(|| ConfigError::ProjectNotFound(format!("Template not found: {}", id)))?;
+
+    if let Some(v) = name {
+        template.name = v;
+    }
+    if let Some(v) = body {
+        template.variables = extract_variables(&v);
+        template.body = v;
+    }
+
+    persistence::save_config(&app_handle, &config)?;
+    Ok(config)
+}
+
+/// Remove a prompt template by its ID.
+#[tauri::command]
+pub fn remove_template(
+    app_handle: tauri::AppHandle,
+    id: String,
+    _lock: tauri::State<'_, Mutex<()>>,
+) -> Result<AppConfig, ConfigError> {
+    let _guard = _lock.lock().map_err(|e| {
+        ConfigError::Io(std::io::Error::other(format!("Lock poisoned: {}", e)))
+    })?;
+
+    let mut config = persistence::load_or_create_config(&app_handle)?;
+    config.templates.retain(|t| t.id != id);
     persistence::save_config(&app_handle, &config)?;
     Ok(config)
 }
