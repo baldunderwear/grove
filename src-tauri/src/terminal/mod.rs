@@ -1,4 +1,5 @@
 pub mod commands;
+pub mod job_object;
 pub mod pty;
 
 use portable_pty::{Child, MasterPty};
@@ -12,6 +13,22 @@ pub struct TerminalSession {
     pub(crate) child: Box<dyn Child + Send>,
     #[allow(dead_code)]
     pub(crate) working_dir: String,
+    /// Windows Job Object handle for process tree cleanup.
+    /// When closed, all processes assigned to the job are terminated.
+    pub(crate) job_handle: Option<isize>,
+}
+
+impl Drop for TerminalSession {
+    fn drop(&mut self) {
+        // Safety net: if kill() wasn't called (e.g., app crash recovery),
+        // close the Job Object handle to trigger process tree cleanup.
+        if let Some(handle) = self.job_handle.take() {
+            #[cfg(windows)]
+            job_object::close_job_object(handle);
+            #[cfg(not(windows))]
+            let _ = handle; // suppress unused warning on non-Windows
+        }
+    }
 }
 
 /// Manages all active terminal sessions by ID.

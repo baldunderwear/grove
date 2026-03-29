@@ -93,6 +93,7 @@ pub fn spawn_pty(
         master: pair.master,
         child,
         working_dir: working_dir.to_string(),
+        job_handle: None,
     };
 
     Ok((terminal_id, session))
