@@ -217,6 +217,7 @@ export function Dashboard() {
           onRefresh={() => manualRefresh(project.path, project.branch_prefix, project.merge_target)}
           onShowConfig={showProjectConfig}
           onNewWorktree={() => setShowNewWorktree(true)}
+          sessionCounts={getSessionCounts()}
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -262,6 +263,7 @@ export function Dashboard() {
         onRefresh={() => manualRefresh(project.path, project.branch_prefix, project.merge_target)}
         onShowConfig={showProjectConfig}
         onNewWorktree={() => setShowNewWorktree(true)}
+        sessionCounts={getSessionCounts()}
       />
       <div className="flex-1 mt-6 overflow-hidden">
         {loading ? (

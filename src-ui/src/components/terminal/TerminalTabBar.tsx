@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Terminal, X } from 'lucide-react';
-import type { TerminalTab } from '@/stores/terminal-store';
+import type { TerminalTab, SessionState } from '@/stores/terminal-store';
+
+function getStatusDotClass(state: SessionState): string {
+  switch (state) {
+    case 'working':  return 'bg-green-500 animate-pulse';
+    case 'waiting':  return 'bg-amber-400';
+    case 'idle':     return 'bg-zinc-500';
+    case 'error':    return 'bg-red-500';
+    default:         return 'bg-zinc-700';
+  }
+}
 
 interface TerminalTabBarProps {
   tabs: TerminalTab[];
@@ -45,6 +55,11 @@ export function TerminalTabBar({ tabs, activeTabId, onSwitch, onClose }: Termina
             }`}
             onClick={() => onSwitch(tab.id)}
           >
+            <span
+              className={`h-2 w-2 rounded-full shrink-0 ${getStatusDotClass(tab.sessionState)}`}
+              data-testid="status-dot"
+              title={tab.sessionState ?? 'starting'}
+            />
             <Terminal className="h-3 w-3 shrink-0" />
             <span className="truncate max-w-[150px]">{tab.branchName}</span>
             <span className="text-zinc-500 ml-1">{formatDuration(tab.createdAt)}</span>

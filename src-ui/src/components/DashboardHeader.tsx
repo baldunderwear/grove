@@ -25,6 +25,7 @@ interface DashboardHeaderProps {
   onRefresh: () => void;
   onShowConfig: () => void;
   onNewWorktree: () => void;
+  sessionCounts?: { working: number; waiting: number; idle: number; error: number };
 }
 
 const sortLabels: Record<SortMode, string> = {
@@ -43,6 +44,7 @@ export function DashboardHeader({
   onRefresh,
   onShowConfig,
   onNewWorktree,
+  sessionCounts,
 }: DashboardHeaderProps) {
   return (
     <div>
@@ -59,6 +61,37 @@ export function DashboardHeader({
                 <span className="text-xs text-[var(--grove-stone)]">&middot;</span>
                 <span className="text-xs text-[var(--grove-fog)]">
                   Updated {relativeTime(Math.floor(lastRefreshed / 1000))}
+                </span>
+              </>
+            )}
+            {sessionCounts && (sessionCounts.working + sessionCounts.waiting + sessionCounts.idle + sessionCounts.error) > 0 && (
+              <>
+                <span className="text-xs text-[var(--grove-stone)]">&middot;</span>
+                <span className="text-xs text-[var(--grove-fog)] flex items-center gap-1.5">
+                  {sessionCounts.working > 0 && (
+                    <span className="flex items-center gap-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                      {sessionCounts.working}
+                    </span>
+                  )}
+                  {sessionCounts.waiting > 0 && (
+                    <span className="flex items-center gap-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      {sessionCounts.waiting}
+                    </span>
+                  )}
+                  {sessionCounts.idle > 0 && (
+                    <span className="flex items-center gap-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
+                      {sessionCounts.idle}
+                    </span>
+                  )}
+                  {sessionCounts.error > 0 && (
+                    <span className="flex items-center gap-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                      {sessionCounts.error}
+                    </span>
+                  )}
                 </span>
               </>
             )}
