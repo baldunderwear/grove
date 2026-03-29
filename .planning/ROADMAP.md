@@ -20,7 +20,7 @@
 **Milestone Goal:** Transform Grove from a worktree manager into a full Claude Code command center with embedded terminals, session intelligence, and configuration editors.
 
 - [x] **Phase 09: Terminal Foundation (ConPTY Spike)** - Validate portable-pty on Windows, deliver single embedded terminal with PTY (completed 2026-03-29)
-- [ ] **Phase 10: Multi-Terminal Tabs** - Multiple terminal tabs tied to worktrees with process tree cleanup
+- [x] **Phase 10: Multi-Terminal Tabs** - Multiple terminal tabs tied to worktrees with process tree cleanup (completed 2026-03-29)
 - [ ] **Phase 11: Session Intelligence** - Real-time session state detection with dashboard status indicators
 - [ ] **Phase 12: Configuration Editors** - CLAUDE.md, settings.json, and skills editors with CodeMirror
 - [ ] **Phase 13: Launch Experience** - Prompt templates, context builder, and batch launch
@@ -68,7 +68,11 @@ Plans:
   2. Dashboard shows aggregate session status (e.g., "3 working, 2 waiting for input") across all open terminals
   3. User receives a desktop notification when any session transitions to "waiting for input"
   4. User can view session history for any terminal: git diff since session start, duration, and state timeline
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
+- [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
+- [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
 
 ### Phase 12: Configuration Editors & Profiles
@@ -83,7 +87,11 @@ Plans:
   5. Config files load in under 100ms and editors handle files up to 500KB without jank
   6. User can create named profiles (Personal, Work) with distinct Claude config dirs, env vars, SSH keys, and launch flags
   7. Projects assigned to a profile launch sessions with that profile's environment automatically
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
+- [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
+- [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
 
 ### Phase 13: Launch Experience
@@ -95,7 +103,11 @@ Plans:
   2. User can select specific files to include as context before launching Claude Code
   3. User can "launch with prompt" which opens a terminal tab and auto-sends the initial prompt to Claude Code
   4. User can batch-launch Claude Code on multiple worktrees simultaneously with one action
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
+- [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
+- [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
 
 ## Progress
@@ -105,7 +117,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
-| 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete | 2026-03-29 |
+| 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
 | 11. Session Intelligence | v2.0 | 0/? | Not started | - |
 | 12. Configuration Editors | v2.0 | 0/? | Not started | - |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |
