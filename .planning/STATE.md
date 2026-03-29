@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
 status: executing
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-03-29T18:20:02.989Z"
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-03-29T18:27:03.245Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 11 (session-intelligence) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-03-29
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 10 P01 | 28min | 2 tasks | 4 files |
 | Phase 10 P02 | 6min | 2 tasks | 5 files |
 | Phase 11 P01 | 11min | 2 tasks | 5 files |
+| Phase 11 P02 | 4min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 11]: LazyLock regex for ANSI stripping (no once_cell dep)
 - [Phase 11]: Arc<AtomicU64> shared between reader + idle timer threads for idle detection
 - [Phase 11]: Parser feeds after Channel send -- zero latency impact on xterm.js rendering
+- [Phase 11]: Status dot placed before Terminal icon; notification fires on every waiting transition; sessionState reset to null on disconnect
 
 ### Blockers/Concerns
 
@@ -85,6 +87,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T18:20:02.962Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-03-29T18:27:03.220Z
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None

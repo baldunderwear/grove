@@ -71,7 +71,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
-- [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
+- [x] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
 - [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
 
@@ -89,7 +89,7 @@ Plans:
   7. Projects assigned to a profile launch sessions with that profile's environment automatically
 **Plans**: 3 plans
 Plans:
-- [ ] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
+- [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
 - [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
 - [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
@@ -118,6 +118,6 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
-| 11. Session Intelligence | v2.0 | 1/3 | In Progress|  |
+| 11. Session Intelligence | v2.0 | 2/3 | In Progress|  |
 | 12. Configuration Editors | v2.0 | 0/? | Not started | - |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |

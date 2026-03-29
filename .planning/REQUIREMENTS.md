@@ -13,9 +13,9 @@
 
 ### Session Intelligence
 - [x] **SESS-01**: Detect session state in real-time: waiting for input, working, idle, error
-- [ ] **SESS-02**: Dashboard shows aggregate status ("3 working, 2 waiting for input")
-- [ ] **SESS-03**: Status indicator per terminal tab (colored dot: green=working, amber=waiting, gray=idle, red=error)
-- [ ] **SESS-04**: Notification when a session transitions to "waiting for input"
+- [x] **SESS-02**: Dashboard shows aggregate status ("3 working, 2 waiting for input")
+- [x] **SESS-03**: Status indicator per terminal tab (colored dot: green=working, amber=waiting, gray=idle, red=error)
+- [x] **SESS-04**: Notification when a session transitions to "waiting for input"
 - [ ] **SESS-05**: Session history: git diff since session start, duration, state timeline
 
 ### Configuration Editors
@@ -70,9 +70,9 @@
 | TERM-06 | Phase 10 | Complete |
 | TERM-07 | Phase 10 | Complete |
 | SESS-01 | Phase 11 | Complete |
-| SESS-02 | Phase 11 | Pending |
-| SESS-03 | Phase 11 | Pending |
-| SESS-04 | Phase 11 | Pending |
+| SESS-02 | Phase 11 | Complete |
+| SESS-03 | Phase 11 | Complete |
+| SESS-04 | Phase 11 | Complete |
 | SESS-05 | Phase 11 | Pending |
 | CONF-01 | Phase 12 | Pending |
 | CONF-02 | Phase 12 | Pending |
