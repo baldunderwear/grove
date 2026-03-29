@@ -35,8 +35,8 @@
 ### Profiles & Multi-Account
 - [x] **PROF-01**: User can create named profiles (e.g., "Personal", "Work") with distinct Claude config directory, env vars, and SSH key
 - [ ] **PROF-02**: Each project is assigned to a profile; launching sessions inherits that profile's environment
-- [ ] **PROF-03**: Profile selector in sidebar or top bar to filter projects by identity
-- [ ] **PROF-04**: Profile editor for managing environment variables, launch flags, and Claude config paths
+- [x] **PROF-03**: Profile selector in sidebar or top bar to filter projects by identity
+- [x] **PROF-04**: Profile editor for managing environment variables, launch flags, and Claude config paths
 - [x] **PROF-05**: Default profile applied when no profile is explicitly set on a project
 
 ### Non-Functional
@@ -91,6 +91,6 @@
 | NFR-09 | Phase 12 | Complete |
 | PROF-01 | Phase 12 | Complete |
 | PROF-02 | Phase 12 | Pending |
-| PROF-03 | Phase 12 | Pending |
-| PROF-04 | Phase 12 | Pending |
+| PROF-03 | Phase 12 | Complete |
+| PROF-04 | Phase 12 | Complete |
 | PROF-05 | Phase 12 | Complete |
