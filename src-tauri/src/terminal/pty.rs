@@ -42,6 +42,37 @@ pub fn spawn_pty(
         .spawn_command(cmd)
         .map_err(|e| format!("Failed to spawn command: {}", e))?;
 
+    // Create Job Object and assign the child process BEFORE spawning the reader
+    // thread, so the entire process tree is captured from the start.
+    // Graceful degradation: if Job Object setup fails, log and continue without it.
+    #[cfg(windows)]
+    let job_handle = {
+        let mut handle: Option<isize> = None;
+        if let Some(pid) = child.process_id() {
+            match super::job_object::create_job_object() {
+                Ok(job) => {
+                    match super::job_object::assign_process_to_job(job, pid) {
+                        Ok(()) => {
+                            handle = Some(job);
+                        }
+                        Err(e) => {
+                            eprintln!("[grove] Failed to assign PID {} to Job Object: {}", pid, e);
+                            super::job_object::close_job_object(job);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("[grove] Failed to create Job Object: {}", e);
+                }
+            }
+        } else {
+            eprintln!("[grove] Could not get child PID for Job Object assignment");
+        }
+        handle
+    };
+    #[cfg(not(windows))]
+    let job_handle: Option<isize> = None;
+
     // Drop slave immediately -- we only need the master side
     drop(pair.slave);
 
@@ -93,7 +124,7 @@ pub fn spawn_pty(
         master: pair.master,
         child,
         working_dir: working_dir.to_string(),
-        job_handle: None,
+        job_handle,
     };
 
     Ok((terminal_id, session))

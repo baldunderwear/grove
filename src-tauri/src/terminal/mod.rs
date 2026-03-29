@@ -96,15 +96,31 @@ impl TerminalManager {
         Ok(())
     }
 
-    /// Kill a terminal's child process and remove it from the manager.
+    /// Kill a terminal's entire process tree and remove it from the manager.
+    ///
+    /// If a Job Object is attached, closing its handle triggers
+    /// KILL_ON_JOB_CLOSE which terminates all processes in the tree.
+    /// Falls back to child.kill() as belt-and-suspenders.
     pub fn kill(&mut self, id: &str) -> Result<(), String> {
         let mut session = self
             .remove(id)
             .ok_or_else(|| format!("Terminal {} not found", id))?;
-        session
-            .child
-            .kill()
-            .map_err(|e| format!("Kill failed: {}", e))?;
+
+        // Close Job Object first -- this kills the entire process tree
+        if let Some(handle) = session.job_handle.take() {
+            #[cfg(windows)]
+            job_object::close_job_object(handle);
+            #[cfg(not(windows))]
+            let _ = handle;
+        }
+
+        // Belt-and-suspenders: also kill the direct child process.
+        // This should return quickly since the Job Object already killed it.
+        let _ = session.child.kill();
+
+        // Wait for child to fully exit (should be near-instant after job close)
+        let _ = session.child.wait();
+
         Ok(())
     }
 }
