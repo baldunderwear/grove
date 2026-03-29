@@ -14,6 +14,7 @@ pub fn terminal_spawn(
     rows: u16,
     on_event: Channel<TerminalEvent>,
     manager: tauri::State<'_, std::sync::Mutex<TerminalManager>>,
+    app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
     // Resolve UNC paths to drive letters (NAS worktrees use UNC)
     let mappings = crate::utils::paths::get_drive_mappings();
@@ -28,7 +29,7 @@ pub fn terminal_spawn(
     }
 
     // Spawn PTY (must NOT hold manager lock during this -- PTY I/O is slow)
-    let (id, session) = pty::spawn_pty(&resolved, cols, rows, on_event)?;
+    let (id, session) = pty::spawn_pty(&resolved, cols, rows, on_event, app_handle)?;
 
     // Brief lock to insert session
     let mut mgr = manager

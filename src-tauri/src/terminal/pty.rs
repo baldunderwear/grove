@@ -1,6 +1,10 @@
 use portable_pty::{CommandBuilder, NativePtySystem, PtySize, PtySystem};
 use std::io::Read;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::ipc::Channel;
+use tauri::Emitter;
 
 use super::{TerminalEvent, TerminalSession};
 
@@ -17,6 +21,7 @@ pub fn spawn_pty(
     cols: u16,
     rows: u16,
     on_event: Channel<TerminalEvent>,
+    app_handle: tauri::AppHandle,
 ) -> Result<(String, TerminalSession), String> {
     let pty_system = NativePtySystem::default();
 
@@ -89,7 +94,54 @@ pub fn spawn_pty(
     let terminal_id = uuid::Uuid::new_v4().to_string();
     let id_for_thread = terminal_id.clone();
 
+    // Shared state for idle detection between reader and idle-check threads
+    let last_output_epoch_ms = Arc::new(AtomicU64::new(now_epoch_ms()));
+    let reader_alive = Arc::new(AtomicBool::new(true));
+
+    // Create state parser for session intelligence
+    let mut parser = super::state_parser::StateParser::new(
+        terminal_id.clone(),
+        app_handle.clone(),
+    );
+
+    // Shared refs for idle timer thread
+    let idle_last_output = Arc::clone(&last_output_epoch_ms);
+    let idle_reader_alive = Arc::clone(&reader_alive);
+    let idle_terminal_id = terminal_id.clone();
+    let idle_app_handle = app_handle.clone();
+
+    // Idle detection companion thread: checks every 15 seconds
+    std::thread::Builder::new()
+        .name(format!("pty-idle-{}", &id_for_thread[..8]))
+        .spawn(move || {
+            loop {
+                std::thread::sleep(std::time::Duration::from_secs(15));
+
+                // Exit if reader thread is gone
+                if !idle_reader_alive.load(Ordering::Relaxed) {
+                    break;
+                }
+
+                let last_ms = idle_last_output.load(Ordering::Relaxed);
+                let now_ms = now_epoch_ms();
+                let elapsed_secs = (now_ms.saturating_sub(last_ms)) / 1000;
+
+                if elapsed_secs >= 60 {
+                    let payload = super::state_parser::SessionStatePayload {
+                        terminal_id: idle_terminal_id.clone(),
+                        state: super::state_parser::SessionState::Idle,
+                        timestamp: now_ms,
+                    };
+                    let _ = idle_app_handle.emit("session-state-changed", payload);
+                }
+            }
+        })
+        .map_err(|e| format!("Failed to spawn idle thread: {}", e))?;
+
     // Dedicated OS thread for blocking PTY read loop (Pattern 2 from research)
+    let reader_alive_flag = Arc::clone(&reader_alive);
+    let reader_last_output = Arc::clone(&last_output_epoch_ms);
+
     std::thread::Builder::new()
         .name(format!("pty-reader-{}", &id_for_thread[..8]))
         .spawn(move || {
@@ -103,10 +155,15 @@ pub fn spawn_pty(
                     }
                     Ok(n) => {
                         let data = String::from_utf8_lossy(&buf[..n]).to_string();
-                        if on_event.send(TerminalEvent::Data { data }).is_err() {
+                        // Stream to xterm.js FIRST (no latency impact)
+                        if on_event.send(TerminalEvent::Data { data: data.clone() }).is_err() {
                             // Frontend disconnected
                             break;
                         }
+                        // Update shared timestamp for idle detection
+                        reader_last_output.store(now_epoch_ms(), Ordering::Relaxed);
+                        // Feed to state parser (after xterm.js send, no rendering latency)
+                        parser.feed(&data);
                     }
                     Err(e) => {
                         let _ = on_event.send(TerminalEvent::Error {
@@ -116,6 +173,8 @@ pub fn spawn_pty(
                     }
                 }
             }
+            // Signal idle thread to exit
+            reader_alive_flag.store(false, Ordering::Relaxed);
         })
         .map_err(|e| format!("Failed to spawn reader thread: {}", e))?;
 
@@ -128,4 +187,12 @@ pub fn spawn_pty(
     };
 
     Ok((terminal_id, session))
+}
+
+/// Get current time as milliseconds since Unix epoch.
+fn now_epoch_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64
 }
