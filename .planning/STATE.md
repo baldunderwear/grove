@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09 P02 | 7min | 2 tasks | 5 files |
 | Phase 09 P01 | 33min | 2 tasks | 8 files |
 | Phase 09 P03 | 7min | 2 tasks | 4 files |
+| Phase 10 P01 | 28min | 2 tasks | 4 files |
 | Phase 10 P02 | 6min | 2 tasks | 5 files |
 
 ## Accumulated Context
@@ -69,6 +70,8 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 09]: Terminal store mediation in Dashboard rather than direct BranchTable coupling for better component isolation
 - [Phase 09]: react-resizable-panels v4 API (Group/Panel/Separator with orientation) wrapped in shadcn-style exports
 - [Phase 10]: Map cloning pattern for Zustand reactivity with Map-based multi-tab terminal state
+- [Phase 10]: Win32 HANDLE stored as isize for Send-safe struct storage, cast back to *mut c_void at API boundaries
+- [Phase 10]: Graceful degradation for Job Object failures -- terminal spawns normally without tree cleanup
 - [Phase 10]: CSS display toggle for xterm.js tab switching -- preserves scrollback without unmount
 
 ### Blockers/Concerns

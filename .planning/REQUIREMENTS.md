@@ -8,7 +8,7 @@
 - [x] **TERM-03**: Terminal tabs show branch name and session duration in the tab header
 - [x] **TERM-04**: User can resize terminal panes (split view: branch list + terminal)
 - [x] **TERM-05**: Terminal supports full ANSI rendering (colors, cursor movement, clearing)
-- [ ] **TERM-06**: Closing a terminal tab kills the session and child processes cleanly (Job Objects)
+- [x] **TERM-06**: Closing a terminal tab kills the session and child processes cleanly (Job Objects)
 - [x] **TERM-07**: Terminal preserves scrollback history per session
 
 ### Session Intelligence
@@ -67,7 +67,7 @@
 | TERM-03 | Phase 10 | Complete |
 | TERM-04 | Phase 09 | Complete |
 | TERM-05 | Phase 09 | Complete |
-| TERM-06 | Phase 10 | Pending |
+| TERM-06 | Phase 10 | Complete |
 | TERM-07 | Phase 10 | Complete |
 | SESS-01 | Phase 11 | Pending |
 | SESS-02 | Phase 11 | Pending |
