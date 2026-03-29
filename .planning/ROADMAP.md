@@ -53,7 +53,10 @@ Plans:
   2. Switching between terminal tabs preserves scrollback history and terminal state (no blank screens, no re-renders)
   3. Closing a terminal tab kills the Claude Code process and ALL its child processes (no zombie processes in Task Manager)
   4. Hiding Grove to system tray and restoring it preserves all terminal tabs and their content
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 10-01-PLAN.md -- Rust: Windows Job Objects for process tree cleanup on terminal close
+- [ ] 10-02-PLAN.md -- Frontend: Multi-tab terminal store, tab bar, multi-instance TerminalPanel, Dashboard wiring
 **UI hint**: yes
 
 ### Phase 11: Session Intelligence
@@ -101,8 +104,8 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 09. Terminal Foundation | v2.0 | 3/3 | Complete   | 2026-03-29 |
-| 10. Multi-Terminal Tabs | v2.0 | 0/? | Not started | - |
+| 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
+| 10. Multi-Terminal Tabs | v2.0 | 0/2 | Planning    | - |
 | 11. Session Intelligence | v2.0 | 0/? | Not started | - |
 | 12. Configuration Editors | v2.0 | 0/? | Not started | - |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |
