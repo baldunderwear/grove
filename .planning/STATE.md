@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
-status: verifying
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-03-29T18:33:47.953Z"
+status: executing
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-03-29T19:13:30.542Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 13
+  completed_plans: 9
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Claude Code command center -- embed sessions, detect state, configure Claude, orchestrate parallel work.
-**Current focus:** Phase 11 — session-intelligence
+**Current focus:** Phase 12 — configuration-editors-profiles
 
 ## Current Position
 
-Phase: 11 (session-intelligence) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 12 (configuration-editors-profiles) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
 Last activity: 2026-03-29
 
 Progress: [░░░░░░░░░░] 0%
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 11 P01 | 11min | 2 tasks | 5 files |
 | Phase 11 P02 | 4min | 3 tasks | 4 files |
 | Phase 11 P03 | 11min | 2 tasks | 7 files |
+| Phase 12 P01 | 18min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 11]: Status dot placed before Terminal icon; notification fires on every waiting transition; sessionState reset to null on disconnect
 - [Phase 11]: Event listener in setup() records transitions to HistoryManager -- decouples StateParser from history
 - [Phase 11]: inner().lock() pattern for accessing managed Mutex from Tauri event listener closures
+- [Phase 12]: DirEntry struct in file_commands.rs (not models.rs) -- command-specific, not config data
+- [Phase 12]: 512KB file size cap on read_text_file for NFR-09 headroom
+- [Phase 12]: First profile auto-default (PROF-05), default cascades to first remaining on removal
 
 ### Blockers/Concerns
 
@@ -90,6 +94,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T18:33:47.922Z
-Stopped at: Completed 11-03-PLAN.md
+Last session: 2026-03-29T19:13:30.502Z
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None

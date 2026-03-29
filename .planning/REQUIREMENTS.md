@@ -33,18 +33,18 @@
 - [ ] **LAUNCH-04**: Batch launch: start Claude Code on multiple worktrees simultaneously
 
 ### Profiles & Multi-Account
-- [ ] **PROF-01**: User can create named profiles (e.g., "Personal", "Work") with distinct Claude config directory, env vars, and SSH key
+- [x] **PROF-01**: User can create named profiles (e.g., "Personal", "Work") with distinct Claude config directory, env vars, and SSH key
 - [ ] **PROF-02**: Each project is assigned to a profile; launching sessions inherits that profile's environment
 - [ ] **PROF-03**: Profile selector in sidebar or top bar to filter projects by identity
 - [ ] **PROF-04**: Profile editor for managing environment variables, launch flags, and Claude config paths
-- [ ] **PROF-05**: Default profile applied when no profile is explicitly set on a project
+- [x] **PROF-05**: Default profile applied when no profile is explicitly set on a project
 
 ### Non-Functional
 - [x] **NFR-05**: Terminal I/O uses Tauri Channels (not events) for throughput
 - [x] **NFR-06**: PTY operations resolve UNC paths to drive letters before spawning
 - [x] **NFR-07**: No visible CMD windows from PTY operations (CREATE_NO_WINDOW)
 - [x] **NFR-08**: Terminal rendering at 60fps with WebGL addon fallback to canvas
-- [ ] **NFR-09**: Config editors load files < 100ms, handle files up to 500KB
+- [x] **NFR-09**: Config editors load files < 100ms, handle files up to 500KB
 
 ### Future (Deferred)
 - GitHub Issues integration (create worktree from issue)
@@ -88,9 +88,9 @@
 | NFR-06 | Phase 09 | Complete |
 | NFR-07 | Phase 09 | Complete |
 | NFR-08 | Phase 09 | Complete |
-| NFR-09 | Phase 12 | Pending |
-| PROF-01 | Phase 12 | Pending |
+| NFR-09 | Phase 12 | Complete |
+| PROF-01 | Phase 12 | Complete |
 | PROF-02 | Phase 12 | Pending |
 | PROF-03 | Phase 12 | Pending |
 | PROF-04 | Phase 12 | Pending |
-| PROF-05 | Phase 12 | Pending |
+| PROF-05 | Phase 12 | Complete |
