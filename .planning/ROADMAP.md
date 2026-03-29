@@ -19,7 +19,7 @@
 
 **Milestone Goal:** Transform Grove from a worktree manager into a full Claude Code command center with embedded terminals, session intelligence, and configuration editors.
 
-- [ ] **Phase 09: Terminal Foundation (ConPTY Spike)** - Validate portable-pty on Windows, deliver single embedded terminal with PTY
+- [x] **Phase 09: Terminal Foundation (ConPTY Spike)** - Validate portable-pty on Windows, deliver single embedded terminal with PTY (completed 2026-03-29)
 - [ ] **Phase 10: Multi-Terminal Tabs** - Multiple terminal tabs tied to worktrees with process tree cleanup
 - [ ] **Phase 11: Session Intelligence** - Real-time session state detection with dashboard status indicators
 - [ ] **Phase 12: Configuration Editors** - CLAUDE.md, settings.json, and skills editors with CodeMirror
@@ -41,7 +41,7 @@
 Plans:
 - [x] 09-01-PLAN.md -- Rust backend: UNC utils extraction, portable-pty, TerminalManager, Channel streaming
 - [x] 09-02-PLAN.md -- Frontend: xterm.js hook, TerminalPanel, TerminalToolbar, terminal store
-- [ ] 09-03-PLAN.md -- Integration: Dashboard split-pane, Launch button wiring, ConPTY spike validation
+- [x] 09-03-PLAN.md -- Integration: Dashboard split-pane, Launch button wiring, ConPTY spike validation
 **UI hint**: yes
 
 ### Phase 10: Multi-Terminal Tabs
@@ -101,7 +101,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 09. Terminal Foundation | v2.0 | 2/3 | In Progress|  |
+| 09. Terminal Foundation | v2.0 | 3/3 | Complete   | 2026-03-29 |
 | 10. Multi-Terminal Tabs | v2.0 | 0/? | Not started | - |
 | 11. Session Intelligence | v2.0 | 0/? | Not started | - |
 | 12. Configuration Editors | v2.0 | 0/? | Not started | - |

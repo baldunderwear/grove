@@ -6,7 +6,7 @@
 - [x] **TERM-01**: User can launch Claude Code in an embedded terminal tab instead of an external window
 - [ ] **TERM-02**: Multiple terminal tabs open simultaneously, one per worktree
 - [ ] **TERM-03**: Terminal tabs show branch name and session duration in the tab header
-- [ ] **TERM-04**: User can resize terminal panes (split view: branch list + terminal)
+- [x] **TERM-04**: User can resize terminal panes (split view: branch list + terminal)
 - [x] **TERM-05**: Terminal supports full ANSI rendering (colors, cursor movement, clearing)
 - [ ] **TERM-06**: Closing a terminal tab kills the session and child processes cleanly (Job Objects)
 - [ ] **TERM-07**: Terminal preserves scrollback history per session
@@ -65,7 +65,7 @@
 | TERM-01 | Phase 09 | Complete |
 | TERM-02 | Phase 10 | Pending |
 | TERM-03 | Phase 10 | Pending |
-| TERM-04 | Phase 09 | Pending |
+| TERM-04 | Phase 09 | Complete |
 | TERM-05 | Phase 09 | Complete |
 | TERM-06 | Phase 10 | Pending |
 | TERM-07 | Phase 10 | Pending |

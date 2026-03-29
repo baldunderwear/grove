@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
-status: executing
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-29T16:56:30.916Z"
+status: verifying
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-29T17:07:01.142Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 Phase: 09 (terminal-foundation-conpty-spike) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-29
 
 Progress: [░░░░░░░░░░] 0%
@@ -47,6 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 | 09 | 0/? | -- | -- |
 | Phase 09 P02 | 7min | 2 tasks | 5 files |
 | Phase 09 P01 | 33min | 2 tasks | 8 files |
+| Phase 09 P03 | 7min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 09]: Channel-based PTY I/O with options-ref pattern to avoid stale closures in useTerminal hook
 - [Phase 09]: Extracted UNC path utils to shared utils/paths.rs module for reuse across git and terminal
 - [Phase 09]: TerminalManager mutex NOT held during PTY I/O -- brief lock only for insert/remove/lookup
+- [Phase 09]: Terminal store mediation in Dashboard rather than direct BranchTable coupling for better component isolation
+- [Phase 09]: react-resizable-panels v4 API (Group/Panel/Separator with orientation) wrapped in shadcn-style exports
 
 ### Blockers/Concerns
 
@@ -72,6 +75,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T16:56:30.902Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-03-29T17:07:01.127Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
