@@ -7,7 +7,7 @@
 - [ ] **TERM-02**: Multiple terminal tabs open simultaneously, one per worktree
 - [ ] **TERM-03**: Terminal tabs show branch name and session duration in the tab header
 - [ ] **TERM-04**: User can resize terminal panes (split view: branch list + terminal)
-- [ ] **TERM-05**: Terminal supports full ANSI rendering (colors, cursor movement, clearing)
+- [x] **TERM-05**: Terminal supports full ANSI rendering (colors, cursor movement, clearing)
 - [ ] **TERM-06**: Closing a terminal tab kills the session and child processes cleanly (Job Objects)
 - [ ] **TERM-07**: Terminal preserves scrollback history per session
 
@@ -43,7 +43,7 @@
 - [ ] **NFR-05**: Terminal I/O uses Tauri Channels (not events) for throughput
 - [ ] **NFR-06**: PTY operations resolve UNC paths to drive letters before spawning
 - [ ] **NFR-07**: No visible CMD windows from PTY operations (CREATE_NO_WINDOW)
-- [ ] **NFR-08**: Terminal rendering at 60fps with WebGL addon fallback to canvas
+- [x] **NFR-08**: Terminal rendering at 60fps with WebGL addon fallback to canvas
 - [ ] **NFR-09**: Config editors load files < 100ms, handle files up to 500KB
 
 ### Future (Deferred)
@@ -66,7 +66,7 @@
 | TERM-02 | Phase 10 | Pending |
 | TERM-03 | Phase 10 | Pending |
 | TERM-04 | Phase 09 | Pending |
-| TERM-05 | Phase 09 | Pending |
+| TERM-05 | Phase 09 | Complete |
 | TERM-06 | Phase 10 | Pending |
 | TERM-07 | Phase 10 | Pending |
 | SESS-01 | Phase 11 | Pending |
@@ -87,7 +87,7 @@
 | NFR-05 | Phase 09 | Pending |
 | NFR-06 | Phase 09 | Pending |
 | NFR-07 | Phase 09 | Pending |
-| NFR-08 | Phase 09 | Pending |
+| NFR-08 | Phase 09 | Complete |
 | NFR-09 | Phase 12 | Pending |
 | PROF-01 | Phase 12 | Pending |
 | PROF-02 | Phase 12 | Pending |

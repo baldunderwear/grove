@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
-status: ready_to_plan
-last_updated: "2026-03-27T00:00:00.000Z"
-last_activity: 2026-03-27
+status: executing
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-03-29T16:29:39.785Z"
+last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -20,20 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Claude Code command center -- embed sessions, detect state, configure Claude, orchestrate parallel work.
-**Current focus:** Phase 09 - Terminal Foundation (ConPTY Spike)
+**Current focus:** Phase 09 — terminal-foundation-conpty-spike
 
 ## Current Position
 
-Phase: 09 of 13 (Terminal Foundation)
-Plan: -- (phase not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-27 -- Roadmap created for v2.0 Mission Control
+Phase: 09 (terminal-foundation-conpty-spike) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-03-29
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0 (v2.0)
 - Average duration: --
 - Total execution time: 0 hours
@@ -43,6 +45,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 09 | 0/? | -- | -- |
+| Phase 09 P02 | 7min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -56,6 +59,8 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Research]: Windows Job Objects for process tree cleanup on tab close
 - [Research]: UNC path resolution before all PTY operations (reuse v1.1 utility)
 - [Research]: ConPTY spike required before any terminal work -- CREATE_NO_WINDOW mitigation unconfirmed
+- [Phase 09]: WebGL addon with context-loss disposal for automatic DOM fallback (NFR-08)
+- [Phase 09]: Channel-based PTY I/O with options-ref pattern to avoid stale closures in useTerminal hook
 
 ### Blockers/Concerns
 
@@ -64,6 +69,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-27
-Stopped at: Roadmap created, ready to plan Phase 09
+Last session: 2026-03-29T16:29:39.739Z
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
