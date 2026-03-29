@@ -91,7 +91,7 @@ Plans:
 Plans:
 - [x] 12-01-PLAN.md -- Rust backend: file I/O commands, Profile model + CRUD, CodeMirror install
 - [ ] 12-02-PLAN.md -- CLAUDE.md editor with collapsible sections and merged preview
-- [ ] 12-03-PLAN.md -- Skills browser + Settings.json structured editor
+- [x] 12-03-PLAN.md -- Skills browser + Settings.json structured editor
 - [x] 12-04-PLAN.md -- Profile UI: editor form, sidebar selector, config store
 - [ ] 12-05-PLAN.md -- Integration: Config page routing, sidebar wiring, profile env injection
 **UI hint**: yes
@@ -121,5 +121,5 @@ Plans:
 | 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
 | 11. Session Intelligence | v2.0 | 3/3 | Complete    | 2026-03-29 |
-| 12. Configuration Editors | v2.0 | 2/5 | In Progress|  |
+| 12. Configuration Editors | v2.0 | 3/5 | In Progress|  |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |

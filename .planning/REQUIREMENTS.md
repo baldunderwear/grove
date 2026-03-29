@@ -21,10 +21,10 @@
 ### Configuration Editors
 - [ ] **CONF-01**: Visual editor for CLAUDE.md with section-aware editing (collapsible sections)
 - [ ] **CONF-02**: Preview mode showing what Claude will see (merged global + project CLAUDE.md)
-- [ ] **CONF-03**: Skills browser listing all skills in `.claude/skills/` with create/edit/delete
-- [ ] **CONF-04**: Settings editor for `.claude/settings.json` (permissions, hooks, MCP servers)
-- [ ] **CONF-05**: Syntax highlighting for markdown and JSON editing (CodeMirror)
-- [ ] **CONF-06**: Save with validation (JSON syntax check, markdown preview)
+- [x] **CONF-03**: Skills browser listing all skills in `.claude/skills/` with create/edit/delete
+- [x] **CONF-04**: Settings editor for `.claude/settings.json` (permissions, hooks, MCP servers)
+- [x] **CONF-05**: Syntax highlighting for markdown and JSON editing (CodeMirror)
+- [x] **CONF-06**: Save with validation (JSON syntax check, markdown preview)
 
 ### Launch Experience
 - [ ] **LAUNCH-01**: Prompt templates: save reusable prompts with variables ({branch}, {issue})
@@ -76,10 +76,10 @@
 | SESS-05 | Phase 11 | Complete |
 | CONF-01 | Phase 12 | Pending |
 | CONF-02 | Phase 12 | Pending |
-| CONF-03 | Phase 12 | Pending |
-| CONF-04 | Phase 12 | Pending |
-| CONF-05 | Phase 12 | Pending |
-| CONF-06 | Phase 12 | Pending |
+| CONF-03 | Phase 12 | Complete |
+| CONF-04 | Phase 12 | Complete |
+| CONF-05 | Phase 12 | Complete |
+| CONF-06 | Phase 12 | Complete |
 | LAUNCH-01 | Phase 13 | Pending |
 | LAUNCH-02 | Phase 13 | Pending |
 | LAUNCH-03 | Phase 13 | Pending |
