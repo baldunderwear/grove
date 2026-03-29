@@ -100,7 +100,9 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 
 **v1.0 shipped** (2026-03-28) — Full worktree manager with project registry, git operations backend, dashboard UI, session launch, merge workflow, system tray with notifications, and auto-update distribution. 8 phases, 22 plans, 6,535 LOC (Rust + TypeScript).
 
-**v1.1.4 shipped** (2026-03-29) — Brand design system (Grove forest green palette, Syne/IBM Plex Mono fonts), All Projects view, project wizard with smart repo scanning, NAS performance fixes (batched git CLI calls, UNC path resolution, hidden subprocess windows).
+**v1.1.4 shipped** (2026-03-29) — Brand design system, All Projects view, project wizard, NAS performance fixes.
+
+**v2.0 shipped** (2026-03-29) — Mission Control: embedded terminal tabs (portable-pty + xterm.js), session state detection (working/waiting/idle/error), CLAUDE.md/skills/settings editors (CodeMirror 6), multi-account profiles, prompt templates, context file picker, batch launch. 5 phases, 16 plans.
 
 ## Evolution
 
