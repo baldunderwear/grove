@@ -1,5 +1,6 @@
 use tauri::ipc::Channel;
 
+use super::history::HistoryManager;
 use super::pty;
 use super::{TerminalEvent, TerminalManager};
 
@@ -14,6 +15,7 @@ pub fn terminal_spawn(
     rows: u16,
     on_event: Channel<TerminalEvent>,
     manager: tauri::State<'_, std::sync::Mutex<TerminalManager>>,
+    history_manager: tauri::State<'_, std::sync::Mutex<HistoryManager>>,
     app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
     // Resolve UNC paths to drive letters (NAS worktrees use UNC)
@@ -36,6 +38,12 @@ pub fn terminal_spawn(
         .lock()
         .map_err(|e| format!("Manager lock poisoned: {}", e))?;
     mgr.insert(id.clone(), session);
+
+    // Start history tracking
+    let mut hist = history_manager
+        .lock()
+        .map_err(|e| format!("History lock poisoned: {}", e))?;
+    hist.start_session(&id, &resolved);
 
     Ok(id)
 }
@@ -77,4 +85,17 @@ pub fn terminal_kill(
         .lock()
         .map_err(|e| format!("Manager lock poisoned: {}", e))?;
     mgr.kill(&terminal_id)
+}
+
+/// Get session history (duration, state timeline, git diff) for a terminal.
+#[tauri::command]
+pub fn terminal_get_history(
+    terminal_id: String,
+    history_manager: tauri::State<'_, std::sync::Mutex<HistoryManager>>,
+) -> Result<super::history::SessionHistoryResponse, String> {
+    let mgr = history_manager
+        .lock()
+        .map_err(|e| format!("History lock poisoned: {}", e))?;
+    mgr.get_history(&terminal_id)
+        .ok_or_else(|| format!("No history for terminal {}", terminal_id))
 }

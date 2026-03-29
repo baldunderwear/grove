@@ -17,6 +17,7 @@ pub fn run() {
         .manage(std::sync::Mutex::new(process::detect::SessionDetector::new()))
         .manage(std::sync::Mutex::new(notifications::NotificationState::new()))
         .manage(std::sync::Mutex::new(terminal::TerminalManager::new()))
+        .manage(std::sync::Mutex::new(terminal::HistoryManager::new()))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
@@ -52,6 +53,7 @@ pub fn run() {
             terminal::commands::terminal_write,
             terminal::commands::terminal_resize,
             terminal::commands::terminal_kill,
+            terminal::commands::terminal_get_history,
         ])
         .setup(|app| {
             // Build tray icon with dynamic menu and event handlers
@@ -106,6 +108,34 @@ pub fn run() {
                         .state::<std::sync::Mutex<notifications::NotificationState>>();
                     notifications::check_and_notify(&app_handle_for_notif, &state);
                     let _ = crate::tray::rebuild_tray_menu(&app_handle_for_notif);
+                });
+            }
+
+            // Record state transitions to session history
+            {
+                use tauri::Listener;
+                let app_handle_hist = app.handle().clone();
+                app.listen("session-state-changed", move |event| {
+                    if let Ok(payload) =
+                        serde_json::from_str::<serde_json::Value>(event.payload())
+                    {
+                        let terminal_id = payload["terminal_id"].as_str().unwrap_or("");
+                        let state_str = payload["state"].as_str().unwrap_or("");
+                        let state = match state_str {
+                            "working" => Some(terminal::SessionState::Working),
+                            "waiting" => Some(terminal::SessionState::Waiting),
+                            "idle" => Some(terminal::SessionState::Idle),
+                            "error" => Some(terminal::SessionState::Error),
+                            _ => None,
+                        };
+                        if let (Some(state), false) = (state, terminal_id.is_empty()) {
+                            let hist_state = app_handle_hist
+                                .state::<std::sync::Mutex<terminal::HistoryManager>>();
+                            if let Ok(mut mgr) = hist_state.inner().lock() {
+                                mgr.record_transition(terminal_id, state);
+                            }
+                        }
+                    }
                 });
             }
 
