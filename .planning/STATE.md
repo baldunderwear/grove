@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
 status: executing
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-03-29T16:29:39.785Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-29T16:56:30.916Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 09 (terminal-foundation-conpty-spike) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-03-29
 
@@ -46,6 +46,7 @@ Progress: [░░░░░░░░░░] 0%
 |-------|-------|-------|----------|
 | 09 | 0/? | -- | -- |
 | Phase 09 P02 | 7min | 2 tasks | 5 files |
+| Phase 09 P01 | 33min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,8 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Research]: ConPTY spike required before any terminal work -- CREATE_NO_WINDOW mitigation unconfirmed
 - [Phase 09]: WebGL addon with context-loss disposal for automatic DOM fallback (NFR-08)
 - [Phase 09]: Channel-based PTY I/O with options-ref pattern to avoid stale closures in useTerminal hook
+- [Phase 09]: Extracted UNC path utils to shared utils/paths.rs module for reuse across git and terminal
+- [Phase 09]: TerminalManager mutex NOT held during PTY I/O -- brief lock only for insert/remove/lookup
 
 ### Blockers/Concerns
 
@@ -69,6 +72,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T16:29:39.739Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-03-29T16:56:30.902Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None

@@ -39,7 +39,7 @@
   5. Terminal works for worktrees on NAS-mounted drives (Z: drive / UNC paths)
 **Plans**: 3 plans
 Plans:
-- [ ] 09-01-PLAN.md -- Rust backend: UNC utils extraction, portable-pty, TerminalManager, Channel streaming
+- [x] 09-01-PLAN.md -- Rust backend: UNC utils extraction, portable-pty, TerminalManager, Channel streaming
 - [x] 09-02-PLAN.md -- Frontend: xterm.js hook, TerminalPanel, TerminalToolbar, terminal store
 - [ ] 09-03-PLAN.md -- Integration: Dashboard split-pane, Launch button wiring, ConPTY spike validation
 **UI hint**: yes
@@ -101,7 +101,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 09. Terminal Foundation | v2.0 | 1/3 | In Progress|  |
+| 09. Terminal Foundation | v2.0 | 2/3 | In Progress|  |
 | 10. Multi-Terminal Tabs | v2.0 | 0/? | Not started | - |
 | 11. Session Intelligence | v2.0 | 0/? | Not started | - |
 | 12. Configuration Editors | v2.0 | 0/? | Not started | - |

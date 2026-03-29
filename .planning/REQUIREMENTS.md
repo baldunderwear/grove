@@ -3,7 +3,7 @@
 ## Grove v2.0 — Mission Control
 
 ### Terminal Embedding
-- [ ] **TERM-01**: User can launch Claude Code in an embedded terminal tab instead of an external window
+- [x] **TERM-01**: User can launch Claude Code in an embedded terminal tab instead of an external window
 - [ ] **TERM-02**: Multiple terminal tabs open simultaneously, one per worktree
 - [ ] **TERM-03**: Terminal tabs show branch name and session duration in the tab header
 - [ ] **TERM-04**: User can resize terminal panes (split view: branch list + terminal)
@@ -40,9 +40,9 @@
 - [ ] **PROF-05**: Default profile applied when no profile is explicitly set on a project
 
 ### Non-Functional
-- [ ] **NFR-05**: Terminal I/O uses Tauri Channels (not events) for throughput
-- [ ] **NFR-06**: PTY operations resolve UNC paths to drive letters before spawning
-- [ ] **NFR-07**: No visible CMD windows from PTY operations (CREATE_NO_WINDOW)
+- [x] **NFR-05**: Terminal I/O uses Tauri Channels (not events) for throughput
+- [x] **NFR-06**: PTY operations resolve UNC paths to drive letters before spawning
+- [x] **NFR-07**: No visible CMD windows from PTY operations (CREATE_NO_WINDOW)
 - [x] **NFR-08**: Terminal rendering at 60fps with WebGL addon fallback to canvas
 - [ ] **NFR-09**: Config editors load files < 100ms, handle files up to 500KB
 
@@ -62,7 +62,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TERM-01 | Phase 09 | Pending |
+| TERM-01 | Phase 09 | Complete |
 | TERM-02 | Phase 10 | Pending |
 | TERM-03 | Phase 10 | Pending |
 | TERM-04 | Phase 09 | Pending |
@@ -84,9 +84,9 @@
 | LAUNCH-02 | Phase 13 | Pending |
 | LAUNCH-03 | Phase 13 | Pending |
 | LAUNCH-04 | Phase 13 | Pending |
-| NFR-05 | Phase 09 | Pending |
-| NFR-06 | Phase 09 | Pending |
-| NFR-07 | Phase 09 | Pending |
+| NFR-05 | Phase 09 | Complete |
+| NFR-06 | Phase 09 | Complete |
+| NFR-07 | Phase 09 | Complete |
 | NFR-08 | Phase 09 | Complete |
 | NFR-09 | Phase 12 | Pending |
 | PROF-01 | Phase 12 | Pending |
