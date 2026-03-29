@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { listen, TauriEvent } from '@tauri-apps/api/event';
 import { Button } from '@/components/ui/button';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { BranchEmptyState } from '@/components/BranchEmptyState';
 import { BranchTable } from '@/components/BranchTable';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { MergeDialog } from '@/components/MergeDialog';
 import { MergeHistory } from '@/components/MergeHistory';
 import { NewWorktreeDialog } from '@/components/NewWorktreeDialog';
+import { TerminalPanel } from '@/components/terminal/TerminalPanel';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
 import { useMergeStore } from '@/stores/merge-store';
 import { useSessionStore } from '@/stores/session-store';
+import { useTerminalStore } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
 
 export function Dashboard() {
@@ -32,10 +35,13 @@ export function Dashboard() {
 
   const activeSessions = useSessionStore((s) => s.activeSessions);
   const fetchSessions = useSessionStore((s) => s.fetchSessions);
-  const launchSession = useSessionStore((s) => s.launchSession);
   const openInVscode = useSessionStore((s) => s.openInVscode);
   const openInExplorer = useSessionStore((s) => s.openInExplorer);
   const clearSessions = useSessionStore((s) => s.clear);
+
+  const activeTerminalId = useTerminalStore((s) => s.activeTerminalId);
+  const activeWorktreePath = useTerminalStore((s) => s.activeWorktreePath);
+  const activeBranchName = useTerminalStore((s) => s.activeBranchName);
 
   const [showNewWorktree, setShowNewWorktree] = useState(false);
   const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
@@ -138,10 +144,16 @@ export function Dashboard() {
   }, [branches, settings?.refresh_interval]);
 
   // Action handlers
-  const handleLaunch = async (branch: BranchInfo) => {
+  const handleLaunch = (branch: BranchInfo) => {
     if (!project) return;
-    const flags: string[] = [];
-    await launchSession(branch.worktree_path, branch.name, flags);
+    // Open embedded terminal instead of external window
+    // TerminalPanel will handle the actual PTY spawn on mount
+    const { openTerminal, closeTerminal, activeTerminalId: currentId } = useTerminalStore.getState();
+    // Close any existing terminal first (single terminal for this phase)
+    if (currentId) {
+      closeTerminal();
+    }
+    openTerminal('pending', branch.worktree_path, branch.name);
   };
 
   const handleWorktreeCreated = async (_worktreePath: string, _branchName: string) => {
@@ -206,7 +218,7 @@ export function Dashboard() {
     );
   }
 
-  return (
+  const dashboardContent = (
     <div className="flex flex-col h-full px-8 pt-6">
       <DashboardHeader
         projectName={project.name}
@@ -255,6 +267,27 @@ export function Dashboard() {
       <div className="mt-4 mb-4">
         <MergeHistory />
       </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full">
+      {activeTerminalId ? (
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
+          <ResizablePanel defaultSize={50} minSize={25}>
+            {dashboardContent}
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <TerminalPanel
+              worktreePath={activeWorktreePath!}
+              branchName={activeBranchName!}
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        dashboardContent
+      )}
       <NewWorktreeDialog
         open={showNewWorktree}
         onOpenChange={setShowNewWorktree}
