@@ -1,8 +1,6 @@
-use git2::{BranchType, Repository};
 use serde::Serialize;
 
 use super::error::GitError;
-use super::status::is_worktree_dirty;
 
 /// Information about a single worktree branch, sent to the frontend.
 #[derive(Debug, Clone, Serialize)]
@@ -118,19 +116,65 @@ fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
     worktrees
 }
 
+/// Get ahead/behind counts for a branch vs target using git CLI.
+/// Much faster than git2's graph_ahead_behind on NAS.
+fn cli_ahead_behind(project_path: &str, branch: &str, target: &str) -> (usize, usize) {
+    let range = format!("{}...{}", target, branch);
+    let output = match std::process::Command::new("git")
+        .args(["rev-list", "--left-right", "--count", &range])
+        .current_dir(project_path)
+        .output()
+    {
+        Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
+        _ => return (0, 0),
+    };
+    let parts: Vec<&str> = output.trim().split_whitespace().collect();
+    if parts.len() == 2 {
+        let behind = parts[0].parse().unwrap_or(0);
+        let ahead = parts[1].parse().unwrap_or(0);
+        (ahead, behind)
+    } else {
+        (0, 0)
+    }
+}
+
+/// Get last commit info for a branch using git CLI.
+fn cli_last_commit(project_path: &str, branch: &str) -> (String, i64) {
+    let output = match std::process::Command::new("git")
+        .args(["log", "-1", "--format=%s%n%ct", branch, "--"])
+        .current_dir(project_path)
+        .output()
+    {
+        Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
+        _ => return (String::new(), 0),
+    };
+    let lines: Vec<&str> = output.trim().lines().collect();
+    if lines.len() >= 2 {
+        let msg = lines[0].to_string();
+        let ts = lines[1].parse().unwrap_or(0);
+        (msg, ts)
+    } else {
+        (String::new(), 0)
+    }
+}
+
 /// List all worktree branches matching the given prefix, including ahead/behind
-/// counts relative to the merge target and dirty status.
+/// counts relative to the merge target.
 ///
-/// Uses `git worktree list --porcelain` (CLI) to enumerate worktrees — this
-/// works on NAS paths where git2's worktrees() API fails. Then uses git2 for
-/// ahead/behind computation and commit info.
+/// Uses git CLI for all operations — much faster on NAS than git2.
+/// Dirty status is NOT checked here (too slow on NAS with 30+ worktrees).
+/// Frontend can call is_worktree_dirty lazily for visible branches.
 pub fn list_worktree_branches(
     project_path: &str,
     branch_prefix: &str,
     merge_target: &str,
 ) -> Result<Vec<BranchInfo>, GitError> {
-    let repo = Repository::open(project_path)
-        .map_err(|_| GitError::RepoNotFound(project_path.to_string()))?;
+    // Verify the repo exists
+    if !std::path::Path::new(project_path).join(".git").exists()
+        && !std::path::Path::new(project_path).join("HEAD").exists()
+    {
+        return Err(GitError::RepoNotFound(project_path.to_string()));
+    }
 
     // Use CLI to enumerate worktrees (git2 fails on NAS)
     let all_worktrees = enumerate_worktrees_cli(project_path);
@@ -141,52 +185,11 @@ pub fn list_worktree_branches(
         .filter(|wt| wt.branch.starts_with(branch_prefix))
         .collect();
 
-    // Resolve merge target OID from the main repo
-    let target_oid = match repo.find_branch(merge_target, BranchType::Local) {
-        Ok(target) => target.get().target(),
-        Err(_) => None,
-    };
-
     let mut results = Vec::new();
 
     for wt in &worktrees {
-        // Look up branch OID from main repo (branches live in main repo's refs)
-        let branch_oid = match repo.find_branch(&wt.branch, BranchType::Local) {
-            Ok(branch) => match branch.get().target() {
-                Some(oid) => oid,
-                None => continue,
-            },
-            Err(_) => continue,
-        };
-
-        // Compute ahead/behind relative to merge target
-        let (ahead, behind) = match target_oid {
-            Some(t_oid) => repo.graph_ahead_behind(branch_oid, t_oid).unwrap_or((0, 0)),
-            None => (0, 0),
-        };
-
-        // Get last commit info
-        let (message, timestamp) = match repo.find_commit(branch_oid) {
-            Ok(commit) => {
-                let msg = commit
-                    .message()
-                    .unwrap_or("")
-                    .lines()
-                    .next()
-                    .unwrap_or("")
-                    .to_string();
-                let time = commit.time().seconds();
-                (msg, time)
-            }
-            Err(_) => (String::new(), 0),
-        };
-
-        // Check dirty status — skip if path doesn't exist (avoids NAS errors)
-        let dirty = if std::path::Path::new(&wt.path).exists() {
-            is_worktree_dirty(&wt.path).unwrap_or(false)
-        } else {
-            false
-        };
+        let (ahead, behind) = cli_ahead_behind(project_path, &wt.branch, merge_target);
+        let (message, timestamp) = cli_last_commit(project_path, &wt.branch);
 
         results.push(BranchInfo {
             name: wt.branch.clone(),
@@ -194,7 +197,7 @@ pub fn list_worktree_branches(
             behind,
             last_commit_message: message,
             last_commit_timestamp: timestamp,
-            is_dirty: dirty,
+            is_dirty: false, // Deferred — too slow on NAS for 30+ worktrees
             worktree_path: wt.path.clone(),
         });
     }
