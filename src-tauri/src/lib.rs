@@ -61,6 +61,7 @@ pub fn run() {
             commands::file_commands::read_text_file,
             commands::file_commands::write_text_file,
             commands::file_commands::list_directory,
+            commands::file_commands::delete_file,
         ])
         .setup(|app| {
             // Build tray icon with dynamic menu and event handlers

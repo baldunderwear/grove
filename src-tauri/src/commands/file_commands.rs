@@ -94,3 +94,21 @@ pub fn list_directory(path: String) -> Result<Vec<DirEntry>, String> {
 
     Ok(entries)
 }
+
+/// Delete a file at the given path.
+/// Returns an error if the file doesn't exist or cannot be removed.
+#[tauri::command]
+pub fn delete_file(path: String) -> Result<(), String> {
+    let file_path = std::path::Path::new(&path);
+
+    if !file_path.exists() {
+        return Err(format!("File not found: {}", path));
+    }
+
+    if file_path.is_dir() {
+        return Err(format!("Path is a directory, not a file: {}", path));
+    }
+
+    std::fs::remove_file(file_path)
+        .map_err(|e| format!("Cannot delete file: {}", e))
+}
