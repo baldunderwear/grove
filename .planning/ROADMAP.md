@@ -22,7 +22,7 @@
 - [x] **Phase 09: Terminal Foundation (ConPTY Spike)** - Validate portable-pty on Windows, deliver single embedded terminal with PTY (completed 2026-03-29)
 - [x] **Phase 10: Multi-Terminal Tabs** - Multiple terminal tabs tied to worktrees with process tree cleanup (completed 2026-03-29)
 - [x] **Phase 11: Session Intelligence** - Real-time session state detection with dashboard status indicators (completed 2026-03-29)
-- [ ] **Phase 12: Configuration Editors** - CLAUDE.md, settings.json, and skills editors with CodeMirror
+- [x] **Phase 12: Configuration Editors** - CLAUDE.md, settings.json, and skills editors with CodeMirror (completed 2026-03-29)
 - [ ] **Phase 13: Launch Experience** - Prompt templates, context builder, and batch launch
 
 ## Phase Details
@@ -90,10 +90,10 @@ Plans:
 **Plans**: 5 plans
 Plans:
 - [x] 12-01-PLAN.md -- Rust backend: file I/O commands, Profile model + CRUD, CodeMirror install
-- [ ] 12-02-PLAN.md -- CLAUDE.md editor with collapsible sections and merged preview
+- [x] 12-02-PLAN.md -- CLAUDE.md editor with collapsible sections and merged preview
 - [x] 12-03-PLAN.md -- Skills browser + Settings.json structured editor
 - [x] 12-04-PLAN.md -- Profile UI: editor form, sidebar selector, config store
-- [ ] 12-05-PLAN.md -- Integration: Config page routing, sidebar wiring, profile env injection
+- [x] 12-05-PLAN.md -- Integration: Config page routing, sidebar wiring, profile env injection
 **UI hint**: yes
 
 ### Phase 13: Launch Experience
@@ -121,5 +121,5 @@ Plans:
 | 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
 | 11. Session Intelligence | v2.0 | 3/3 | Complete    | 2026-03-29 |
-| 12. Configuration Editors | v2.0 | 3/5 | In Progress|  |
+| 12. Configuration Editors | v2.0 | 5/5 | Complete   | 2026-03-29 |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |

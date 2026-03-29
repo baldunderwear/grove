@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
 status: executing
-stopped_at: Completed 12-03-PLAN.md
-last_updated: "2026-03-29T19:27:53.275Z"
+stopped_at: Completed 12-05-PLAN.md
+last_updated: "2026-03-29T19:38:30.196Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 13
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 12 (configuration-editors-profiles) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-03-29
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 12 P04 | 4min | 2 tasks | 3 files |
 | Phase 12 P03 | 9min | 2 tasks | 6 files |
 | Phase 12 P02 | 4min | 2 tasks | 4 files |
+| Phase 12 P05 | 5min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,7 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 12]: EditorView.theme() (CM6 native) instead of @uiw/codemirror-themes createTheme -- avoids extra dependency
 - [Phase 12]: Markdown fold service based on heading level hierarchy for collapsible sections
 - [Phase 12]: Section outline pills + fold gutter dual navigation in ClaudeMdEditor
+- [Phase 12]: projectId flows through TerminalTab store for profile env injection at PTY spawn
 
 ### Blockers/Concerns
 
@@ -102,6 +104,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T19:27:53.247Z
-Stopped at: Completed 12-03-PLAN.md
+Last session: 2026-03-29T19:38:30.162Z
+Stopped at: Completed 12-05-PLAN.md
 Resume file: None
