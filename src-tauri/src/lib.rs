@@ -54,6 +54,9 @@ pub fn run() {
             terminal::commands::terminal_resize,
             terminal::commands::terminal_kill,
             terminal::commands::terminal_get_history,
+            commands::file_commands::read_text_file,
+            commands::file_commands::write_text_file,
+            commands::file_commands::list_directory,
         ])
         .setup(|app| {
             // Build tray icon with dynamic menu and event handlers
