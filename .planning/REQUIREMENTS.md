@@ -28,8 +28,8 @@
 
 ### Launch Experience
 - [x] **LAUNCH-01**: Prompt templates: save reusable prompts with variables ({branch}, {issue})
-- [ ] **LAUNCH-02**: Context builder: select files to include as context when launching
-- [ ] **LAUNCH-03**: "Launch with prompt" — open terminal tab and auto-send initial prompt
+- [x] **LAUNCH-02**: Context builder: select files to include as context when launching
+- [x] **LAUNCH-03**: "Launch with prompt" — open terminal tab and auto-send initial prompt
 - [ ] **LAUNCH-04**: Batch launch: start Claude Code on multiple worktrees simultaneously
 
 ### Profiles & Multi-Account
@@ -81,8 +81,8 @@
 | CONF-05 | Phase 12 | Complete |
 | CONF-06 | Phase 12 | Complete |
 | LAUNCH-01 | Phase 13 | Complete |
-| LAUNCH-02 | Phase 13 | Pending |
-| LAUNCH-03 | Phase 13 | Pending |
+| LAUNCH-02 | Phase 13 | Complete |
+| LAUNCH-03 | Phase 13 | Complete |
 | LAUNCH-04 | Phase 13 | Pending |
 | NFR-05 | Phase 09 | Complete |
 | NFR-06 | Phase 09 | Complete |

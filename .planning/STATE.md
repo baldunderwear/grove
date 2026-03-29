@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
 status: executing
-stopped_at: Completed 13-01-PLAN.md
-last_updated: "2026-03-29T20:01:21.430Z"
+stopped_at: Completed 13-02-PLAN.md
+last_updated: "2026-03-29T20:08:10.113Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 15
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 13 (launch-experience) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-03-29
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 12 P02 | 4min | 2 tasks | 4 files |
 | Phase 12 P05 | 5min | 3 tasks | 8 files |
 | Phase 13 P01 | 9min | 2 tasks | 5 files |
+| Phase 13 P02 | 4min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 12]: projectId flows through TerminalTab store for profile env injection at PTY spawn
 - [Phase 13]: Simple char-scanning for {variable} extraction instead of regex crate
 - [Phase 13]: PromptTemplate at AppConfig level (not per-project) with serde(default) for backward compat
+- [Phase 13]: Template quick-select pills instead of dropdown for faster one-click selection
+- [Phase 13]: autoSendDoneRef guard pattern for one-time prompt auto-send in TerminalPanel
+- [Phase 13]: LaunchOptions interface on addTab for extensible launch parameters
 
 ### Blockers/Concerns
 
@@ -107,6 +111,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T20:01:21.397Z
-Stopped at: Completed 13-01-PLAN.md
+Last session: 2026-03-29T20:08:10.073Z
+Stopped at: Completed 13-02-PLAN.md
 Resume file: None

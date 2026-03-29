@@ -108,7 +108,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 13-01-PLAN.md -- Rust + TS: PromptTemplate model, CRUD commands, frontend types and store actions
-- [ ] 13-02-PLAN.md -- Launch dialog: template selector, context file picker, launch-with-prompt auto-send
+- [x] 13-02-PLAN.md -- Launch dialog: template selector, context file picker, launch-with-prompt auto-send
 - [ ] 13-03-PLAN.md -- Batch launch: multi-select checkboxes, batch dialog, multi-worktree launch
 **UI hint**: yes
 
@@ -122,4 +122,4 @@ Plans:
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
 | 11. Session Intelligence | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 12. Configuration Editors | v2.0 | 5/5 | Complete    | 2026-03-29 |
-| 13. Launch Experience | v2.0 | 1/3 | In Progress|  |
+| 13. Launch Experience | v2.0 | 2/3 | In Progress|  |
