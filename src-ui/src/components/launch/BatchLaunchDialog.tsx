@@ -28,7 +28,7 @@ export function BatchLaunchDialog({
   open,
   onOpenChange,
   branches,
-  projectPath,
+  projectPath: _,
   onLaunch,
 }: BatchLaunchDialogProps) {
   const templates = useConfigStore((s) => s.config?.templates ?? []);
