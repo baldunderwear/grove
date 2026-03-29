@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,12 +34,6 @@ export function BatchLaunchDialog({
   const templates = useConfigStore((s) => s.config?.templates ?? []);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [promptText, setPromptText] = useState('');
-
-  const projectName = useMemo(() => {
-    const normalized = projectPath.replace(/\\/g, '/');
-    const parts = normalized.split('/').filter(Boolean);
-    return parts[parts.length - 1] ?? 'project';
-  }, [projectPath]);
 
   const handleTemplateSelect = (template: PromptTemplate) => {
     setSelectedTemplateId(template.id);
