@@ -22,6 +22,43 @@ struct WorktreeInfo {
     path: String,
 }
 
+/// Resolve UNC paths to mapped drive letters on Windows.
+/// e.g., //THE-BATMAN/mnt/data/foo → Z:/data/foo if Z: maps to \\the-batman\mnt
+fn resolve_unc_to_drive(path: &str) -> String {
+    // Only process UNC-style paths
+    let normalized = path.replace('\\', "/");
+    if !normalized.starts_with("//") {
+        return normalized;
+    }
+
+    // Query drive mappings via `net use`
+    let output = match std::process::Command::new("net").arg("use").output() {
+        Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
+        _ => return normalized,
+    };
+
+    // Parse lines like: "OK           Z:        \\the-batman\mnt       Microsoft Windows Network"
+    for line in output.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        // Look for lines with a drive letter and UNC path
+        for (i, part) in parts.iter().enumerate() {
+            if part.len() == 2 && part.ends_with(':') {
+                // This is a drive letter, next part should be the UNC path
+                if let Some(unc) = parts.get(i + 1) {
+                    let unc_normalized = unc.replace('\\', "/").to_lowercase();
+                    let path_lower = normalized.to_lowercase();
+                    if path_lower.starts_with(&unc_normalized) {
+                        let remainder = &normalized[unc_normalized.len()..];
+                        return format!("{}{}", part, remainder);
+                    }
+                }
+            }
+        }
+    }
+
+    normalized
+}
+
 /// Parse `git worktree list --porcelain` output into WorktreeInfo entries.
 /// Uses CLI instead of git2's worktrees() which fails on NAS paths.
 fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
@@ -44,7 +81,7 @@ fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
             if let (Some(p), Some(b)) = (current_path.take(), current_branch.take()) {
                 worktrees.push(WorktreeInfo { branch: b, path: p });
             }
-            current_path = Some(path.replace('\\', "/"));
+            current_path = Some(resolve_unc_to_drive(path));
             current_branch = None;
         } else if let Some(branch_ref) = line.strip_prefix("branch refs/heads/") {
             current_branch = Some(branch_ref.to_string());
