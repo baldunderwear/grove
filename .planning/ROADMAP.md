@@ -87,11 +87,13 @@ Plans:
   5. Config files load in under 100ms and editors handle files up to 500KB without jank
   6. User can create named profiles (Personal, Work) with distinct Claude config dirs, env vars, SSH keys, and launch flags
   7. Projects assigned to a profile launch sessions with that profile's environment automatically
-**Plans**: 3 plans
+**Plans**: 5 plans
 Plans:
-- [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
-- [x] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
-- [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
+- [ ] 12-01-PLAN.md -- Rust backend: file I/O commands, Profile model + CRUD, CodeMirror install
+- [ ] 12-02-PLAN.md -- CLAUDE.md editor with collapsible sections and merged preview
+- [ ] 12-03-PLAN.md -- Skills browser + Settings.json structured editor
+- [ ] 12-04-PLAN.md -- Profile UI: editor form, sidebar selector, config store
+- [ ] 12-05-PLAN.md -- Integration: Config page routing, sidebar wiring, profile env injection
 **UI hint**: yes
 
 ### Phase 13: Launch Experience
@@ -105,9 +107,9 @@ Plans:
   4. User can batch-launch Claude Code on multiple worktrees simultaneously with one action
 **Plans**: 3 plans
 Plans:
-- [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
-- [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
-- [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
+- [ ] 13-01-PLAN.md -- [to be planned]
+- [ ] 13-02-PLAN.md -- [to be planned]
+- [ ] 13-03-PLAN.md -- [to be planned]
 **UI hint**: yes
 
 ## Progress
@@ -118,6 +120,6 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
-| 11. Session Intelligence | v2.0 | 3/3 | Complete   | 2026-03-29 |
-| 12. Configuration Editors | v2.0 | 0/? | Not started | - |
+| 11. Session Intelligence | v2.0 | 3/3 | Complete    | 2026-03-29 |
+| 12. Configuration Editors | v2.0 | 0/5 | Planning complete | - |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |
