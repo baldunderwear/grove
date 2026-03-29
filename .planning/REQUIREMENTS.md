@@ -50,3 +50,35 @@
 - Cloud sync of configuration (offline-only app)
 - AI features beyond launching Claude Code (no built-in LLM calls)
 - Plugin/extension system
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TERM-01 | Phase 09 | Pending |
+| TERM-02 | Phase 10 | Pending |
+| TERM-03 | Phase 10 | Pending |
+| TERM-04 | Phase 09 | Pending |
+| TERM-05 | Phase 09 | Pending |
+| TERM-06 | Phase 10 | Pending |
+| TERM-07 | Phase 10 | Pending |
+| SESS-01 | Phase 11 | Pending |
+| SESS-02 | Phase 11 | Pending |
+| SESS-03 | Phase 11 | Pending |
+| SESS-04 | Phase 11 | Pending |
+| SESS-05 | Phase 11 | Pending |
+| CONF-01 | Phase 12 | Pending |
+| CONF-02 | Phase 12 | Pending |
+| CONF-03 | Phase 12 | Pending |
+| CONF-04 | Phase 12 | Pending |
+| CONF-05 | Phase 12 | Pending |
+| CONF-06 | Phase 12 | Pending |
+| LAUNCH-01 | Phase 13 | Pending |
+| LAUNCH-02 | Phase 13 | Pending |
+| LAUNCH-03 | Phase 13 | Pending |
+| LAUNCH-04 | Phase 13 | Pending |
+| NFR-05 | Phase 09 | Pending |
+| NFR-06 | Phase 09 | Pending |
+| NFR-07 | Phase 09 | Pending |
+| NFR-08 | Phase 09 | Pending |
+| NFR-09 | Phase 12 | Pending |
