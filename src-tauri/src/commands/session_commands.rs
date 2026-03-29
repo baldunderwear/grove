@@ -1,7 +1,10 @@
 use std::collections::HashMap;
+use std::os::windows::process::CommandExt;
 use std::sync::Mutex;
 
 use crate::git::error::GitError;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 use crate::process::detect::SessionDetector;
 
 /// Launch a Claude Code session in a new terminal window.
@@ -61,7 +64,7 @@ pub fn create_worktree(
 
     // Use git CLI — handles NAS paths where git2 fails on .git/worktrees/ creation
     // Try creating with new branch first, fall back to existing branch
-    let output = std::process::Command::new("git")
+    let output = std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
         .args(["worktree", "add", "-b", &full_branch, &wt_path.to_string_lossy()])
         .current_dir(&project_path)
         .output()
@@ -71,7 +74,7 @@ pub fn create_worktree(
         let stderr = String::from_utf8_lossy(&output.stderr);
         // If branch already exists, try attaching it as a worktree without -b
         if stderr.contains("already exists") {
-            let retry = std::process::Command::new("git")
+            let retry = std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
                 .args(["worktree", "add", &wt_path.to_string_lossy(), &full_branch])
                 .current_dir(&project_path)
                 .output()

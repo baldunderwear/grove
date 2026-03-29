@@ -1,7 +1,10 @@
+use std::os::windows::process::CommandExt;
 use std::thread;
 use std::time::Duration;
 
 use tauri::Emitter;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 /// Start a background thread that periodically runs `git fetch` on all
 /// registered projects. The interval is read from config each loop iteration
@@ -66,7 +69,7 @@ pub fn start_auto_fetch(app: tauri::AppHandle) {
 /// helpers, and .gitconfig. git2 requires manual credential callback setup
 /// which is fragile on Windows.
 fn fetch_remote(project_path: &str) -> Result<(), String> {
-    let output = std::process::Command::new("git")
+    let output = std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
         .args(["fetch", "--all", "--prune"])
         .current_dir(project_path)
         .output()

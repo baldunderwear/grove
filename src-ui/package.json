@@ -1,7 +1,7 @@
 {
   "name": "grove-ui",
   "private": true,
-  "version": "1.1.2",
+  "version": "1.1.3",
   "type": "module",
   "config": {
     "nm": "%USERPROFILE%/grove-src-ui/node_modules"

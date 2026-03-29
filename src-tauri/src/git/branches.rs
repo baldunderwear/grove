@@ -1,6 +1,9 @@
 use serde::Serialize;
+use std::os::windows::process::CommandExt;
 
 use super::error::GitError;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 /// Information about a single worktree branch, sent to the frontend.
 #[derive(Debug, Clone, Serialize)]
@@ -28,7 +31,7 @@ struct DriveMapping {
 
 /// Query `net use` once and build a list of UNC → drive letter mappings.
 fn get_drive_mappings() -> Vec<DriveMapping> {
-    let output = match std::process::Command::new("net").arg("use").output() {
+    let output = match std::process::Command::new("net").arg("use").creation_flags(CREATE_NO_WINDOW).output() {
         Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
         _ => return Vec::new(),
     };
@@ -72,7 +75,7 @@ fn resolve_unc_path(path: &str, mappings: &[DriveMapping]) -> String {
 /// Uses CLI instead of git2's worktrees() which fails on NAS paths.
 /// Resolves UNC paths to drive letters using a single `net use` call.
 fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
-    let output = match std::process::Command::new("git")
+    let output = match std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
         .args(["worktree", "list", "--porcelain"])
         .current_dir(project_path)
         .output()
@@ -120,7 +123,7 @@ fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
 /// Much faster than git2's graph_ahead_behind on NAS.
 fn cli_ahead_behind(project_path: &str, branch: &str, target: &str) -> (usize, usize) {
     let range = format!("{}...{}", target, branch);
-    let output = match std::process::Command::new("git")
+    let output = match std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
         .args(["rev-list", "--left-right", "--count", &range])
         .current_dir(project_path)
         .output()
@@ -140,7 +143,7 @@ fn cli_ahead_behind(project_path: &str, branch: &str, target: &str) -> (usize, u
 
 /// Get last commit info for a branch using git CLI.
 fn cli_last_commit(project_path: &str, branch: &str) -> (String, i64) {
-    let output = match std::process::Command::new("git")
+    let output = match std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
         .args(["log", "-1", "--format=%s%n%ct", branch, "--"])
         .current_dir(project_path)
         .output()

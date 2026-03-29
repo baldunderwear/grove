@@ -1,7 +1,10 @@
 use std::fs;
+use std::os::windows::process::CommandExt;
 use std::path::PathBuf;
 
 use tauri::Manager;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 use std::collections::HashMap;
 
@@ -217,7 +220,7 @@ pub fn scan_repo(path: &str) -> Result<ScanResult, ConfigError> {
     branch_prefixes.truncate(5);
 
     // Count worktrees via CLI
-    let worktree_count = std::process::Command::new("git")
+    let worktree_count = std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
         .args(["worktree", "list", "--porcelain"])
         .current_dir(path)
         .output()
