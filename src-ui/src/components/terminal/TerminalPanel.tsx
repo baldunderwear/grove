@@ -2,22 +2,24 @@ import { useEffect, useRef, useCallback } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { useTerminal } from '@/hooks/useTerminal';
 import { useTerminalStore } from '@/stores/terminal-store';
-import { TerminalToolbar } from './TerminalToolbar';
+import { TerminalTabBar } from './TerminalTabBar';
 
 type TerminalEvent =
   | { type: 'Data'; data: string }
   | { type: 'Exit'; code: number | null }
   | { type: 'Error'; message: string };
 
-interface TerminalPanelProps {
+interface TerminalInstanceProps {
+  tabId: string;
   worktreePath: string;
   branchName: string;
+  isVisible: boolean;
 }
 
-export function TerminalPanel({ worktreePath, branchName }: TerminalPanelProps) {
+function TerminalInstance({ tabId, worktreePath, branchName, isVisible }: TerminalInstanceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalIdRef = useRef<string | null>(null);
-  const { openTerminal, closeTerminal, setConnected } = useTerminalStore();
+  const { activateTab, setTabConnected } = useTerminalStore();
 
   const onData = useCallback((data: string) => {
     const id = terminalIdRef.current;
@@ -37,7 +39,14 @@ export function TerminalPanel({ worktreePath, branchName }: TerminalPanelProps) 
     }
   }, []);
 
-  const { write } = useTerminal(containerRef, { onData, onResize });
+  const { write, refit } = useTerminal(containerRef, { onData, onResize });
+
+  // Refit when tab becomes visible (Pitfall 4: dimensions stale after CSS hide)
+  useEffect(() => {
+    if (isVisible) {
+      refit();
+    }
+  }, [isVisible, refit]);
 
   // Spawn PTY and wire Channel on mount
   useEffect(() => {
@@ -51,7 +60,9 @@ export function TerminalPanel({ worktreePath, branchName }: TerminalPanelProps) 
           break;
         case 'Exit':
           write(`\r\n\x1b[90m[Process exited with code ${event.code ?? 'unknown'}]\x1b[0m\r\n`);
-          setConnected(false);
+          if (terminalIdRef.current) {
+            setTabConnected(terminalIdRef.current, false);
+          }
           break;
         case 'Error':
           write(`\r\n\x1b[31m[Error: ${event.message}]\x1b[0m\r\n`);
@@ -71,7 +82,7 @@ export function TerminalPanel({ worktreePath, branchName }: TerminalPanelProps) 
           return;
         }
         terminalIdRef.current = id;
-        openTerminal(id, worktreePath, branchName);
+        activateTab(tabId, id);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -86,23 +97,60 @@ export function TerminalPanel({ worktreePath, branchName }: TerminalPanelProps) 
         invoke('terminal_kill', { terminalId: id }).catch(() => {});
         terminalIdRef.current = null;
       }
-      closeTerminal();
     };
-  }, [worktreePath, branchName, write, openTerminal, closeTerminal, setConnected]);
+    // tabId and worktreePath are stable for the lifetime of this instance
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worktreePath, branchName, write, activateTab, setTabConnected]);
 
-  const handleClose = useCallback(() => {
-    const id = terminalIdRef.current;
-    if (id) {
-      invoke('terminal_kill', { terminalId: id }).catch(() => {});
-      terminalIdRef.current = null;
-    }
-    closeTerminal();
-  }, [closeTerminal]);
+  return (
+    <div
+      className="flex-1 min-h-0 overflow-hidden h-full absolute inset-0"
+      style={{ display: isVisible ? 'block' : 'none' }}
+    >
+      <div ref={containerRef} className="h-full w-full" />
+    </div>
+  );
+}
+
+export function TerminalPanel() {
+  const tabs = useTerminalStore((s) => s.tabs);
+  const activeTabId = useTerminalStore((s) => s.activeTabId);
+  const switchTab = useTerminalStore((s) => s.switchTab);
+  const closeTab = useTerminalStore((s) => s.closeTab);
+
+  const handleClose = useCallback(
+    (tabId: string) => {
+      // Find the tab to get its real terminal ID for killing
+      const tab = useTerminalStore.getState().tabs.get(tabId);
+      if (tab && !tab.id.startsWith('pending-')) {
+        invoke('terminal_kill', { terminalId: tab.id }).catch(() => {});
+      }
+      closeTab(tabId);
+    },
+    [closeTab],
+  );
+
+  const tabArray = [...tabs.values()];
 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]">
-      <TerminalToolbar branchName={branchName} onClose={handleClose} />
-      <div ref={containerRef} className="flex-1 min-h-0 overflow-hidden" />
+      <TerminalTabBar
+        tabs={tabArray}
+        activeTabId={activeTabId}
+        onSwitch={switchTab}
+        onClose={handleClose}
+      />
+      <div className="flex-1 min-h-0 relative">
+        {tabArray.map((tab) => (
+          <TerminalInstance
+            key={tab.id}
+            tabId={tab.id}
+            worktreePath={tab.worktreePath}
+            branchName={tab.branchName}
+            isVisible={tab.id === activeTabId}
+          />
+        ))}
+      </div>
     </div>
   );
 }

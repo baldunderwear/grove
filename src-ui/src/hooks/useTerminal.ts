@@ -93,5 +93,13 @@ export function useTerminal(
     termRef.current?.write(data);
   }, []);
 
-  return { terminal: termRef, write };
+  const refit = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (fitRef.current && termRef.current) {
+        fitRef.current.fit();
+      }
+    });
+  }, []);
+
+  return { terminal: termRef, write, refit };
 }

@@ -39,9 +39,10 @@ export function Dashboard() {
   const openInExplorer = useSessionStore((s) => s.openInExplorer);
   const clearSessions = useSessionStore((s) => s.clear);
 
-  const activeTerminalId = useTerminalStore((s) => s.activeTerminalId);
-  const activeWorktreePath = useTerminalStore((s) => s.activeWorktreePath);
-  const activeBranchName = useTerminalStore((s) => s.activeBranchName);
+  const hasAnyTabs = useTerminalStore((s) => s.hasAnyTabs);
+  const addTab = useTerminalStore((s) => s.addTab);
+  const switchTab = useTerminalStore((s) => s.switchTab);
+  const getTabForWorktree = useTerminalStore((s) => s.getTabForWorktree);
 
   const [showNewWorktree, setShowNewWorktree] = useState(false);
   const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
@@ -146,14 +147,13 @@ export function Dashboard() {
   // Action handlers
   const handleLaunch = (branch: BranchInfo) => {
     if (!project) return;
-    // Open embedded terminal instead of external window
-    // TerminalPanel will handle the actual PTY spawn on mount
-    const { openTerminal, closeTerminal, activeTerminalId: currentId } = useTerminalStore.getState();
-    // Close any existing terminal first (single terminal for this phase)
-    if (currentId) {
-      closeTerminal();
+    // Check if a tab already exists for this worktree
+    const existing = getTabForWorktree(branch.worktree_path);
+    if (existing) {
+      switchTab(existing.id);
+    } else {
+      addTab(branch.worktree_path, branch.name);
     }
-    openTerminal('pending', branch.worktree_path, branch.name);
   };
 
   const handleWorktreeCreated = async (_worktreePath: string, _branchName: string) => {
@@ -272,17 +272,14 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col h-full">
-      {activeTerminalId ? (
+      {hasAnyTabs() ? (
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel defaultSize={50} minSize={25}>
             {dashboardContent}
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={50} minSize={30}>
-            <TerminalPanel
-              worktreePath={activeWorktreePath!}
-              branchName={activeBranchName!}
-            />
+            <TerminalPanel />
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
