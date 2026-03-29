@@ -30,7 +30,7 @@
 - [x] **LAUNCH-01**: Prompt templates: save reusable prompts with variables ({branch}, {issue})
 - [x] **LAUNCH-02**: Context builder: select files to include as context when launching
 - [x] **LAUNCH-03**: "Launch with prompt" — open terminal tab and auto-send initial prompt
-- [ ] **LAUNCH-04**: Batch launch: start Claude Code on multiple worktrees simultaneously
+- [x] **LAUNCH-04**: Batch launch: start Claude Code on multiple worktrees simultaneously
 
 ### Profiles & Multi-Account
 - [x] **PROF-01**: User can create named profiles (e.g., "Personal", "Work") with distinct Claude config directory, env vars, and SSH key
@@ -83,7 +83,7 @@
 | LAUNCH-01 | Phase 13 | Complete |
 | LAUNCH-02 | Phase 13 | Complete |
 | LAUNCH-03 | Phase 13 | Complete |
-| LAUNCH-04 | Phase 13 | Pending |
+| LAUNCH-04 | Phase 13 | Complete |
 | NFR-05 | Phase 09 | Complete |
 | NFR-06 | Phase 09 | Complete |
 | NFR-07 | Phase 09 | Complete |

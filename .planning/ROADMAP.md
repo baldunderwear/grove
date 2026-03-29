@@ -23,7 +23,7 @@
 - [x] **Phase 10: Multi-Terminal Tabs** - Multiple terminal tabs tied to worktrees with process tree cleanup (completed 2026-03-29)
 - [x] **Phase 11: Session Intelligence** - Real-time session state detection with dashboard status indicators (completed 2026-03-29)
 - [x] **Phase 12: Configuration Editors** - CLAUDE.md, settings.json, and skills editors with CodeMirror (completed 2026-03-29)
-- [ ] **Phase 13: Launch Experience** - Prompt templates, context builder, and batch launch
+- [x] **Phase 13: Launch Experience** - Prompt templates, context builder, and batch launch (completed 2026-03-29)
 
 ## Phase Details
 
@@ -109,7 +109,7 @@ Plans:
 Plans:
 - [x] 13-01-PLAN.md -- Rust + TS: PromptTemplate model, CRUD commands, frontend types and store actions
 - [x] 13-02-PLAN.md -- Launch dialog: template selector, context file picker, launch-with-prompt auto-send
-- [ ] 13-03-PLAN.md -- Batch launch: multi-select checkboxes, batch dialog, multi-worktree launch
+- [x] 13-03-PLAN.md -- Batch launch: multi-select checkboxes, batch dialog, multi-worktree launch
 **UI hint**: yes
 
 ## Progress
@@ -122,4 +122,4 @@ Plans:
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
 | 11. Session Intelligence | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 12. Configuration Editors | v2.0 | 5/5 | Complete    | 2026-03-29 |
-| 13. Launch Experience | v2.0 | 2/3 | In Progress|  |
+| 13. Launch Experience | v2.0 | 3/3 | Complete   | 2026-03-29 |
