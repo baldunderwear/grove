@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listen, TauriEvent } from '@tauri-apps/api/event';
+import { sendNotification } from '@tauri-apps/plugin-notification';
 import { Button } from '@/components/ui/button';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { BranchEmptyState } from '@/components/BranchEmptyState';
@@ -14,6 +15,7 @@ import { useConfigStore } from '@/stores/config-store';
 import { useMergeStore } from '@/stores/merge-store';
 import { useSessionStore } from '@/stores/session-store';
 import { useTerminalStore } from '@/stores/terminal-store';
+import type { SessionState } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
 
 export function Dashboard() {
@@ -43,6 +45,8 @@ export function Dashboard() {
   const addTab = useTerminalStore((s) => s.addTab);
   const switchTab = useTerminalStore((s) => s.switchTab);
   const getTabForWorktree = useTerminalStore((s) => s.getTabForWorktree);
+  const setTabState = useTerminalStore((s) => s.setTabState);
+  const getSessionCounts = useTerminalStore((s) => s.getSessionCounts);
 
   const [showNewWorktree, setShowNewWorktree] = useState(false);
   const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
@@ -143,6 +147,34 @@ export function Dashboard() {
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branches, settings?.refresh_interval]);
+
+  // Effect 6: Session state change listener
+  useEffect(() => {
+    let cancelled = false;
+    const unlistenPromise = listen<{ terminal_id: string; state: string; timestamp: number }>(
+      'session-state-changed',
+      (event) => {
+        if (cancelled) return;
+        const { terminal_id, state } = event.payload;
+        setTabState(terminal_id, state as SessionState);
+
+        // Fire desktop notification on transition to "waiting"
+        if (state === 'waiting') {
+          const tab = useTerminalStore.getState().tabs.get(terminal_id);
+          const branchName = tab?.branchName ?? 'Unknown';
+          sendNotification({
+            title: 'Session Waiting for Input',
+            body: `${branchName} is waiting for your input`,
+          });
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+      unlistenPromise.then((fn) => fn());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setTabState]);
 
   // Action handlers
   const handleLaunch = (branch: BranchInfo) => {
