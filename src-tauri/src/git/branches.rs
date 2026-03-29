@@ -119,54 +119,94 @@ fn enumerate_worktrees_cli(project_path: &str) -> Vec<WorktreeInfo> {
     worktrees
 }
 
-/// Get ahead/behind counts for a branch vs target using git CLI.
-/// Much faster than git2's graph_ahead_behind on NAS.
-fn cli_ahead_behind(project_path: &str, branch: &str, target: &str) -> (usize, usize) {
-    let range = format!("{}...{}", target, branch);
-    let output = match std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
-        .args(["rev-list", "--left-right", "--count", &range])
+/// Batch-fetch commit info for all branches in ONE git command.
+/// Returns a map of branch_name -> (subject, timestamp).
+fn batch_commit_info(
+    project_path: &str,
+    branches: &[&str],
+) -> std::collections::HashMap<String, (String, i64)> {
+    use std::collections::HashMap;
+    let mut map = HashMap::new();
+    if branches.is_empty() {
+        return map;
+    }
+
+    // git for-each-ref gets all branch info in a single call
+    // Format: branch_name<TAB>subject<TAB>unix_timestamp
+    let output = match std::process::Command::new("git")
+        .creation_flags(CREATE_NO_WINDOW)
+        .args([
+            "for-each-ref",
+            "--format=%(refname:short)\t%(subject)\t%(creatordate:unix)",
+            "refs/heads/",
+        ])
         .current_dir(project_path)
         .output()
     {
         Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
-        _ => return (0, 0),
+        _ => return map,
     };
-    let parts: Vec<&str> = output.trim().split_whitespace().collect();
-    if parts.len() == 2 {
-        let behind = parts[0].parse().unwrap_or(0);
-        let ahead = parts[1].parse().unwrap_or(0);
-        (ahead, behind)
-    } else {
-        (0, 0)
+
+    for line in output.lines() {
+        let parts: Vec<&str> = line.splitn(3, '\t').collect();
+        if parts.len() == 3 {
+            let name = parts[0].to_string();
+            let subject = parts[1].to_string();
+            let ts: i64 = parts[2].parse().unwrap_or(0);
+            map.insert(name, (subject, ts));
+        }
     }
+    map
 }
 
-/// Get last commit info for a branch using git CLI.
-fn cli_last_commit(project_path: &str, branch: &str) -> (String, i64) {
-    let output = match std::process::Command::new("git").creation_flags(CREATE_NO_WINDOW)
-        .args(["log", "-1", "--format=%s%n%ct", branch, "--"])
+/// Batch-fetch ahead/behind counts for multiple branches in ONE git command.
+/// Uses git for-each-ref with ahead-behind (requires git 2.36+).
+/// Falls back to zeros if the git version doesn't support it.
+fn batch_ahead_behind(
+    project_path: &str,
+    merge_target: &str,
+) -> std::collections::HashMap<String, (usize, usize)> {
+    use std::collections::HashMap;
+    let mut map = HashMap::new();
+
+    // git for-each-ref --format with ahead-behind (git 2.36+)
+    let format = format!(
+        "%(refname:short)\t%(ahead-behind:{})",
+        merge_target
+    );
+    let output = match std::process::Command::new("git")
+        .creation_flags(CREATE_NO_WINDOW)
+        .args(["for-each-ref", "--format", &format, "refs/heads/"])
         .current_dir(project_path)
         .output()
     {
         Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
-        _ => return (String::new(), 0),
+        _ => return map,
     };
-    let lines: Vec<&str> = output.trim().lines().collect();
-    if lines.len() >= 2 {
-        let msg = lines[0].to_string();
-        let ts = lines[1].parse().unwrap_or(0);
-        (msg, ts)
-    } else {
-        (String::new(), 0)
+
+    for line in output.lines() {
+        let parts: Vec<&str> = line.splitn(2, '\t').collect();
+        if parts.len() == 2 {
+            let name = parts[0].to_string();
+            let counts: Vec<&str> = parts[1].split_whitespace().collect();
+            if counts.len() == 2 {
+                let ahead: usize = counts[0].parse().unwrap_or(0);
+                let behind: usize = counts[1].parse().unwrap_or(0);
+                map.insert(name, (ahead, behind));
+            }
+        }
     }
+    map
 }
 
-/// List all worktree branches matching the given prefix, including ahead/behind
-/// counts relative to the merge target.
+/// List all worktree branches matching the given prefix.
 ///
-/// Uses git CLI for all operations — much faster on NAS than git2.
-/// Dirty status is NOT checked here (too slow on NAS with 30+ worktrees).
-/// Frontend can call is_worktree_dirty lazily for visible branches.
+/// Uses only 3 git CLI calls total (not per-branch):
+/// 1. git worktree list --porcelain — enumerate worktrees
+/// 2. git for-each-ref — commit info for all branches
+/// 3. git for-each-ref — ahead/behind for all branches
+///
+/// Plus 1 net use call for UNC path resolution.
 pub fn list_worktree_branches(
     project_path: &str,
     branch_prefix: &str,
@@ -179,20 +219,34 @@ pub fn list_worktree_branches(
         return Err(GitError::RepoNotFound(project_path.to_string()));
     }
 
-    // Use CLI to enumerate worktrees (git2 fails on NAS)
+    // 1. Enumerate worktrees (1 subprocess)
     let all_worktrees = enumerate_worktrees_cli(project_path);
-
-    // Filter to matching prefix
     let worktrees: Vec<WorktreeInfo> = all_worktrees
         .into_iter()
         .filter(|wt| wt.branch.starts_with(branch_prefix))
         .collect();
 
-    let mut results = Vec::new();
+    if worktrees.is_empty() {
+        return Ok(Vec::new());
+    }
 
+    // 2. Batch commit info (1 subprocess for ALL branches)
+    let branch_names: Vec<&str> = worktrees.iter().map(|wt| wt.branch.as_str()).collect();
+    let commit_info = batch_commit_info(project_path, &branch_names);
+
+    // 3. Batch ahead/behind (1 subprocess for ALL branches)
+    let ahead_behind = batch_ahead_behind(project_path, merge_target);
+
+    let mut results = Vec::new();
     for wt in &worktrees {
-        let (ahead, behind) = cli_ahead_behind(project_path, &wt.branch, merge_target);
-        let (message, timestamp) = cli_last_commit(project_path, &wt.branch);
+        let (message, timestamp) = commit_info
+            .get(&wt.branch)
+            .cloned()
+            .unwrap_or((String::new(), 0));
+        let (ahead, behind) = ahead_behind
+            .get(&wt.branch)
+            .copied()
+            .unwrap_or((0, 0));
 
         results.push(BranchInfo {
             name: wt.branch.clone(),
@@ -200,7 +254,7 @@ pub fn list_worktree_branches(
             behind,
             last_commit_message: message,
             last_commit_timestamp: timestamp,
-            is_dirty: false, // Deferred — too slow on NAS for 30+ worktrees
+            is_dirty: false,
             worktree_path: wt.path.clone(),
         });
     }

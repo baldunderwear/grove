@@ -81,11 +81,20 @@ pub fn run() {
                 notifications::check_and_notify(&app_handle_notify, &notif_state);
             }
 
-            // Re-check notifications and rebuild tray on git-changed events
+            // Re-check notifications and rebuild tray on git-changed events (debounced)
             {
                 use tauri::Listener;
                 let app_handle_for_notif = app.handle().clone();
+                let last_check = std::sync::Arc::new(std::sync::Mutex::new(std::time::Instant::now()));
                 app.listen("git-changed", move |_event| {
+                    // Debounce: skip if last check was < 10 seconds ago
+                    let mut last = last_check.lock().unwrap();
+                    if last.elapsed() < std::time::Duration::from_secs(10) {
+                        return;
+                    }
+                    *last = std::time::Instant::now();
+                    drop(last);
+
                     let state = app_handle_for_notif
                         .state::<std::sync::Mutex<notifications::NotificationState>>();
                     notifications::check_and_notify(&app_handle_for_notif, &state);
