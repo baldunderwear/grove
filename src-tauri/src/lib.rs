@@ -6,6 +6,7 @@ mod fetch;
 mod git;
 mod notifications;
 mod process;
+mod terminal;
 mod tray;
 mod utils;
 mod watcher;
@@ -15,6 +16,7 @@ pub fn run() {
         .manage(std::sync::Mutex::new(()))
         .manage(std::sync::Mutex::new(process::detect::SessionDetector::new()))
         .manage(std::sync::Mutex::new(notifications::NotificationState::new()))
+        .manage(std::sync::Mutex::new(terminal::TerminalManager::new()))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
@@ -46,6 +48,10 @@ pub fn run() {
             commands::session_commands::open_in_explorer,
             commands::session_commands::create_worktree,
             tray::refresh_tray,
+            terminal::commands::terminal_spawn,
+            terminal::commands::terminal_write,
+            terminal::commands::terminal_resize,
+            terminal::commands::terminal_kill,
         ])
         .setup(|app| {
             // Build tray icon with dynamic menu and event handlers

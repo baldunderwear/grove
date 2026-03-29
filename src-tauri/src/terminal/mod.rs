@@ -1,0 +1,93 @@
+pub mod commands;
+pub mod pty;
+
+use portable_pty::{Child, MasterPty};
+use std::collections::HashMap;
+use std::io::Write;
+
+/// Represents a single active terminal session.
+pub struct TerminalSession {
+    pub(crate) writer: Box<dyn Write + Send>,
+    pub(crate) master: Box<dyn MasterPty + Send>,
+    pub(crate) child: Box<dyn Child + Send>,
+    #[allow(dead_code)]
+    pub(crate) working_dir: String,
+}
+
+/// Manages all active terminal sessions by ID.
+pub struct TerminalManager {
+    terminals: HashMap<String, TerminalSession>,
+}
+
+/// Events streamed from the PTY reader thread to the frontend via Tauri Channel.
+#[derive(Clone, serde::Serialize)]
+#[serde(tag = "type")]
+pub enum TerminalEvent {
+    Data { data: String },
+    Exit { code: Option<u32> },
+    Error { message: String },
+}
+
+impl TerminalManager {
+    pub fn new() -> Self {
+        Self {
+            terminals: HashMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, id: String, session: TerminalSession) {
+        self.terminals.insert(id, session);
+    }
+
+    pub fn remove(&mut self, id: &str) -> Option<TerminalSession> {
+        self.terminals.remove(id)
+    }
+
+    /// Write data to a terminal's PTY input.
+    pub fn write(&mut self, id: &str, data: &[u8]) -> Result<(), String> {
+        let session = self
+            .terminals
+            .get_mut(id)
+            .ok_or_else(|| format!("Terminal {} not found", id))?;
+        session
+            .writer
+            .write_all(data)
+            .map_err(|e| format!("Write failed: {}", e))?;
+        session
+            .writer
+            .flush()
+            .map_err(|e| format!("Flush failed: {}", e))?;
+        Ok(())
+    }
+
+    /// Resize a terminal's PTY.
+    pub fn resize(&self, id: &str, cols: u16, rows: u16) -> Result<(), String> {
+        let session = self
+            .terminals
+            .get(id)
+            .ok_or_else(|| format!("Terminal {} not found", id))?;
+        let size = portable_pty::PtySize {
+            rows,
+            cols,
+            pixel_width: 0,
+            pixel_height: 0,
+        };
+        session
+            .master
+            .resize(size)
+            .map_err(|e| format!("Resize failed: {}", e))?;
+        Ok(())
+    }
+
+    /// Kill a terminal's child process and remove it from the manager.
+    pub fn kill(&mut self, id: &str) -> Result<(), String> {
+        let mut session = self
+            .remove(id)
+            .ok_or_else(|| format!("Terminal {} not found", id))?;
+        session
+            .child
+            .kill()
+            .map_err(|e| format!("Kill failed: {}", e))?;
+        Ok(())
+    }
+}
