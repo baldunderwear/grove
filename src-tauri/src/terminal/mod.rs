@@ -1,6 +1,9 @@
 pub mod commands;
 pub mod job_object;
 pub mod pty;
+pub mod state_parser;
+
+pub use state_parser::SessionState;
 
 use portable_pty::{Child, MasterPty};
 use std::collections::HashMap;
