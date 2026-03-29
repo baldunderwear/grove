@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: — Worktree Manager for Claude Code
-status: verifying
-last_updated: "2026-03-28T04:40:29.614Z"
-last_activity: 2026-03-28
+milestone: v2.0
+milestone_name: Mission Control
+status: planning
+last_updated: "2026-03-29T06:00:00.000Z"
+last_activity: 2026-03-29
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 22
-  completed_plans: 22
-  percent: 91
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -19,17 +19,17 @@ progress:
 
 See: .planning/PROJECT.md (created 2026-03-27)
 
-**Core value:** Manage git worktrees and Claude Code sessions across any project — launch, track, merge cleanly.
-**Current focus:** Phase 08 — polish-distribution
+**Core value:** Claude Code command center — embed sessions, detect state, configure Claude, orchestrate parallel work.
+**Current focus:** Defining requirements for v2.0 Mission Control
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-03-28
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-29 — Milestone v2.0 started
 
-Progress: [█████████░] 91%
+Progress: [░░░░░░░░░░] 0%
 
 ## Decisions
 

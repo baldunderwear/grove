@@ -83,8 +83,40 @@ Each registered project has a config like:
 
 Projects without build numbers or changelogs simply omit those fields — Grove handles plain merges too.
 
+## Current Milestone: v2.0 Mission Control
+
+**Goal:** Transform Grove from a worktree manager into a full Claude Code command center with embedded terminals, session intelligence, and configuration editors.
+
+**Target features:**
+- Embedded terminal tabs (portable-pty + xterm.js) replacing external window launches
+- Real-time session state detection (waiting/working/idle/error) with dashboard status
+- CLAUDE.md visual editor with section-aware editing and preview
+- Skills browser and editor for `.claude/skills/` management
+- Settings/permissions editor for `.claude/settings.json`
+- Prompt templates and context builder for streamlined launches
+- Multi-session batch operations and orchestration
+
 ## Current State
 
 **v1.0 shipped** (2026-03-28) — Full worktree manager with project registry, git operations backend, dashboard UI, session launch, merge workflow, system tray with notifications, and auto-update distribution. 8 phases, 22 plans, 6,535 LOC (Rust + TypeScript).
 
-Last updated: 2026-03-28
+**v1.1.4 shipped** (2026-03-29) — Brand design system (Grove forest green palette, Syne/IBM Plex Mono fonts), All Projects view, project wizard with smart repo scanning, NAS performance fixes (batched git CLI calls, UNC path resolution, hidden subprocess windows).
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+Last updated: 2026-03-29
