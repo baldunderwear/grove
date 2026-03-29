@@ -32,6 +32,13 @@
 - [ ] **LAUNCH-03**: "Launch with prompt" — open terminal tab and auto-send initial prompt
 - [ ] **LAUNCH-04**: Batch launch: start Claude Code on multiple worktrees simultaneously
 
+### Profiles & Multi-Account
+- [ ] **PROF-01**: User can create named profiles (e.g., "Personal", "Work") with distinct Claude config directory, env vars, and SSH key
+- [ ] **PROF-02**: Each project is assigned to a profile; launching sessions inherits that profile's environment
+- [ ] **PROF-03**: Profile selector in sidebar or top bar to filter projects by identity
+- [ ] **PROF-04**: Profile editor for managing environment variables, launch flags, and Claude config paths
+- [ ] **PROF-05**: Default profile applied when no profile is explicitly set on a project
+
 ### Non-Functional
 - [ ] **NFR-05**: Terminal I/O uses Tauri Channels (not events) for throughput
 - [ ] **NFR-06**: PTY operations resolve UNC paths to drive letters before spawning
@@ -82,3 +89,8 @@
 | NFR-07 | Phase 09 | Pending |
 | NFR-08 | Phase 09 | Pending |
 | NFR-09 | Phase 12 | Pending |
+| PROF-01 | Phase 12 | Pending |
+| PROF-02 | Phase 12 | Pending |
+| PROF-03 | Phase 12 | Pending |
+| PROF-04 | Phase 12 | Pending |
+| PROF-05 | Phase 12 | Pending |

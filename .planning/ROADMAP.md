@@ -64,16 +64,18 @@
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 12: Configuration Editors
-**Goal**: User can view and edit Claude Code configuration files (CLAUDE.md, settings.json, skills) directly inside Grove without switching to an external editor
+### Phase 12: Configuration Editors & Profiles
+**Goal**: User can view and edit Claude Code configuration files (CLAUDE.md, settings.json, skills) and manage multi-account profiles directly inside Grove
 **Depends on**: v1.0/v1.1 (independent of terminal work)
-**Requirements**: CONF-01, CONF-02, CONF-03, CONF-04, CONF-05, CONF-06, NFR-09
+**Requirements**: CONF-01, CONF-02, CONF-03, CONF-04, CONF-05, CONF-06, PROF-01, PROF-02, PROF-03, PROF-04, PROF-05, NFR-09
 **Success Criteria** (what must be TRUE):
   1. User can open CLAUDE.md in a split-pane editor with collapsible sections and a live preview showing merged global + project content
   2. User can browse, create, edit, and delete skills in `.claude/skills/` through a visual browser
   3. User can edit `.claude/settings.json` with a structured form for permissions, hooks, and MCP servers
   4. All editors provide syntax highlighting (markdown and JSON) and validate before save (JSON syntax check, markdown preview)
   5. Config files load in under 100ms and editors handle files up to 500KB without jank
+  6. User can create named profiles (Personal, Work) with distinct Claude config dirs, env vars, SSH keys, and launch flags
+  7. Projects assigned to a profile launch sessions with that profile's environment automatically
 **Plans**: TBD
 **UI hint**: yes
 
