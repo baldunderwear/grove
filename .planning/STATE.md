@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
 status: executing
-stopped_at: Completed 12-05-PLAN.md
-last_updated: "2026-03-29T19:38:30.196Z"
+stopped_at: Completed 13-01-PLAN.md
+last_updated: "2026-03-29T20:01:21.430Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 16
+  completed_plans: 14
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Claude Code command center -- embed sessions, detect state, configure Claude, orchestrate parallel work.
-**Current focus:** Phase 12 — configuration-editors-profiles
+**Current focus:** Phase 13 — launch-experience
 
 ## Current Position
 
-Phase: 12 (configuration-editors-profiles) — EXECUTING
-Plan: 5 of 5
+Phase: 13 (launch-experience) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
 Last activity: 2026-03-29
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 12 P03 | 9min | 2 tasks | 6 files |
 | Phase 12 P02 | 4min | 2 tasks | 4 files |
 | Phase 12 P05 | 5min | 3 tasks | 8 files |
+| Phase 13 P01 | 9min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 12]: Markdown fold service based on heading level hierarchy for collapsible sections
 - [Phase 12]: Section outline pills + fold gutter dual navigation in ClaudeMdEditor
 - [Phase 12]: projectId flows through TerminalTab store for profile env injection at PTY spawn
+- [Phase 13]: Simple char-scanning for {variable} extraction instead of regex crate
+- [Phase 13]: PromptTemplate at AppConfig level (not per-project) with serde(default) for backward compat
 
 ### Blockers/Concerns
 
@@ -104,6 +107,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T19:38:30.162Z
-Stopped at: Completed 12-05-PLAN.md
+Last session: 2026-03-29T20:01:21.397Z
+Stopped at: Completed 13-01-PLAN.md
 Resume file: None

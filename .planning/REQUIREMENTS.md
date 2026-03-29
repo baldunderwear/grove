@@ -27,7 +27,7 @@
 - [x] **CONF-06**: Save with validation (JSON syntax check, markdown preview)
 
 ### Launch Experience
-- [ ] **LAUNCH-01**: Prompt templates: save reusable prompts with variables ({branch}, {issue})
+- [x] **LAUNCH-01**: Prompt templates: save reusable prompts with variables ({branch}, {issue})
 - [ ] **LAUNCH-02**: Context builder: select files to include as context when launching
 - [ ] **LAUNCH-03**: "Launch with prompt" — open terminal tab and auto-send initial prompt
 - [ ] **LAUNCH-04**: Batch launch: start Claude Code on multiple worktrees simultaneously
@@ -80,7 +80,7 @@
 | CONF-04 | Phase 12 | Complete |
 | CONF-05 | Phase 12 | Complete |
 | CONF-06 | Phase 12 | Complete |
-| LAUNCH-01 | Phase 13 | Pending |
+| LAUNCH-01 | Phase 13 | Complete |
 | LAUNCH-02 | Phase 13 | Pending |
 | LAUNCH-03 | Phase 13 | Pending |
 | LAUNCH-04 | Phase 13 | Pending |
