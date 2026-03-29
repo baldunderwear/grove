@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Mission Control
-status: verifying
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-03-29T17:07:01.142Z"
+status: executing
+stopped_at: Completed 10-02-PLAN.md
+last_updated: "2026-03-29T17:29:12.560Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 5
+  completed_plans: 4
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Claude Code command center -- embed sessions, detect state, configure Claude, orchestrate parallel work.
-**Current focus:** Phase 09 — terminal-foundation-conpty-spike
+**Current focus:** Phase 10 — multi-terminal-tabs
 
 ## Current Position
 
-Phase: 09 (terminal-foundation-conpty-spike) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 10 (multi-terminal-tabs) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-03-29
 
 Progress: [░░░░░░░░░░] 0%
@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09 P02 | 7min | 2 tasks | 5 files |
 | Phase 09 P01 | 33min | 2 tasks | 8 files |
 | Phase 09 P03 | 7min | 2 tasks | 4 files |
+| Phase 10 P02 | 6min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 09]: TerminalManager mutex NOT held during PTY I/O -- brief lock only for insert/remove/lookup
 - [Phase 09]: Terminal store mediation in Dashboard rather than direct BranchTable coupling for better component isolation
 - [Phase 09]: react-resizable-panels v4 API (Group/Panel/Separator with orientation) wrapped in shadcn-style exports
+- [Phase 10]: Map cloning pattern for Zustand reactivity with Map-based multi-tab terminal state
+- [Phase 10]: CSS display toggle for xterm.js tab switching -- preserves scrollback without unmount
 
 ### Blockers/Concerns
 
@@ -75,6 +78,6 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 
 ## Session Continuity
 
-Last session: 2026-03-29T17:07:01.127Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-03-29T17:29:12.434Z
+Stopped at: Completed 10-02-PLAN.md
 Resume file: None
