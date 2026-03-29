@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 12 P01 | 18min | 2 tasks | 7 files |
 | Phase 12 P04 | 4min | 2 tasks | 3 files |
 | Phase 12 P03 | 9min | 2 tasks | 6 files |
+| Phase 12 P02 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,9 @@ Decisions from v1.0/v1.1 archived in STATE history. v2.0 decisions:
 - [Phase 12]: First profile auto-default (PROF-05), default cascades to first remaining on removal
 - [Phase 12]: Inline name input for profile creation; env vars as KV row editor with blur-to-save; launch flags as pill tags
 - [Phase 12]: delete_file command added to file_commands.rs for skill deletion (not in Plan 01)
+- [Phase 12]: EditorView.theme() (CM6 native) instead of @uiw/codemirror-themes createTheme -- avoids extra dependency
+- [Phase 12]: Markdown fold service based on heading level hierarchy for collapsible sections
+- [Phase 12]: Section outline pills + fold gutter dual navigation in ClaudeMdEditor
 
 ### Blockers/Concerns
 
