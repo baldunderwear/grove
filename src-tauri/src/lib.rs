@@ -7,6 +7,7 @@ mod git;
 mod notifications;
 mod process;
 mod tray;
+mod utils;
 mod watcher;
 
 pub fn run() {

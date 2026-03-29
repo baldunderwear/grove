@@ -2,6 +2,7 @@ use serde::Serialize;
 use std::os::windows::process::CommandExt;
 
 use super::error::GitError;
+use crate::utils::paths::{get_drive_mappings, resolve_unc_path};
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
@@ -21,54 +22,6 @@ pub struct BranchInfo {
 struct WorktreeInfo {
     branch: String,
     path: String,
-}
-
-/// A mapping from UNC prefix to drive letter, cached per list_branches call.
-struct DriveMapping {
-    unc_prefix: String, // lowercase, forward slashes, e.g. "//the-batman/mnt"
-    drive: String,      // e.g. "Z:"
-}
-
-/// Query `net use` once and build a list of UNC → drive letter mappings.
-fn get_drive_mappings() -> Vec<DriveMapping> {
-    let output = match std::process::Command::new("net").arg("use").creation_flags(CREATE_NO_WINDOW).output() {
-        Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).to_string(),
-        _ => return Vec::new(),
-    };
-
-    let mut mappings = Vec::new();
-    for line in output.lines() {
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        for (i, part) in parts.iter().enumerate() {
-            if part.len() == 2 && part.ends_with(':') {
-                if let Some(unc) = parts.get(i + 1) {
-                    if unc.starts_with("\\\\") || unc.starts_with("//") {
-                        mappings.push(DriveMapping {
-                            unc_prefix: unc.replace('\\', "/").to_lowercase(),
-                            drive: part.to_string(),
-                        });
-                    }
-                }
-            }
-        }
-    }
-    mappings
-}
-
-/// Resolve a UNC path to a drive letter using pre-fetched mappings.
-fn resolve_unc_path(path: &str, mappings: &[DriveMapping]) -> String {
-    let normalized = path.replace('\\', "/");
-    if !normalized.starts_with("//") {
-        return normalized;
-    }
-    let path_lower = normalized.to_lowercase();
-    for m in mappings {
-        if path_lower.starts_with(&m.unc_prefix) {
-            let remainder = &normalized[m.unc_prefix.len()..];
-            return format!("{}{}", m.drive, remainder);
-        }
-    }
-    normalized
 }
 
 /// Parse `git worktree list --porcelain` output into WorktreeInfo entries.
