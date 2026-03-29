@@ -21,7 +21,7 @@
 
 - [x] **Phase 09: Terminal Foundation (ConPTY Spike)** - Validate portable-pty on Windows, deliver single embedded terminal with PTY (completed 2026-03-29)
 - [x] **Phase 10: Multi-Terminal Tabs** - Multiple terminal tabs tied to worktrees with process tree cleanup (completed 2026-03-29)
-- [ ] **Phase 11: Session Intelligence** - Real-time session state detection with dashboard status indicators
+- [x] **Phase 11: Session Intelligence** - Real-time session state detection with dashboard status indicators (completed 2026-03-29)
 - [ ] **Phase 12: Configuration Editors** - CLAUDE.md, settings.json, and skills editors with CodeMirror
 - [ ] **Phase 13: Launch Experience** - Prompt templates, context builder, and batch launch
 
@@ -72,7 +72,7 @@ Plans:
 Plans:
 - [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
 - [x] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
-- [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
+- [x] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
 
 ### Phase 12: Configuration Editors & Profiles
@@ -90,7 +90,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
-- [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
+- [x] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
 - [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
 
@@ -105,7 +105,7 @@ Plans:
   4. User can batch-launch Claude Code on multiple worktrees simultaneously with one action
 **Plans**: 3 plans
 Plans:
-- [ ] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
+- [x] 11-01-PLAN.md -- Rust backend: ANSI stripper, state parser, PTY dual-stream wiring
 - [ ] 11-02-PLAN.md -- Frontend: terminal store state, status dots, aggregate header, notifications
 - [ ] 11-03-PLAN.md -- Session history: git diff, state timeline, history panel UI
 **UI hint**: yes
@@ -118,6 +118,6 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 09. Terminal Foundation | v2.0 | 3/3 | Complete    | 2026-03-29 |
 | 10. Multi-Terminal Tabs | v2.0 | 2/2 | Complete    | 2026-03-29 |
-| 11. Session Intelligence | v2.0 | 2/3 | In Progress|  |
+| 11. Session Intelligence | v2.0 | 3/3 | Complete   | 2026-03-29 |
 | 12. Configuration Editors | v2.0 | 0/? | Not started | - |
 | 13. Launch Experience | v2.0 | 0/? | Not started | - |

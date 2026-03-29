@@ -16,7 +16,7 @@
 - [x] **SESS-02**: Dashboard shows aggregate status ("3 working, 2 waiting for input")
 - [x] **SESS-03**: Status indicator per terminal tab (colored dot: green=working, amber=waiting, gray=idle, red=error)
 - [x] **SESS-04**: Notification when a session transitions to "waiting for input"
-- [ ] **SESS-05**: Session history: git diff since session start, duration, state timeline
+- [x] **SESS-05**: Session history: git diff since session start, duration, state timeline
 
 ### Configuration Editors
 - [ ] **CONF-01**: Visual editor for CLAUDE.md with section-aware editing (collapsible sections)
@@ -73,7 +73,7 @@
 | SESS-02 | Phase 11 | Complete |
 | SESS-03 | Phase 11 | Complete |
 | SESS-04 | Phase 11 | Complete |
-| SESS-05 | Phase 11 | Pending |
+| SESS-05 | Phase 11 | Complete |
 | CONF-01 | Phase 12 | Pending |
 | CONF-02 | Phase 12 | Pending |
 | CONF-03 | Phase 12 | Pending |
