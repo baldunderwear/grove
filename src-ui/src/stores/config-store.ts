@@ -7,7 +7,7 @@ interface ConfigState {
   loading: boolean;
   error: string | null;
   selectedProjectId: string | null;
-  activeView: 'dashboard' | 'project' | 'settings' | 'empty' | 'all-projects';
+  activeView: 'dashboard' | 'project' | 'settings' | 'config' | 'empty' | 'all-projects';
 
   // Actions
   loadConfig: () => Promise<void>;
@@ -29,6 +29,18 @@ interface ConfigState {
   showProjectConfig: () => void;
   showSettings: () => void;
   showAllProjects: () => void;
+  showConfig: () => void;
+  addProfile: (name: string) => Promise<void>;
+  updateProfile: (id: string, updates: {
+    name?: string;
+    claude_config_dir?: string | null;
+    env_vars?: Record<string, string>;
+    ssh_key?: string | null;
+    launch_flags?: string[];
+    is_default?: boolean;
+  }) => Promise<void>;
+  removeProfile: (id: string) => Promise<void>;
+  setProjectProfile: (projectId: string, profileId: string | null) => Promise<void>;
 }
 
 export const useConfigStore = create<ConfigState>()((set) => ({
@@ -115,5 +127,46 @@ export const useConfigStore = create<ConfigState>()((set) => ({
 
   showAllProjects: () => {
     set({ selectedProjectId: null, activeView: 'all-projects' });
+  },
+
+  showConfig: () => {
+    set({ selectedProjectId: null, activeView: 'config' });
+  },
+
+  addProfile: async (name: string) => {
+    set({ error: null });
+    try {
+      const config = await invoke<AppConfig>('add_profile', { name });
+      set({ config });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  updateProfile: async (id: string, updates) => {
+    try {
+      const config = await invoke<AppConfig>('update_profile', { id, ...updates });
+      set({ config, error: null });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  removeProfile: async (id: string) => {
+    try {
+      const config = await invoke<AppConfig>('remove_profile', { id });
+      set({ config, error: null });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  setProjectProfile: async (projectId: string, profileId: string | null) => {
+    try {
+      const config = await invoke<AppConfig>('set_project_profile', { projectId, profileId });
+      set({ config, error: null });
+    } catch (e) {
+      set({ error: String(e) });
+    }
   },
 }));
