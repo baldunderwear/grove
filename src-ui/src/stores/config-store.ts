@@ -41,6 +41,9 @@ interface ConfigState {
   }) => Promise<void>;
   removeProfile: (id: string) => Promise<void>;
   setProjectProfile: (projectId: string, profileId: string | null) => Promise<void>;
+  addTemplate: (name: string, body: string) => Promise<void>;
+  updateTemplate: (id: string, updates: { name?: string; body?: string }) => Promise<void>;
+  removeTemplate: (id: string) => Promise<void>;
 }
 
 export const useConfigStore = create<ConfigState>()((set) => ({
@@ -164,6 +167,34 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   setProjectProfile: async (projectId: string, profileId: string | null) => {
     try {
       const config = await invoke<AppConfig>('set_project_profile', { projectId, profileId });
+      set({ config, error: null });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  addTemplate: async (name: string, body: string) => {
+    set({ error: null });
+    try {
+      const config = await invoke<AppConfig>('add_template', { name, body });
+      set({ config });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  updateTemplate: async (id: string, updates: { name?: string; body?: string }) => {
+    try {
+      const config = await invoke<AppConfig>('update_template', { id, ...updates });
+      set({ config, error: null });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  removeTemplate: async (id: string) => {
+    try {
+      const config = await invoke<AppConfig>('remove_template', { id });
       set({ config, error: null });
     } catch (e) {
       set({ error: String(e) });

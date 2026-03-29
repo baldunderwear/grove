@@ -3,6 +3,14 @@ export interface AppConfig {
   projects: ProjectConfig[];
   settings: Settings;
   profiles: Profile[];
+  templates: PromptTemplate[];
+}
+
+export interface PromptTemplate {
+  id: string;
+  name: string;
+  body: string;
+  variables: string[];
 }
 
 export interface ProjectConfig {
