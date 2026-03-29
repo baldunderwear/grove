@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use tauri::ipc::Channel;
 
 use super::history::HistoryManager;
@@ -8,11 +9,15 @@ use super::{TerminalEvent, TerminalManager};
 ///
 /// Resolves UNC paths to drive letters before PTY spawn. Returns the terminal ID
 /// which the frontend uses for subsequent write/resize/kill operations.
+///
+/// When `project_id` is provided, the project's assigned profile (or the default
+/// profile) is looked up and its `env_vars` are injected into the PTY process.
 #[tauri::command]
 pub fn terminal_spawn(
     working_dir: String,
     cols: u16,
     rows: u16,
+    project_id: Option<String>,
     on_event: Channel<TerminalEvent>,
     manager: tauri::State<'_, std::sync::Mutex<TerminalManager>>,
     history_manager: tauri::State<'_, std::sync::Mutex<HistoryManager>>,
@@ -30,8 +35,34 @@ pub fn terminal_spawn(
         ));
     }
 
+    // Resolve profile environment variables for this project
+    let env_overrides: HashMap<String, String> = if let Some(ref pid) = project_id {
+        if let Ok(config) = crate::config::persistence::load_or_create_config(&app_handle) {
+            if let Some(project) = config.projects.iter().find(|p| p.id == *pid) {
+                if let Some(ref profile_id) = project.profile_id {
+                    config.profiles.iter()
+                        .find(|p| p.id == *profile_id)
+                        .map(|p| p.env_vars.clone())
+                        .unwrap_or_default()
+                } else {
+                    // No explicit profile -- use default profile if one exists (PROF-05)
+                    config.profiles.iter()
+                        .find(|p| p.is_default)
+                        .map(|p| p.env_vars.clone())
+                        .unwrap_or_default()
+                }
+            } else {
+                HashMap::new()
+            }
+        } else {
+            HashMap::new()
+        }
+    } else {
+        HashMap::new()
+    };
+
     // Spawn PTY (must NOT hold manager lock during this -- PTY I/O is slow)
-    let (id, session) = pty::spawn_pty(&resolved, cols, rows, on_event, app_handle)?;
+    let (id, session) = pty::spawn_pty(&resolved, cols, rows, on_event, app_handle, env_overrides)?;
 
     // Brief lock to insert session
     let mut mgr = manager

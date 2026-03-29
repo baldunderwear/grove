@@ -14,10 +14,11 @@ interface TerminalInstanceProps {
   tabId: string;
   worktreePath: string;
   branchName: string;
+  projectId?: string;
   isVisible: boolean;
 }
 
-function TerminalInstance({ tabId, worktreePath, branchName, isVisible }: TerminalInstanceProps) {
+function TerminalInstance({ tabId, worktreePath, branchName, projectId, isVisible }: TerminalInstanceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalIdRef = useRef<string | null>(null);
   const { activateTab, setTabConnected } = useTerminalStore();
@@ -75,6 +76,7 @@ function TerminalInstance({ tabId, worktreePath, branchName, isVisible }: Termin
       workingDir: worktreePath,
       cols: 80,
       rows: 24,
+      projectId: projectId ?? null,
       onEvent,
     })
       .then((id) => {
@@ -150,6 +152,7 @@ export function TerminalPanel() {
             tabId={tab.id}
             worktreePath={tab.worktreePath}
             branchName={tab.branchName}
+            projectId={tab.projectId}
             isVisible={tab.id === activeTabId}
           />
         ))}

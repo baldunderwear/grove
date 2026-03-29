@@ -184,7 +184,7 @@ export function Dashboard() {
     if (existing) {
       switchTab(existing.id);
     } else {
-      addTab(branch.worktree_path, branch.name);
+      addTab(branch.worktree_path, branch.name, selectedProjectId ?? undefined);
     }
   };
 

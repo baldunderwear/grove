@@ -22,6 +22,7 @@ pub fn spawn_pty(
     rows: u16,
     on_event: Channel<TerminalEvent>,
     app_handle: tauri::AppHandle,
+    env_overrides: std::collections::HashMap<String, String>,
 ) -> Result<(String, TerminalSession), String> {
     let pty_system = NativePtySystem::default();
 
@@ -41,6 +42,11 @@ pub fn spawn_pty(
     cmd.cwd(working_dir);
     cmd.env("TERM", "xterm-256color");
     cmd.env("COLORTERM", "truecolor");
+
+    // Inject profile environment variables
+    for (key, value) in &env_overrides {
+        cmd.env(key, value);
+    }
 
     let child = pair
         .slave

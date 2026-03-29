@@ -6,6 +6,7 @@ export interface TerminalTab {
   id: string;
   worktreePath: string;
   branchName: string;
+  projectId?: string;
   isConnected: boolean;
   createdAt: number;
   sessionState: SessionState;
@@ -27,7 +28,7 @@ interface TerminalStoreState {
   getSessionCounts: () => SessionCounts;
 
   // Actions
-  addTab: (worktreePath: string, branchName: string) => string;
+  addTab: (worktreePath: string, branchName: string, projectId?: string) => string;
   activateTab: (tabId: string, terminalId: string) => void;
   switchTab: (tabId: string) => void;
   closeTab: (tabId: string) => void;
@@ -52,12 +53,13 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
     return counts;
   },
 
-  addTab: (worktreePath: string, branchName: string) => {
+  addTab: (worktreePath: string, branchName: string, projectId?: string) => {
     const pendingId = `pending-${crypto.randomUUID()}`;
     const tab: TerminalTab = {
       id: pendingId,
       worktreePath,
       branchName,
+      projectId,
       isConnected: false,
       createdAt: Date.now(),
       sessionState: null,
