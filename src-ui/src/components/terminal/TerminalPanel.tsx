@@ -1,8 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { useTerminal } from '@/hooks/useTerminal';
 import { useTerminalStore } from '@/stores/terminal-store';
 import { TerminalTabBar } from './TerminalTabBar';
+import { SessionHistoryPanel } from './SessionHistoryPanel';
 
 type TerminalEvent =
   | { type: 'Data'; data: string }
@@ -117,6 +118,7 @@ export function TerminalPanel() {
   const activeTabId = useTerminalStore((s) => s.activeTabId);
   const switchTab = useTerminalStore((s) => s.switchTab);
   const closeTab = useTerminalStore((s) => s.closeTab);
+  const [showHistory, setShowHistory] = useState(false);
 
   const handleClose = useCallback(
     (tabId: string) => {
@@ -139,6 +141,7 @@ export function TerminalPanel() {
         activeTabId={activeTabId}
         onSwitch={switchTab}
         onClose={handleClose}
+        onShowHistory={() => setShowHistory(true)}
       />
       <div className="flex-1 min-h-0 relative">
         {tabArray.map((tab) => (
@@ -150,6 +153,12 @@ export function TerminalPanel() {
             isVisible={tab.id === activeTabId}
           />
         ))}
+        {showHistory && activeTabId && !activeTabId.startsWith('pending-') && (
+          <SessionHistoryPanel
+            terminalId={activeTabId}
+            onClose={() => setShowHistory(false)}
+          />
+        )}
       </div>
     </div>
   );

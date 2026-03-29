@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Terminal, X } from 'lucide-react';
+import { Terminal, X, Activity } from 'lucide-react';
 import type { TerminalTab, SessionState } from '@/stores/terminal-store';
 
 function getStatusDotClass(state: SessionState): string {
@@ -17,6 +17,7 @@ interface TerminalTabBarProps {
   activeTabId: string | null;
   onSwitch: (tabId: string) => void;
   onClose: (tabId: string) => void;
+  onShowHistory?: () => void;
 }
 
 function formatDuration(createdAt: number): string {
@@ -30,7 +31,7 @@ function formatDuration(createdAt: number): string {
   return `${minutes}m`;
 }
 
-export function TerminalTabBar({ tabs, activeTabId, onSwitch, onClose }: TerminalTabBarProps) {
+export function TerminalTabBar({ tabs, activeTabId, onSwitch, onClose, onShowHistory }: TerminalTabBarProps) {
   const [, setTick] = useState(0);
 
   // Update duration display every 30 seconds
@@ -87,6 +88,15 @@ export function TerminalTabBar({ tabs, activeTabId, onSwitch, onClose }: Termina
           </button>
         );
       })}
+      {onShowHistory && (
+        <button
+          className="flex items-center gap-1 px-2 h-full text-xs text-zinc-500 hover:text-zinc-300 transition-colors ml-auto"
+          onClick={onShowHistory}
+          title="Session history"
+        >
+          <Activity className="h-3 w-3" />
+        </button>
+      )}
     </div>
   );
 }
