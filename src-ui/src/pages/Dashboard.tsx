@@ -7,6 +7,7 @@ import { BranchEmptyState } from '@/components/BranchEmptyState';
 import { BranchTable } from '@/components/BranchTable';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { MergeDialog } from '@/components/MergeDialog';
+import { LaunchDialog } from '@/components/launch/LaunchDialog';
 import { MergeHistory } from '@/components/MergeHistory';
 import { NewWorktreeDialog } from '@/components/NewWorktreeDialog';
 import { TerminalPanel } from '@/components/terminal/TerminalPanel';
@@ -50,6 +51,7 @@ export function Dashboard() {
 
   const [showNewWorktree, setShowNewWorktree] = useState(false);
   const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
+  const [launchBranch, setLaunchBranch] = useState<BranchInfo | null>(null);
   const mergeLoading = useMergeStore((s) => s.loading);
 
   const project = config?.projects.find((p) => p.id === selectedProjectId);
@@ -184,8 +186,17 @@ export function Dashboard() {
     if (existing) {
       switchTab(existing.id);
     } else {
-      addTab(branch.worktree_path, branch.name, selectedProjectId ?? undefined);
+      setLaunchBranch(branch);
     }
+  };
+
+  const handleLaunchConfirm = (prompt: string, contextFiles: string[]) => {
+    if (!launchBranch || !project) return;
+    addTab(launchBranch.worktree_path, launchBranch.name, selectedProjectId ?? undefined, {
+      prompt: prompt || undefined,
+      contextFiles: contextFiles.length > 0 ? contextFiles : undefined,
+    });
+    setLaunchBranch(null);
   };
 
   const handleWorktreeCreated = async (_worktreePath: string, _branchName: string) => {
@@ -246,6 +257,15 @@ export function Dashboard() {
           branch={mergeBranch}
           project={project}
           onComplete={handleMergeComplete}
+        />
+        <LaunchDialog
+          open={!!launchBranch}
+          onOpenChange={(open) => { if (!open) setLaunchBranch(null); }}
+          worktreePath={launchBranch?.worktree_path ?? ''}
+          branchName={launchBranch?.name ?? ''}
+          projectId={selectedProjectId ?? undefined}
+          projectPath={project.path}
+          onLaunch={handleLaunchConfirm}
         />
       </div>
     );
@@ -332,6 +352,15 @@ export function Dashboard() {
         branch={mergeBranch}
         project={project}
         onComplete={handleMergeComplete}
+      />
+      <LaunchDialog
+        open={!!launchBranch}
+        onOpenChange={(open) => { if (!open) setLaunchBranch(null); }}
+        worktreePath={launchBranch?.worktree_path ?? ''}
+        branchName={launchBranch?.name ?? ''}
+        projectId={selectedProjectId ?? undefined}
+        projectPath={project.path}
+        onLaunch={handleLaunchConfirm}
       />
     </div>
   );

@@ -10,6 +10,13 @@ export interface TerminalTab {
   isConnected: boolean;
   createdAt: number;
   sessionState: SessionState;
+  initialPrompt?: string;
+  contextFiles?: string[];
+}
+
+export interface LaunchOptions {
+  prompt?: string;
+  contextFiles?: string[];
 }
 
 interface SessionCounts {
@@ -28,7 +35,8 @@ interface TerminalStoreState {
   getSessionCounts: () => SessionCounts;
 
   // Actions
-  addTab: (worktreePath: string, branchName: string, projectId?: string) => string;
+  addTab: (worktreePath: string, branchName: string, projectId?: string, launchOptions?: LaunchOptions) => string;
+  clearInitialPrompt: (tabId: string) => void;
   activateTab: (tabId: string, terminalId: string) => void;
   switchTab: (tabId: string) => void;
   closeTab: (tabId: string) => void;
@@ -53,7 +61,7 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
     return counts;
   },
 
-  addTab: (worktreePath: string, branchName: string, projectId?: string) => {
+  addTab: (worktreePath: string, branchName: string, projectId?: string, launchOptions?: LaunchOptions) => {
     const pendingId = `pending-${crypto.randomUUID()}`;
     const tab: TerminalTab = {
       id: pendingId,
@@ -63,11 +71,22 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
       isConnected: false,
       createdAt: Date.now(),
       sessionState: null,
+      initialPrompt: launchOptions?.prompt,
+      contextFiles: launchOptions?.contextFiles,
     };
     const next = new Map(get().tabs);
     next.set(pendingId, tab);
     set({ tabs: next, activeTabId: pendingId });
     return pendingId;
+  },
+
+  clearInitialPrompt: (tabId: string) => {
+    const current = get().tabs;
+    const tab = current.get(tabId);
+    if (!tab) return;
+    const next = new Map(current);
+    next.set(tabId, { ...tab, initialPrompt: undefined });
+    set({ tabs: next });
   },
 
   activateTab: (tabId: string, terminalId: string) => {

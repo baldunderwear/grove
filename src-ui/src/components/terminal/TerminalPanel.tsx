@@ -21,7 +21,8 @@ interface TerminalInstanceProps {
 function TerminalInstance({ tabId, worktreePath, branchName, projectId, isVisible }: TerminalInstanceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalIdRef = useRef<string | null>(null);
-  const { activateTab, setTabConnected } = useTerminalStore();
+  const autoSendDoneRef = useRef(false);
+  const { activateTab, setTabConnected, clearInitialPrompt } = useTerminalStore();
 
   const onData = useCallback((data: string) => {
     const id = terminalIdRef.current;
@@ -59,6 +60,21 @@ function TerminalInstance({ tabId, worktreePath, branchName, projectId, isVisibl
       switch (event.type) {
         case 'Data':
           write(event.data);
+          // Auto-send initial prompt after first data (Claude Code banner)
+          if (!autoSendDoneRef.current) {
+            autoSendDoneRef.current = true;
+            const tab = useTerminalStore.getState().tabs.get(tabId);
+            const pendingPrompt = tab?.initialPrompt;
+            if (pendingPrompt) {
+              clearInitialPrompt(tabId);
+              setTimeout(() => {
+                const id = terminalIdRef.current;
+                if (id) {
+                  invoke('terminal_write', { terminalId: id, data: pendingPrompt + '\n' }).catch(() => {});
+                }
+              }, 2000);
+            }
+          }
           break;
         case 'Exit':
           write(`\r\n\x1b[90m[Process exited with code ${event.code ?? 'unknown'}]\x1b[0m\r\n`);
