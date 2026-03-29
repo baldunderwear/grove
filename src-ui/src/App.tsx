@@ -8,6 +8,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
+import { ConfigEditors } from '@/pages/ConfigEditors';
 import { AddProjectWizard } from '@/components/AddProjectWizard';
 import { useConfigStore } from '@/stores/config-store';
 import { UpdateChecker } from '@/components/UpdateChecker';
@@ -61,6 +62,7 @@ function App() {
           {activeView === 'dashboard' && <Dashboard />}
           {activeView === 'project' && <ProjectConfig />}
           {activeView === 'settings' && <Settings />}
+          {activeView === 'config' && <ConfigEditors />}
         </main>
       </div>
     </TooltipProvider>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Settings, Trees } from 'lucide-react';
+import { FileText, Settings, Trees } from 'lucide-react';
 import { AddProjectWizard } from '@/components/AddProjectWizard';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { ProfileSelector } from '@/components/config/ProfileSelector';
 import { useConfigStore } from '@/stores/config-store';
 import type { HealthStatus } from '@/types/config';
 
@@ -20,6 +21,7 @@ export function Sidebar() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const showAllProjects = useConfigStore((s) => s.showAllProjects);
   const showSettings = useConfigStore((s) => s.showSettings);
+  const showConfig = useConfigStore((s) => s.showConfig);
   const checkHealth = useConfigStore((s) => s.checkHealth);
 
   const [healthMap, setHealthMap] = useState<Record<string, HealthStatus>>({});
@@ -124,8 +126,31 @@ export function Sidebar() {
         </ScrollArea>
       </div>
 
+      {/* Profile selector */}
+      <div className="py-2" style={{ borderTop: '1px solid var(--grove-canopy)' }}>
+        <ProfileSelector />
+      </div>
+
       {/* Bottom section */}
-      <div className="p-4" style={{ borderTop: '1px solid var(--grove-canopy)' }}>
+      <div className="p-4 flex gap-1" style={{ borderTop: '1px solid var(--grove-canopy)' }}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Configuration Editors"
+              onClick={showConfig}
+              className={
+                activeView === 'config'
+                  ? 'text-[var(--grove-white)]'
+                  : 'text-[var(--grove-stone)] hover:text-[var(--grove-fog)]'
+              }
+            >
+              <FileText className="h-5 w-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Config Editors</TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
