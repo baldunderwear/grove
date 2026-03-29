@@ -35,34 +35,37 @@ pub fn terminal_spawn(
         ));
     }
 
-    // Resolve profile environment variables for this project
-    let env_overrides: HashMap<String, String> = if let Some(ref pid) = project_id {
+    // Resolve full profile for this project (env_vars, launch_flags, ssh_key, claude_config_dir)
+    let mut env_overrides: HashMap<String, String> = HashMap::new();
+    let mut extra_args: Vec<String> = Vec::new();
+
+    if let Some(ref pid) = project_id {
         if let Ok(config) = crate::config::persistence::load_or_create_config(&app_handle) {
-            if let Some(project) = config.projects.iter().find(|p| p.id == *pid) {
+            let profile = if let Some(project) = config.projects.iter().find(|p| p.id == *pid) {
                 if let Some(ref profile_id) = project.profile_id {
-                    config.profiles.iter()
-                        .find(|p| p.id == *profile_id)
-                        .map(|p| p.env_vars.clone())
-                        .unwrap_or_default()
+                    config.profiles.iter().find(|p| p.id == *profile_id).cloned()
                 } else {
-                    // No explicit profile -- use default profile if one exists (PROF-05)
-                    config.profiles.iter()
-                        .find(|p| p.is_default)
-                        .map(|p| p.env_vars.clone())
-                        .unwrap_or_default()
+                    config.profiles.iter().find(|p| p.is_default).cloned()
                 }
             } else {
-                HashMap::new()
+                None
+            };
+
+            if let Some(p) = profile {
+                env_overrides = p.env_vars;
+                extra_args = p.launch_flags;
+                if let Some(ssh_key) = p.ssh_key {
+                    env_overrides.insert("GIT_SSH_COMMAND".to_string(), format!("ssh -i {}", ssh_key));
+                }
+                if let Some(config_dir) = p.claude_config_dir {
+                    env_overrides.insert("CLAUDE_CONFIG_DIR".to_string(), config_dir);
+                }
             }
-        } else {
-            HashMap::new()
         }
-    } else {
-        HashMap::new()
-    };
+    }
 
     // Spawn PTY (must NOT hold manager lock during this -- PTY I/O is slow)
-    let (id, session) = pty::spawn_pty(&resolved, cols, rows, on_event, app_handle, env_overrides)?;
+    let (id, session) = pty::spawn_pty(&resolved, cols, rows, on_event, app_handle, env_overrides, &extra_args)?;
 
     // Brief lock to insert session
     let mut mgr = manager

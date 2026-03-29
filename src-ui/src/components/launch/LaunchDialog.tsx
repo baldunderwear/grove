@@ -213,10 +213,9 @@ export function LaunchDialog({
           <Button
             className="bg-[var(--grove-leaf)] text-[var(--grove-bark)] hover:bg-[var(--grove-leaf)]/90"
             onClick={handleLaunch}
-            disabled={!prompt.trim()}
           >
             <Rocket className="size-4 mr-1.5" />
-            Launch
+            {prompt.trim() ? 'Launch with Prompt' : 'Launch'}
           </Button>
         </DialogFooter>
       </DialogContent>

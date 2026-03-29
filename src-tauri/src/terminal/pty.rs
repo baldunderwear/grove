@@ -23,6 +23,7 @@ pub fn spawn_pty(
     on_event: Channel<TerminalEvent>,
     app_handle: tauri::AppHandle,
     env_overrides: std::collections::HashMap<String, String>,
+    extra_args: &[String],
 ) -> Result<(String, TerminalSession), String> {
     let pty_system = NativePtySystem::default();
 
@@ -38,7 +39,11 @@ pub fn spawn_pty(
         .map_err(|e| format!("Failed to open PTY: {}", e))?;
 
     let mut cmd = CommandBuilder::new("cmd.exe");
-    cmd.args(["/c", "claude"]);
+    // Build claude command with any profile launch flags
+    let mut claude_args = vec!["claude".to_string()];
+    claude_args.extend(extra_args.iter().cloned());
+    let claude_cmd = claude_args.join(" ");
+    cmd.args(["/c", &claude_cmd]);
     cmd.cwd(working_dir);
     cmd.env("TERM", "xterm-256color");
     cmd.env("COLORTERM", "truecolor");

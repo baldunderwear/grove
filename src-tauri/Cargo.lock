@@ -1493,6 +1493,7 @@ dependencies = [
  "notify",
  "notify-debouncer-mini",
  "portable-pty",
+ "regex",
  "serde",
  "serde_json",
  "sysinfo",
@@ -1506,6 +1507,7 @@ dependencies = [
  "tauri-plugin-updater",
  "thiserror 2.0.18",
  "uuid",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

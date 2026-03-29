@@ -67,11 +67,25 @@ function TerminalInstance({ tabId, worktreePath, branchName, projectId, isVisibl
             const pendingPrompt = tab?.initialPrompt;
             if (pendingPrompt) {
               clearInitialPrompt(tabId);
-              setTimeout(() => {
+              setTimeout(async () => {
                 const id = terminalIdRef.current;
-                if (id) {
-                  invoke('terminal_write', { terminalId: id, data: pendingPrompt + '\n' }).catch(() => {});
+                if (!id) return;
+                // Prepend context file contents if any
+                let fullPrompt = pendingPrompt;
+                const contextFiles = tab?.contextFiles ?? [];
+                if (contextFiles.length > 0) {
+                  const fileParts: string[] = [];
+                  for (const filePath of contextFiles) {
+                    try {
+                      const content = await invoke<string>('read_text_file', { path: filePath });
+                      fileParts.push(`<file path="${filePath}">\n${content}\n</file>`);
+                    } catch { /* skip unreadable files */ }
+                  }
+                  if (fileParts.length > 0) {
+                    fullPrompt = fileParts.join('\n\n') + '\n\n' + pendingPrompt;
+                  }
                 }
+                invoke('terminal_write', { terminalId: id, data: fullPrompt + '\n' }).catch(() => {});
               }, 2000);
             }
           }
