@@ -7,6 +7,7 @@ import { BranchEmptyState } from '@/components/BranchEmptyState';
 import { BranchTable } from '@/components/BranchTable';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { MergeDialog } from '@/components/MergeDialog';
+import { BatchLaunchDialog } from '@/components/launch/BatchLaunchDialog';
 import { LaunchDialog } from '@/components/launch/LaunchDialog';
 import { MergeHistory } from '@/components/MergeHistory';
 import { NewWorktreeDialog } from '@/components/NewWorktreeDialog';
@@ -52,6 +53,8 @@ export function Dashboard() {
   const [showNewWorktree, setShowNewWorktree] = useState(false);
   const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
   const [launchBranch, setLaunchBranch] = useState<BranchInfo | null>(null);
+  const [selectedBranches, setSelectedBranches] = useState<Set<string>>(new Set());
+  const [showBatchLaunch, setShowBatchLaunch] = useState(false);
   const mergeLoading = useMergeStore((s) => s.loading);
 
   const project = config?.projects.find((p) => p.id === selectedProjectId);
@@ -69,10 +72,12 @@ export function Dashboard() {
     if (!project) return;
     clear();
     clearSessions();
+    setSelectedBranches(new Set());
     fetchBranches(project.path, project.branch_prefix, project.merge_target);
     return () => {
       clear();
       clearSessions();
+      setSelectedBranches(new Set());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.id, project?.path, project?.branch_prefix, project?.merge_target]);
@@ -212,6 +217,27 @@ export function Dashboard() {
     }
   };
 
+  const handleBatchLaunch = (prompt: string) => {
+    const branchesToLaunch = branches.filter((b) => selectedBranches.has(b.worktree_path));
+    for (const branch of branchesToLaunch) {
+      // Skip if tab already exists for this worktree
+      const existing = getTabForWorktree(branch.worktree_path);
+      if (existing) continue;
+
+      // Substitute variables per worktree
+      const resolvedPrompt = prompt
+        .replace(/\{branch\}/g, branch.name)
+        .replace(/\{project\}/g, project?.name ?? '')
+        .replace(/\{path\}/g, branch.worktree_path);
+
+      addTab(branch.worktree_path, branch.name, selectedProjectId ?? undefined, {
+        prompt: resolvedPrompt || undefined,
+      });
+    }
+    setSelectedBranches(new Set());
+    setShowBatchLaunch(false);
+  };
+
   if (!project) return null;
 
   // Error state
@@ -229,6 +255,8 @@ export function Dashboard() {
           onShowConfig={showProjectConfig}
           onNewWorktree={() => setShowNewWorktree(true)}
           sessionCounts={getSessionCounts()}
+          selectedCount={selectedBranches.size}
+          onBatchLaunch={() => setShowBatchLaunch(true)}
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -284,6 +312,8 @@ export function Dashboard() {
         onShowConfig={showProjectConfig}
         onNewWorktree={() => setShowNewWorktree(true)}
         sessionCounts={getSessionCounts()}
+        selectedCount={selectedBranches.size}
+        onBatchLaunch={() => setShowBatchLaunch(true)}
       />
       <div className="flex-1 mt-6 overflow-hidden">
         {loading ? (
@@ -299,6 +329,8 @@ export function Dashboard() {
             mergeLoading={false}
             onOpenVscode={() => {}}
             onOpenExplorer={() => {}}
+            selectedBranches={new Set()}
+            onSelectionChange={() => {}}
           />
         ) : branches.length === 0 ? (
           <BranchEmptyState prefix={project.branch_prefix} />
@@ -315,6 +347,8 @@ export function Dashboard() {
             mergeLoading={mergeLoading}
             onOpenVscode={(path) => openInVscode(path)}
             onOpenExplorer={(path) => openInExplorer(path)}
+            selectedBranches={selectedBranches}
+            onSelectionChange={setSelectedBranches}
           />
         )}
       </div>
@@ -361,6 +395,14 @@ export function Dashboard() {
         projectId={selectedProjectId ?? undefined}
         projectPath={project.path}
         onLaunch={handleLaunchConfirm}
+      />
+      <BatchLaunchDialog
+        open={showBatchLaunch}
+        onOpenChange={setShowBatchLaunch}
+        branches={branches.filter((b) => selectedBranches.has(b.worktree_path))}
+        projectId={selectedProjectId ?? undefined}
+        projectPath={project.path}
+        onLaunch={handleBatchLaunch}
       />
     </div>
   );
