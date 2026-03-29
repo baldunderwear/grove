@@ -1,4 +1,4 @@
-import { ArrowUpDown, Check, Plus, RefreshCw, Settings } from 'lucide-react';
+import { ArrowUpDown, Check, Plus, RefreshCw, Settings, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,6 +26,8 @@ interface DashboardHeaderProps {
   onShowConfig: () => void;
   onNewWorktree: () => void;
   sessionCounts?: { working: number; waiting: number; idle: number; error: number };
+  selectedCount?: number;
+  onBatchLaunch?: () => void;
 }
 
 const sortLabels: Record<SortMode, string> = {
@@ -45,6 +47,8 @@ export function DashboardHeader({
   onShowConfig,
   onNewWorktree,
   sessionCounts,
+  selectedCount,
+  onBatchLaunch,
 }: DashboardHeaderProps) {
   return (
     <div>
@@ -100,6 +104,18 @@ export function DashboardHeader({
 
         {/* Right side */}
         <div className="flex items-center gap-1">
+          {selectedCount != null && selectedCount > 0 && onBatchLaunch && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onBatchLaunch}
+              className="bg-[var(--grove-leaf)] hover:bg-[var(--grove-leaf)]/80 text-white mr-1"
+            >
+              <Zap className="h-4 w-4 mr-1" />
+              Batch Launch ({selectedCount})
+            </Button>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

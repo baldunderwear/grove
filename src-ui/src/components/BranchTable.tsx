@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Clock, Code2, FolderOpen, GitMerge, Play } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -32,6 +33,8 @@ interface BranchTableProps {
   mergeLoading: boolean;
   onOpenVscode: (worktreePath: string) => void;
   onOpenExplorer: (worktreePath: string) => void;
+  selectedBranches: Set<string>;
+  onSelectionChange: (selected: Set<string>) => void;
 }
 
 function sortBranches(branches: BranchInfo[], mode: SortMode): BranchInfo[] {
@@ -51,6 +54,9 @@ function SkeletonRows() {
     <>
       {Array.from({ length: 6 }).map((_, i) => (
         <TableRow key={i} className="border-b border-[var(--grove-canopy)] min-h-[48px]">
+          <TableCell className="w-[40px]">
+            <Skeleton className="h-4 w-4 rounded-sm" />
+          </TableCell>
           <TableCell className="w-[40px]">
             <Skeleton className="w-2 h-2 rounded-full" />
           </TableCell>
@@ -85,6 +91,8 @@ export function BranchTable({
   mergeLoading,
   onOpenVscode,
   onOpenExplorer,
+  selectedBranches,
+  onSelectionChange,
 }: BranchTableProps) {
   const sorted = useMemo(() => sortBranches(branches, sortMode), [branches, sortMode]);
 
@@ -93,6 +101,24 @@ export function BranchTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-[var(--grove-deep)] border-b border-[var(--grove-canopy)] hover:bg-[var(--grove-deep)]">
+            <TableHead className="w-[40px]">
+              <Checkbox
+                checked={
+                  branches.length > 0 && selectedBranches.size === branches.length
+                    ? true
+                    : selectedBranches.size > 0
+                      ? 'indeterminate'
+                      : false
+                }
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    onSelectionChange(new Set(branches.map((b) => b.worktree_path)));
+                  } else {
+                    onSelectionChange(new Set());
+                  }
+                }}
+              />
+            </TableHead>
             <TableHead className="w-[40px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
             <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Branch
@@ -129,6 +155,19 @@ export function BranchTable({
                   key={branch.name}
                   className="group border-b border-[var(--grove-canopy)] hover:bg-[#1e1e1e] min-h-[48px]"
                 >
+                  {/* Selection checkbox */}
+                  <TableCell className="w-[40px]">
+                    <Checkbox
+                      checked={selectedBranches.has(branch.worktree_path)}
+                      onCheckedChange={(checked) => {
+                        const next = new Set(selectedBranches);
+                        if (checked) next.add(branch.worktree_path);
+                        else next.delete(branch.worktree_path);
+                        onSelectionChange(next);
+                      }}
+                    />
+                  </TableCell>
+
                   {/* Status dot */}
                   <TableCell className="w-[40px]">
                     <span className={`block w-2 h-2 rounded-full ${dotColor}`} />
