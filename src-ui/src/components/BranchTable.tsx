@@ -100,7 +100,7 @@ export function BranchTable({
 
   return (
     <ScrollArea className="flex-1">
-      <Table>
+      <Table className="table-fixed w-full">
         <TableHeader>
           <TableRow className="bg-[var(--grove-deep)] border-b border-[var(--grove-canopy)] hover:bg-[var(--grove-deep)]">
             {showSelection && (
@@ -123,18 +123,18 @@ export function BranchTable({
               />
             </TableHead>
             )}
-            <TableHead className="w-[40px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
-            <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
+            <TableHead className="w-8 text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
+            <TableHead className="text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Branch
             </TableHead>
-            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
+            <TableHead className="w-28 text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Ahead / Behind
             </TableHead>
-            <TableHead className="w-[140px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
+            <TableHead className="w-24 text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Last Activity
             </TableHead>
-            <TableHead className="text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
-            <TableHead className="w-[120px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal text-right">
+            <TableHead className="w-20 text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
+            <TableHead className="w-28 text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal text-right">
               Actions
             </TableHead>
           </TableRow>
@@ -180,16 +180,11 @@ export function BranchTable({
                   </TableCell>
 
                   {/* Branch name + commit message */}
-                  <TableCell className="flex-1 min-w-[200px]">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="text-sm text-[var(--grove-white)] truncate max-w-[300px]">
-                          {branch.name}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>{branch.name}</TooltipContent>
-                    </Tooltip>
-                    <div className="text-xs text-[var(--grove-fog)] truncate max-w-[400px]">
+                  <TableCell className="overflow-hidden">
+                    <div className="text-sm text-[var(--grove-white)] truncate">
+                      {branch.name}
+                    </div>
+                    <div className="text-xs text-[var(--grove-stone)] truncate">
                       {branch.last_commit_message}
                     </div>
                   </TableCell>
