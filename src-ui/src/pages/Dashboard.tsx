@@ -367,7 +367,7 @@ export function Dashboard() {
   return (
     <div className="flex flex-col h-full">
       {hasAnyTabs() ? (
-        <ResizablePanelGroup direction="vertical" className="flex-1">
+        <ResizablePanelGroup orientation="vertical" className="flex-1">
           <ResizablePanel defaultSize={60} minSize={20}>
             {dashboardContent}
           </ResizablePanel>

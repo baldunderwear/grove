@@ -33,8 +33,8 @@ function ResizableHandle({
     <Separator
       className={cn(
         "relative flex items-center justify-center bg-[var(--grove-canopy)] [&[data-resize-handle-active]]:bg-[var(--grove-leaf)]",
-        "[&[data-panel-group-direction=vertical]]:h-px [&[data-panel-group-direction=vertical]]:w-full [&[data-panel-group-direction=vertical]]:after:absolute [&[data-panel-group-direction=vertical]]:after:inset-x-0 [&[data-panel-group-direction=vertical]]:after:-top-1 [&[data-panel-group-direction=vertical]]:after:-bottom-1",
-        "[&[data-panel-group-direction=horizontal]]:w-px [&[data-panel-group-direction=horizontal]]:h-full [&[data-panel-group-direction=horizontal]]:after:absolute [&[data-panel-group-direction=horizontal]]:after:inset-y-0 [&[data-panel-group-direction=horizontal]]:after:-left-1 [&[data-panel-group-direction=horizontal]]:after:-right-1",
+        "[&[data-panel-group-orientation=vertical]]:h-px [&[data-panel-group-orientation=vertical]]:w-full [&[data-panel-group-orientation=vertical]]:after:absolute [&[data-panel-group-orientation=vertical]]:after:inset-x-0 [&[data-panel-group-orientation=vertical]]:after:-top-1 [&[data-panel-group-orientation=vertical]]:after:-bottom-1",
+        "[&[data-panel-group-orientation=horizontal]]:w-px [&[data-panel-group-orientation=horizontal]]:h-full [&[data-panel-group-orientation=horizontal]]:after:absolute [&[data-panel-group-orientation=horizontal]]:after:inset-y-0 [&[data-panel-group-orientation=horizontal]]:after:-left-1 [&[data-panel-group-orientation=horizontal]]:after:-right-1",
         className,
       )}
       {...props}
