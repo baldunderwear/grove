@@ -32,14 +32,16 @@ function ResizableHandle({
   return (
     <Separator
       className={cn(
-        "relative flex w-px items-center justify-center bg-[var(--grove-canopy)] after:absolute after:inset-y-0 after:-left-1 after:-right-1 [&[data-resize-handle-active]]:bg-[var(--grove-leaf)]",
+        "relative flex items-center justify-center bg-[var(--grove-canopy)] [&[data-resize-handle-active]]:bg-[var(--grove-leaf)]",
+        "[&[data-panel-group-direction=vertical]]:h-px [&[data-panel-group-direction=vertical]]:w-full [&[data-panel-group-direction=vertical]]:after:absolute [&[data-panel-group-direction=vertical]]:after:inset-x-0 [&[data-panel-group-direction=vertical]]:after:-top-1 [&[data-panel-group-direction=vertical]]:after:-bottom-1",
+        "[&[data-panel-group-direction=horizontal]]:w-px [&[data-panel-group-direction=horizontal]]:h-full [&[data-panel-group-direction=horizontal]]:after:absolute [&[data-panel-group-direction=horizontal]]:after:inset-y-0 [&[data-panel-group-direction=horizontal]]:after:-left-1 [&[data-panel-group-direction=horizontal]]:after:-right-1",
         className,
       )}
       {...props}
     >
       {withHandle && (
-        <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-[var(--grove-canopy)] bg-[var(--grove-deep)]">
-          <GripVertical className="h-2.5 w-2.5 text-[var(--grove-fog)]" />
+        <div className="z-10 flex h-3 w-4 items-center justify-center rounded-sm border border-[var(--grove-canopy)] bg-[var(--grove-deep)]">
+          <GripVertical className="h-2.5 w-2.5 rotate-90 text-[var(--grove-fog)]" />
         </div>
       )}
     </Separator>
