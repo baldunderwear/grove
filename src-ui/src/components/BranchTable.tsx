@@ -81,13 +81,13 @@ export function BranchTable({
   return (
     <ScrollArea className="flex-1">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-[var(--grove-stone)] border-b border-[var(--grove-canopy)] sticky top-0 z-10" style={{ background: 'var(--grove-deep)' }}>
+      <div className="flex items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider border-b border-[var(--grove-canopy)] sticky top-0 z-10" style={{ background: 'var(--grove-deep)', color: 'var(--grove-stone)' }}>
         {showSelection && <div className="w-5 shrink-0" />}
         <div className="w-3 shrink-0" />
         <div className="flex-1 min-w-0">Branch</div>
-        <div className="w-20 shrink-0 text-right">+/-</div>
-        <div className="w-20 shrink-0 text-right">Activity</div>
-        <div className="w-28 shrink-0 text-right">Actions</div>
+        <div className="w-16 shrink-0 text-right">+/-</div>
+        <div className="w-16 shrink-0 text-right">When</div>
+        <div className="w-24 shrink-0" />
       </div>
 
       {/* Body */}
@@ -131,13 +131,10 @@ export function BranchTable({
                   <span className={`block w-2 h-2 rounded-full ${dotColor} ${hasSession ? 'animate-pulse' : ''}`} />
                 </div>
 
-                {/* Branch name + commit (flex-1 with min-w-0 for truncation) */}
+                {/* Branch name */}
                 <div className="flex-1 min-w-0">
                   <div className="text-sm truncate" style={{ color: 'var(--grove-fog)' }}>
                     {branch.name}
-                  </div>
-                  <div className="text-xs truncate" style={{ color: 'var(--grove-stone)' }}>
-                    {branch.last_commit_message}
                   </div>
                 </div>
 
