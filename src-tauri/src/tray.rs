@@ -105,8 +105,24 @@ pub fn build_tray(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>
         });
     }
 
-    // Set initial menu
-    rebuild_tray_menu(app.handle())?;
+    // Set minimal initial menu (no worktree listing — that's slow on NAS)
+    {
+        let show = MenuItem::with_id(app, "show", "Open Grove", true, None::<&str>)?;
+        let settings = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
+        let quit = MenuItem::with_id(app, "quit", "Quit Grove", true, None::<&str>)?;
+        let sep = PredefinedMenuItem::separator(app)?;
+        let menu = Menu::with_items(app, &[&show, &settings, &sep, &quit])?;
+        if let Some(tray) = app.tray_by_id("grove-tray") {
+            tray.set_menu(Some(menu))?;
+        }
+    }
+
+    // Rebuild full menu with worktrees in background (doesn't block startup)
+    let handle = app.handle().clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_secs(5));
+        let _ = rebuild_tray_menu(&handle);
+    });
 
     Ok(())
 }

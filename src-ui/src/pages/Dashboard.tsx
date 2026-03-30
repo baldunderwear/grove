@@ -54,6 +54,7 @@ export function Dashboard() {
   const [mergeBranch, setMergeBranch] = useState<BranchInfo | null>(null);
   const [launchBranch, setLaunchBranch] = useState<BranchInfo | null>(null);
   const [selectedBranches, setSelectedBranches] = useState<Set<string>>(new Set());
+  const [batchMode, setBatchMode] = useState(false);
   const [showBatchLaunch, setShowBatchLaunch] = useState(false);
   const mergeLoading = useMergeStore((s) => s.loading);
 
@@ -256,6 +257,8 @@ export function Dashboard() {
           onNewWorktree={() => setShowNewWorktree(true)}
           sessionCounts={getSessionCounts()}
           selectedCount={selectedBranches.size}
+          batchMode={batchMode}
+          onToggleBatchMode={() => { setBatchMode(!batchMode); setSelectedBranches(new Set()); }}
           onBatchLaunch={() => setShowBatchLaunch(true)}
         />
         <div className="flex-1 flex items-center justify-center">
@@ -313,6 +316,8 @@ export function Dashboard() {
         onNewWorktree={() => setShowNewWorktree(true)}
         sessionCounts={getSessionCounts()}
         selectedCount={selectedBranches.size}
+        batchMode={batchMode}
+        onToggleBatchMode={() => { setBatchMode(!batchMode); setSelectedBranches(new Set()); }}
         onBatchLaunch={() => setShowBatchLaunch(true)}
       />
       <div className="flex-1 mt-6 overflow-hidden">
@@ -349,6 +354,7 @@ export function Dashboard() {
             onOpenExplorer={(path) => openInExplorer(path)}
             selectedBranches={selectedBranches}
             onSelectionChange={setSelectedBranches}
+            showSelection={batchMode}
           />
         )}
       </div>

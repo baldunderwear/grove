@@ -93,12 +93,16 @@ pub fn run() {
                 }
             }
 
-            // Run initial notification check
+            // Run initial notification check in background (don't block startup)
             {
                 let app_handle_notify = app.handle().clone();
-                let notif_state =
-                    app.state::<std::sync::Mutex<notifications::NotificationState>>();
-                notifications::check_and_notify(&app_handle_notify, &notif_state);
+                std::thread::spawn(move || {
+                    // Delay initial check so the UI can render first
+                    std::thread::sleep(std::time::Duration::from_secs(10));
+                    let state = app_handle_notify
+                        .state::<std::sync::Mutex<notifications::NotificationState>>();
+                    notifications::check_and_notify(&app_handle_notify, &state);
+                });
             }
 
             // Re-check notifications and rebuild tray on git-changed events (debounced)

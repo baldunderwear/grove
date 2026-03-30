@@ -27,6 +27,8 @@ interface DashboardHeaderProps {
   onNewWorktree: () => void;
   sessionCounts?: { working: number; waiting: number; idle: number; error: number };
   selectedCount?: number;
+  batchMode?: boolean;
+  onToggleBatchMode?: () => void;
   onBatchLaunch?: () => void;
 }
 
@@ -48,6 +50,8 @@ export function DashboardHeader({
   onNewWorktree,
   sessionCounts,
   selectedCount,
+  batchMode,
+  onToggleBatchMode,
   onBatchLaunch,
 }: DashboardHeaderProps) {
   return (
@@ -104,17 +108,43 @@ export function DashboardHeader({
 
         {/* Right side */}
         <div className="flex items-center gap-1">
-          {selectedCount != null && selectedCount > 0 && onBatchLaunch && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={onBatchLaunch}
-              className="bg-[var(--grove-leaf)] hover:bg-[var(--grove-leaf)]/80 text-white mr-1"
-            >
-              <Zap className="h-4 w-4 mr-1" />
-              Batch Launch ({selectedCount})
-            </Button>
-          )}
+          {batchMode ? (
+            <>
+              {selectedCount != null && selectedCount > 0 && onBatchLaunch && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={onBatchLaunch}
+                  className="bg-[var(--grove-leaf)] hover:bg-[var(--grove-leaf)]/80 text-white mr-1"
+                >
+                  <Zap className="h-4 w-4 mr-1" />
+                  Launch Selected ({selectedCount})
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleBatchMode}
+                className="text-[var(--grove-stone)] mr-1"
+              >
+                Cancel
+              </Button>
+            </>
+          ) : onToggleBatchMode ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onToggleBatchMode}
+                  className="text-[var(--grove-stone)] hover:text-[var(--grove-fog)]"
+                >
+                  <Zap className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Batch Select</TooltipContent>
+            </Tooltip>
+          ) : null}
 
           <Tooltip>
             <TooltipTrigger asChild>

@@ -35,6 +35,7 @@ interface BranchTableProps {
   onOpenExplorer: (worktreePath: string) => void;
   selectedBranches: Set<string>;
   onSelectionChange: (selected: Set<string>) => void;
+  showSelection?: boolean;
 }
 
 function sortBranches(branches: BranchInfo[], mode: SortMode): BranchInfo[] {
@@ -93,6 +94,7 @@ export function BranchTable({
   onOpenExplorer,
   selectedBranches,
   onSelectionChange,
+  showSelection = false,
 }: BranchTableProps) {
   const sorted = useMemo(() => sortBranches(branches, sortMode), [branches, sortMode]);
 
@@ -101,6 +103,7 @@ export function BranchTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-[var(--grove-deep)] border-b border-[var(--grove-canopy)] hover:bg-[var(--grove-deep)]">
+            {showSelection && (
             <TableHead className="w-[40px]">
               <Checkbox
                 checked={
@@ -119,6 +122,7 @@ export function BranchTable({
                 }}
               />
             </TableHead>
+            )}
             <TableHead className="w-[40px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal" />
             <TableHead className="flex-1 min-w-[200px] text-xs uppercase tracking-wider text-[var(--grove-fog)] font-normal">
               Branch
@@ -155,7 +159,8 @@ export function BranchTable({
                   key={branch.name}
                   className="group border-b border-[var(--grove-canopy)] hover:bg-[#1e1e1e] min-h-[48px]"
                 >
-                  {/* Selection checkbox */}
+                  {/* Selection checkbox (only in batch mode) */}
+                  {showSelection && (
                   <TableCell className="w-[40px]">
                     <Checkbox
                       checked={selectedBranches.has(branch.worktree_path)}
@@ -167,6 +172,7 @@ export function BranchTable({
                       }}
                     />
                   </TableCell>
+                  )}
 
                   {/* Status dot */}
                   <TableCell className="w-[40px]">

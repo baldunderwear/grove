@@ -46,8 +46,8 @@ export function MergeDialog({
         project.path,
         branch.name,
         project.merge_target,
-        project.build_files,
-        project.changelog,
+        project.build_files ?? [],
+        project.changelog ?? null,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,8 +74,8 @@ export function MergeDialog({
       project.name,
       branch.name,
       project.merge_target,
-      project.build_files,
-      project.changelog,
+      project.build_files ?? [],
+      project.changelog ?? null,
     );
   };
 
