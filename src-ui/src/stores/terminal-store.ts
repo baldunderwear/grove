@@ -12,6 +12,7 @@ export interface TerminalTab {
   sessionState: SessionState;
   initialPrompt?: string;
   contextFiles?: string[];
+  lastLines: string[];
 }
 
 export interface LaunchOptions {
@@ -29,6 +30,7 @@ interface SessionCounts {
 interface TerminalStoreState {
   tabs: Map<string, TerminalTab>;
   activeTabId: string | null;
+  focusedSessionId: string | null;
 
   // Derived
   hasAnyTabs: () => boolean;
@@ -43,11 +45,15 @@ interface TerminalStoreState {
   setTabConnected: (tabId: string, connected: boolean) => void;
   setTabState: (tabId: string, state: SessionState) => void;
   getTabForWorktree: (worktreePath: string) => TerminalTab | undefined;
+  focusSession: (tabId: string) => void;
+  unfocusSession: () => void;
+  appendOutput: (tabId: string, data: string) => void;
 }
 
 export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
   tabs: new Map<string, TerminalTab>(),
   activeTabId: null,
+  focusedSessionId: null,
 
   hasAnyTabs: () => get().tabs.size > 0,
 
@@ -73,6 +79,7 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
       sessionState: null,
       initialPrompt: launchOptions?.prompt,
       contextFiles: launchOptions?.contextFiles,
+      lastLines: [],
     };
     const next = new Map(get().tabs);
     next.set(pendingId, tab);
@@ -96,7 +103,7 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
 
     const next = new Map(current);
     next.delete(tabId);
-    const activated: TerminalTab = { ...tab, id: terminalId, isConnected: true, sessionState: tab.sessionState };
+    const activated: TerminalTab = { ...tab, id: terminalId, isConnected: true, sessionState: tab.sessionState, lastLines: tab.lastLines };
     next.set(terminalId, activated);
 
     set({
@@ -162,5 +169,37 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
       if (tab.worktreePath === worktreePath) return tab;
     }
     return undefined;
+  },
+
+  focusSession: (tabId: string) => {
+    set({ focusedSessionId: tabId, activeTabId: tabId });
+  },
+
+  unfocusSession: () => {
+    set({ focusedSessionId: null });
+  },
+
+  appendOutput: (tabId: string, data: string) => {
+    const current = get().tabs;
+    const tab = current.get(tabId);
+    if (!tab) return;
+
+    // Strip ANSI escape codes for the text preview
+    const stripped = data.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '').replace(/\x1b\][^\x07]*\x07/g, '');
+    // Split into lines, append to existing, keep last 12
+    const newLines = stripped.split(/\r?\n/);
+    const combined = [...tab.lastLines];
+    if (combined.length > 0 && newLines.length > 0) {
+      // Append first new segment to last existing line (continuation)
+      combined[combined.length - 1] += newLines[0];
+      combined.push(...newLines.slice(1));
+    } else {
+      combined.push(...newLines);
+    }
+    const trimmed = combined.slice(-12);
+
+    const next = new Map(current);
+    next.set(tabId, { ...tab, lastLines: trimmed });
+    set({ tabs: next });
   },
 }));

@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sidebar } from '@/layout/Sidebar';
 import { AllProjects } from '@/pages/AllProjects';
-import { Dashboard } from '@/pages/Dashboard';
+import { SessionManager } from '@/components/session/SessionManager';
 import { EmptyState } from '@/pages/EmptyState';
 import { ProjectConfig } from '@/pages/ProjectConfig';
 import { Settings } from '@/pages/Settings';
@@ -24,7 +24,7 @@ function App() {
     useConfigStore.getState().loadConfig();
   }, []);
 
-  // Listen for tray events: launch-worktree and navigate
+  // Listen for tray events
   useEffect(() => {
     const unlistenLaunch = listen<string>('launch-worktree', async (event) => {
       try {
@@ -54,12 +54,12 @@ function App() {
       <AddProjectWizard open={emptyWizardOpen} onClose={() => setEmptyWizardOpen(false)} />
       <div className="flex h-screen" style={{ background: 'var(--grove-void)' }}>
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-hidden">
           {activeView === 'empty' && (
             <EmptyState onAddProject={() => setEmptyWizardOpen(true)} />
           )}
           {activeView === 'all-projects' && <AllProjects />}
-          {activeView === 'dashboard' && <Dashboard />}
+          {activeView === 'dashboard' && <SessionManager />}
           {activeView === 'project' && <ProjectConfig />}
           {activeView === 'settings' && <Settings />}
           {activeView === 'config' && <ConfigEditors />}

@@ -3,7 +3,7 @@
 # powershell -ExecutionPolicy Bypass -NoExit -File "Z:\data\development\grove\grove-launcher.ps1"
 #
 # Or double-click Grove.bat
-
+$env:CLAUDE_CONFIG_DIR = "C:\Users\elf\.claude-work"
 $ErrorActionPreference = "Stop"
 $GroveRoot = "Z:\data\development\grove"
 if (-not (Test-Path $GroveRoot)) {
