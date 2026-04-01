@@ -83,18 +83,15 @@ Each registered project has a config like:
 
 Projects without build numbers or changelogs simply omit those fields — Grove handles plain merges too.
 
-## Current Milestone: v2.0 Mission Control
+## Current Milestone: v2.1 Session Lifecycle
 
-**Goal:** Transform Grove from a worktree manager into a full Claude Code command center with embedded terminals, session intelligence, and configuration editors.
+**Goal:** Complete the session lifecycle — from launch through merge and cleanup — with a composable merge engine, multi-branch queue, and in-app toast notifications.
 
 **Target features:**
-- Embedded terminal tabs (portable-pty + xterm.js) replacing external window launches
-- Real-time session state detection (waiting/working/idle/error) with dashboard status
-- CLAUDE.md visual editor with section-aware editing and preview
-- Skills browser and editor for `.claude/skills/` management
-- Settings/permissions editor for `.claude/settings.json`
-- Prompt templates and context builder for streamlined launches
-- Multi-session batch operations and orchestration
+- Post-session workflow (diff summary → commit → merge → cleanup) as a composable merge engine
+- Multi-branch merge queue (select → order → sequential merge with auto-bump → rollback on failure)
+- Toast notification system (stackable, actionable, for session state changes)
+- Kill external launch path (SessionManager is the sole launch path)
 
 ## Current State
 
@@ -103,6 +100,8 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 **v1.1.4 shipped** (2026-03-29) — Brand design system, All Projects view, project wizard, NAS performance fixes.
 
 **v2.0 shipped** (2026-03-29) — Mission Control: embedded terminal tabs (portable-pty + xterm.js), session state detection (working/waiting/idle/error), CLAUDE.md/skills/settings editors (CodeMirror 6), multi-account profiles, prompt templates, context file picker, batch launch. 5 phases, 16 plans.
+
+**v2.0.x in-progress** — SessionManager card-based grid, focus mode, live terminal preview, session alerts (chime + taskbar flash + OS notification), branch picker launcher.
 
 ## Evolution
 
@@ -121,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
-Last updated: 2026-03-29
+Last updated: 2026-04-01 after milestone v2.1 start
