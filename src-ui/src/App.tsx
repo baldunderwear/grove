@@ -13,6 +13,7 @@ import { AddProjectWizard } from '@/components/AddProjectWizard';
 import { useConfigStore } from '@/stores/config-store';
 import { UpdateChecker } from '@/components/UpdateChecker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { Toaster } from 'sonner';
 
 function App() {
   const activeView = useConfigStore((s) => s.activeView);
@@ -50,6 +51,17 @@ function App() {
 
   return (
     <TooltipProvider>
+      <Toaster
+        position="bottom-right"
+        visibleToasts={3}
+        toastOptions={{
+          className: 'grove-toast',
+          duration: 5000,
+        }}
+        theme="dark"
+        offset={24}
+        gap={16}
+      />
       <UpdateChecker />
       <AddProjectWizard open={emptyWizardOpen} onClose={() => setEmptyWizardOpen(false)} />
       <div className="flex h-screen" style={{ background: 'var(--grove-void)' }}>
