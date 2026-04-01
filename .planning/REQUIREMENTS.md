@@ -53,6 +53,32 @@
 - [x] **TOAST-02**: User can click "View Session" on toast to navigate to that session tab
 - [x] **TOAST-03**: Error toasts persist until dismissed; info toasts auto-dismiss after 5s
 - [x] **TOAST-04**: Max 3 toasts visible simultaneously with priority ordering
+- [ ] **TOAST-05**: Merge queue progress updates existing toast in-place rather than spawning new ones
+
+### Post-Session Flow
+
+- [ ] **POST-01**: User sees a diff summary (files changed, insertions, deletions, commits) when a session exits
+- [ ] **POST-02**: User can initiate merge from an exited session card with one click
+- [ ] **POST-03**: User is guided through a multi-step wizard: diff summary → commit review → merge → cleanup
+- [ ] **POST-04**: User is prompted to delete worktree and branch after successful merge
+- [ ] **POST-05**: Non-zero exit codes show a distinct "session crashed" prompt vs clean exit
+- [ ] **POST-06**: Post-session workflow never auto-triggers; always requires explicit user action
+
+### Merge Engine
+
+- [ ] **MERGE-01**: Merge pipeline is decomposed into composable steps (preview → execute → bump → changelog → commit)
+- [ ] **MERGE-02**: User can select multiple branches and merge them sequentially with auto-build-bump between each
+- [ ] **MERGE-03**: User can drag-reorder branches in the merge queue before execution
+- [ ] **MERGE-04**: If any branch fails to merge, all completed merges in the queue roll back to pre-queue state
+- [ ] **MERGE-05**: Build numbers are sequenced in-memory by the queue orchestrator (no disk-read between merges)
+- [ ] **MERGE-06**: File watcher is suppressed during queue execution to prevent cascade refreshes
+- [ ] **MERGE-07**: User sees per-branch progress during queue execution
+
+### Launch Path Cleanup
+
+- [x] **LPATH-01**: SessionManager is the sole path for launching Claude Code sessions
+- [x] **LPATH-02**: External launch commands (wt.exe/cmd.exe path) and PID-based session tracking are fully removed
+- [x] **LPATH-03**: All references to removed infrastructure are cleaned up (imports, command registrations, polling)
 
 ### Future (Deferred)
 - GitHub Issues integration (create worktree from issue)
@@ -106,3 +132,20 @@
 | TOAST-02 | Phase 14 | Complete |
 | TOAST-03 | Phase 14 | Complete |
 | TOAST-04 | Phase 14 | Complete |
+| TOAST-05 | Phase 17 | Pending |
+| POST-01 | Phase 15 | Pending |
+| POST-02 | Phase 15 | Pending |
+| POST-03 | Phase 18 | Pending |
+| POST-04 | Phase 18 | Pending |
+| POST-05 | Phase 15 | Pending |
+| POST-06 | Phase 15 | Pending |
+| MERGE-01 | Phase 16 | Pending |
+| MERGE-02 | Phase 17 | Pending |
+| MERGE-03 | Phase 17 | Pending |
+| MERGE-04 | Phase 17 | Pending |
+| MERGE-05 | Phase 17 | Pending |
+| MERGE-06 | Phase 17 | Pending |
+| MERGE-07 | Phase 17 | Pending |
+| LPATH-01 | Phase 14 | Complete |
+| LPATH-02 | Phase 14 | Complete |
+| LPATH-03 | Phase 14 | Complete |
