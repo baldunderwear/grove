@@ -15,7 +15,7 @@ import { TerminalPanel } from '@/components/terminal/TerminalPanel';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
 import { useMergeStore } from '@/stores/merge-store';
-import { useSessionStore } from '@/stores/session-store';
+import { openInVscode, openInExplorer } from '@/lib/shell';
 import { useTerminalStore } from '@/stores/terminal-store';
 import type { SessionState } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
@@ -37,12 +37,6 @@ export function Dashboard() {
   const setSortMode = useBranchStore((s) => s.setSortMode);
   const clear = useBranchStore((s) => s.clear);
 
-  const activeSessions = useSessionStore((s) => s.activeSessions);
-  const fetchSessions = useSessionStore((s) => s.fetchSessions);
-  const openInVscode = useSessionStore((s) => s.openInVscode);
-  const openInExplorer = useSessionStore((s) => s.openInExplorer);
-  const clearSessions = useSessionStore((s) => s.clear);
-
   const hasAnyTabs = useTerminalStore((s) => s.hasAnyTabs);
   const addTab = useTerminalStore((s) => s.addTab);
   const switchTab = useTerminalStore((s) => s.switchTab);
@@ -56,9 +50,16 @@ export function Dashboard() {
   const [selectedBranches, setSelectedBranches] = useState<Set<string>>(new Set());
   const [batchMode, setBatchMode] = useState(false);
   const [showBatchLaunch, setShowBatchLaunch] = useState(false);
+  const tabs = useTerminalStore((s) => s.tabs);
   const mergeLoading = useMergeStore((s) => s.loading);
 
   const project = config?.projects.find((p) => p.id === selectedProjectId);
+
+  // Derive activeSessions from terminal-store tabs for BranchTable compatibility
+  const activeSessions: Record<string, number> = {};
+  for (const tab of tabs.values()) {
+    activeSessions[tab.worktreePath] = 1;
+  }
   const settings = config?.settings;
 
   // Effect 0: Listen for keyboard shortcut events
@@ -72,12 +73,10 @@ export function Dashboard() {
   useEffect(() => {
     if (!project) return;
     clear();
-    clearSessions();
     setSelectedBranches(new Set());
     fetchBranches(project.path, project.branch_prefix, project.merge_target);
     return () => {
       clear();
-      clearSessions();
       setSelectedBranches(new Set());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,7 +118,7 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.path, project?.branch_prefix, project?.merge_target]);
 
-  // Effect 4: Window focus refresh (branches + sessions)
+  // Effect 4: Window focus refresh (branches only — sessions tracked via terminal-store)
   useEffect(() => {
     if (!project) return;
     let cancelled = false;
@@ -128,10 +127,6 @@ export function Dashboard() {
       const currentLastRefreshed = useBranchStore.getState().lastRefreshed;
       if (currentLastRefreshed === null || Date.now() - currentLastRefreshed > 10_000) {
         silentRefresh(project.path, project.branch_prefix, project.merge_target);
-        const worktreePaths = useBranchStore.getState().branches.map((b) => b.worktree_path);
-        if (worktreePaths.length > 0) {
-          fetchSessions(worktreePaths);
-        }
       }
     });
     return () => {
@@ -141,22 +136,7 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.path, project?.branch_prefix, project?.merge_target]);
 
-  // Effect 5: Session polling (runs when branches are loaded, polls alongside auto-refresh)
-  useEffect(() => {
-    if (!project || branches.length === 0) return;
-    const worktreePaths = branches.map((b) => b.worktree_path);
-    // Initial fetch
-    fetchSessions(worktreePaths);
-    // Poll on same interval as branch refresh
-    const intervalMs = (settings?.refresh_interval ?? 30) * 1000;
-    const timer = setInterval(() => {
-      fetchSessions(worktreePaths);
-    }, intervalMs);
-    return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branches, settings?.refresh_interval]);
-
-  // Effect 6: Session state change listener
+  // Effect 5: Session state change listener
   useEffect(() => {
     let cancelled = false;
     const unlistenPromise = listen<{ terminal_id: string; state: string; timestamp: number }>(

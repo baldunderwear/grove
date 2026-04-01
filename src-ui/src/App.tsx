@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/core';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sidebar } from '@/layout/Sidebar';
 import { AllProjects } from '@/pages/AllProjects';
@@ -11,6 +10,7 @@ import { Settings } from '@/pages/Settings';
 import { ConfigEditors } from '@/pages/ConfigEditors';
 import { AddProjectWizard } from '@/components/AddProjectWizard';
 import { useConfigStore } from '@/stores/config-store';
+import { useTerminalStore } from '@/stores/terminal-store';
 import { UpdateChecker } from '@/components/UpdateChecker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -26,15 +26,15 @@ function App() {
 
   // Listen for tray events
   useEffect(() => {
-    const unlistenLaunch = listen<string>('launch-worktree', async (event) => {
-      try {
-        await invoke('launch_session', {
-          worktreePath: event.payload,
-          branchName: '',
-          launchFlags: [],
-        });
-      } catch (e) {
-        console.error('Failed to launch worktree from tray:', e);
+    const unlistenLaunch = listen<string>('launch-worktree', (event) => {
+      const path = event.payload;
+      const branchName = path.split(/[\\/]/).pop() || 'session';
+      useTerminalStore.getState().addTab(path, branchName);
+      // Navigate to the project dashboard so user sees the embedded terminal
+      const config = useConfigStore.getState().config;
+      const project = config?.projects.find(p => path.startsWith(p.path));
+      if (project) {
+        useConfigStore.getState().selectProject(project.id);
       }
     });
     const unlistenNavigate = listen<string>('navigate', (event) => {
