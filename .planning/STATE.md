@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
-status: in-progress
-stopped_at: "Completed 14-02-PLAN.md"
-last_updated: "2026-04-01"
+status: completed
+stopped_at: Completed 14-02-PLAN.md (launch path cleanup)
+last_updated: "2026-04-01T20:23:24.568Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
   completed_plans: 2
-  percent: 100
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 ## Current Position
 
-Phase: 14-toast-system-launch-path-cleanup
-Plan: 02 of 2 (complete)
+Phase: 14
+Plan: Not started
 Status: Phase 14 complete
-Last activity: 2026-04-01 — Completed 14-02 launch path cleanup
+Last activity: 2026-04-01
 
 ## Accumulated Context
 
