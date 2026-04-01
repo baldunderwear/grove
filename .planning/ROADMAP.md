@@ -51,7 +51,10 @@
   2. User can click a single button on an exited session card to open the merge dialog for that branch
   3. Non-zero exit codes display a distinct "session crashed" prompt that differs visually from a clean exit
   4. Post-session workflow never triggers automatically -- the user must explicitly click to review or merge
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 15-01-PLAN.md -- Backend diff summary command, exit code capture, store expansion, exit toasts
+- [ ] 15-02-PLAN.md -- UI components (ExitBanner, DiffSummary, PostSessionActions) and SessionCard/SessionManager wiring
 **UI hint**: yes
 
 ### Phase 16: Composable Merge Engine
@@ -95,7 +98,7 @@ Phases execute in numeric order: 14 -> 15 -> 16 -> 17 -> 18
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 14. Toast + Launch Cleanup | v2.1 | 2/2 | Complete | 2026-04-01 |
-| 15. Post-Session Flow | v2.1 | 0/? | Not started | - |
+| 15. Post-Session Flow | v2.1 | 0/2 | Not started | - |
 | 16. Composable Merge Engine | v2.1 | 0/? | Not started | - |
 | 17. Multi-Branch Merge Queue | v2.1 | 0/? | Not started | - |
 | 18. Post-Session Wizard + Cleanup | v2.1 | 0/? | Not started | - |
