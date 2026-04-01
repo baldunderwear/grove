@@ -45,7 +45,10 @@
   3. Error toasts remain visible until the user dismisses them; informational toasts auto-dismiss after a few seconds
   4. No more than 3-4 toasts are visible at once, with error toasts taking priority over informational ones
   5. No code path exists to launch Claude Code outside of SessionManager (external launch commands, PID-based session tracking, and related imports are fully removed)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 14-01-PLAN.md -- Toast system: install Sonner, mount Toaster, create toast helpers, wire state change alerts
+- [ ] 14-02-PLAN.md -- Launch path cleanup: create shell.ts, rewire consumers, delete session-store and Rust process module
 **UI hint**: yes
 
 ### Phase 15: Post-Session Flow
@@ -100,7 +103,7 @@ Phases execute in numeric order: 14 -> 15 -> 16 -> 17 -> 18
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 14. Toast + Launch Cleanup | v2.1 | 0/? | Not started | - |
+| 14. Toast + Launch Cleanup | v2.1 | 0/2 | Not started | - |
 | 15. Post-Session Flow | v2.1 | 0/? | Not started | - |
 | 16. Composable Merge Engine | v2.1 | 0/? | Not started | - |
 | 17. Multi-Branch Merge Queue | v2.1 | 0/? | Not started | - |
