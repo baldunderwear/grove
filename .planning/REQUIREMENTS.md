@@ -46,6 +46,14 @@
 - [x] **NFR-08**: Terminal rendering at 60fps with WebGL addon fallback to canvas
 - [x] **NFR-09**: Config editors load files < 100ms, handle files up to 500KB
 
+## Grove v2.1 — Session Lifecycle
+
+### Toast Notifications
+- [x] **TOAST-01**: User sees toast notification when session transitions to waiting, idle, or error
+- [x] **TOAST-02**: User can click "View Session" on toast to navigate to that session tab
+- [x] **TOAST-03**: Error toasts persist until dismissed; info toasts auto-dismiss after 5s
+- [x] **TOAST-04**: Max 3 toasts visible simultaneously with priority ordering
+
 ### Future (Deferred)
 - GitHub Issues integration (create worktree from issue)
 - Agent orchestration (Claude Code has native Agent Teams)
@@ -94,3 +102,7 @@
 | PROF-03 | Phase 12 | Complete |
 | PROF-04 | Phase 12 | Complete |
 | PROF-05 | Phase 12 | Complete |
+| TOAST-01 | Phase 14 | Complete |
+| TOAST-02 | Phase 14 | Complete |
+| TOAST-03 | Phase 14 | Complete |
+| TOAST-04 | Phase 14 | Complete |

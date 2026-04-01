@@ -21,3 +21,11 @@
 5 phases, 16 plans. Full archive: milestones/v2.0-ROADMAP.md
 
 </details>
+
+## v2.1 Session Lifecycle (Phases 14+)
+
+### Phase 14: Toast System & Launch Path Cleanup
+
+| Plan | Name | Status |
+|------|------|--------|
+| 14-01 | Toast notification system (Sonner) | COMPLETE |
