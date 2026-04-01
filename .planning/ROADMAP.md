@@ -21,3 +21,9 @@
 5 phases, 16 plans. Full archive: milestones/v2.0-ROADMAP.md
 
 </details>
+
+### v2.1 Session Lifecycle
+
+| Phase | Name | Plans | Complete | Status |
+|-------|------|-------|----------|--------|
+| 14 | Toast System & Launch Path Cleanup | 2 | 2 | DONE |

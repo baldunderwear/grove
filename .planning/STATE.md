@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
-status: defining-requirements
-stopped_at: null
+status: in-progress
+stopped_at: "Completed 14-02-PLAN.md"
 last_updated: "2026-04-01"
 last_activity: 2026-04-01
 progress:
-  total_phases: 0
+  total_phases: 1
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-01 — Milestone v2.1 started
+Phase: 14-toast-system-launch-path-cleanup
+Plan: 02 of 2 (complete)
+Status: Phase 14 complete
+Last activity: 2026-04-01 — Completed 14-02 launch path cleanup
 
 ## Accumulated Context
 
@@ -40,6 +40,8 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
 - [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
+- [14-02]: Derived activeSessions from terminal-store tabs for BranchTable compatibility
+- [14-02]: AllProjects launch navigates to project dashboard after addTab
 
 ### Blockers/Concerns
 
@@ -49,5 +51,5 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 ## Session Continuity
 
 Last session: 2026-04-01
-Stopped at: Milestone v2.1 initialization
+Stopped at: Completed 14-02-PLAN.md (launch path cleanup)
 Resume file: None
