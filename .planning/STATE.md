@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
-status: completed
-stopped_at: Completed 14-02-PLAN.md (launch path cleanup)
-last_updated: "2026-04-01T20:23:24.568Z"
+status: ready-to-plan
+stopped_at: Phase 14 complete, ready for Phase 15
+last_updated: "2026-04-01"
 last_activity: 2026-04-01
 progress:
-  total_phases: 1
+  total_phases: 5
   completed_phases: 1
   total_plans: 2
   completed_plans: 2
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-01)
 
 **Core value:** Complete session lifecycle — launch → monitor → alert → close → merge → cleanup
-**Current focus:** Defining requirements
+**Current focus:** Phase 15 — Post-Session Flow
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
-Status: Phase 14 complete
+Phase: 15 (next up)
+Plan: —
+Status: Phase 14 complete, ready to plan Phase 15
 Last activity: 2026-04-01
 
 ## Accumulated Context
