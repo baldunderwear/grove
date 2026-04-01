@@ -1,587 +1,476 @@
-# Architecture Patterns: Embedded Terminals, Output Parsing, and Config Editors
+# Architecture Research: Session Lifecycle Integration (v2.1)
 
-**Domain:** Tauri 2 desktop app — integrating PTY terminals, streaming I/O, and code editors into existing Grove architecture
-**Researched:** 2026-03-27
-**Overall confidence:** MEDIUM-HIGH
+**Domain:** Tauri 2 desktop app -- session lifecycle features for existing worktree manager
+**Researched:** 2026-04-01
+**Confidence:** HIGH (based on direct codebase analysis of existing Grove architecture)
 
-## Executive Summary
+## Context
 
-Grove v2.0 "Mission Control" adds three major subsystems to the existing Tauri 2 + React app: embedded PTY terminals (replacing external window launches), real-time output parsing for session state detection, and CodeMirror-based config/markdown editors. All three integrate through established Tauri patterns already used in Grove — managed state, invoke commands, and Tauri's Channel API for high-throughput streaming.
+This research covers how four v2.1 features integrate with the existing Grove architecture:
 
-The critical architectural insight: **do NOT use WebSockets**. Tauri's Channel API provides ordered, high-performance streaming natively through the IPC bridge, eliminating the need for a separate WebSocket server. This is simpler, more secure, and faster than running a localhost WS server inside a desktop app.
+1. Post-session workflow (diff summary, commit, merge, cleanup)
+2. Multi-branch merge queue (select, order, sequential merge, rollback)
+3. Toast notification system (stackable, actionable, in-app)
+4. Kill external launch path (SessionManager as sole entry point)
 
-## Existing Architecture (What We Have)
+All analysis is based on the current codebase as of v2.0.x. No speculative external research needed -- this is an integration architecture exercise.
 
-### Rust Backend Modules
-```
-src-tauri/src/
-  lib.rs          -- App setup, plugin registration, managed state, invoke_handler
-  commands/       -- Tauri command handlers (config, git, session)
-  config/         -- Project registry, settings persistence (JSON)
-  git/            -- Branch listing, status, merge, build bump (git2 + CLI)
-  process/        -- Session launch (wt.exe/cmd.exe), detection (sysinfo polling)
-  watcher/        -- File system monitoring (notify crate)
-  tray.rs         -- System tray menu building
-  notifications.rs -- Desktop notifications
-  fetch.rs        -- Background auto-fetch
-```
-
-### Frontend Structure
-```
-src-ui/src/
-  App.tsx          -- View router (empty/all-projects/dashboard/project/settings)
-  stores/          -- Zustand: config-store, branch-store, session-store, merge-store
-  pages/           -- Dashboard, Settings, ProjectConfig, AllProjects, EmptyState
-  components/      -- BranchTable, MergeDialog, AddProjectWizard, etc.
-  layout/          -- Sidebar
-  hooks/           -- useKeyboardShortcuts
-```
-
-### Communication Patterns Already Established
-1. **invoke()** — Frontend calls Rust commands, gets single response (used everywhere)
-2. **Tauri events** — Backend emits "git-changed", frontend listens (used for watcher notifications)
-3. **Managed state** — `Mutex<T>` in app state for shared resources (SessionDetector, NotificationState)
-4. **Polling** — Session detection uses periodic invoke() calls from frontend
-
-### Key Architectural Constraints
-- Windows-first (ConPTY, not Unix PTY)
-- NAS paths (UNC paths like `\\nas\share\...` must work)
-- Lightweight (sub-100MB installed, fast startup)
-- Non-destructive (preview before action)
-
-## New Architecture: Three Subsystems
-
-### Subsystem 1: Embedded PTY Terminals
-
-#### Recommended Approach: Custom portable-pty + Tauri Channels
-
-Use `portable-pty` directly (not `tauri-plugin-pty`) because:
-- `tauri-plugin-pty` has only 18 GitHub stars, 3 contributors, no formal releases — too immature for production
-- `portable-pty` is battle-tested (from WezTerm, the most popular Rust terminal emulator)
-- Direct integration gives full control over PTY lifecycle, output tapping, and error handling
-- We need to intercept output for session state parsing — a plugin abstraction gets in the way
-
-**Confidence:** MEDIUM — portable-pty is well-proven, but ConPTY on Windows has quirks. The `portable-pty-psmux` fork addresses missing ConPTY flags (PSEUDOCONSOLE_RESIZE_QUIRK, PSEUDOCONSOLE_WIN32_INPUT_MODE) that may be needed. Start with upstream `portable-pty` 0.9.0 and evaluate if the fork is needed.
-
-#### New Rust Module: `src-tauri/src/terminal/`
+## Current Architecture Snapshot
 
 ```
-terminal/
-  mod.rs           -- Public API, TerminalManager
-  pty.rs           -- portable-pty wrapper, PTY spawn/resize/kill
-  session.rs       -- Per-terminal session state (id, pty handle, output buffer)
-  parser.rs        -- Output parsing pipeline (ANSI stripping, state detection)
-  commands.rs      -- Tauri command handlers for terminal operations
++---------------------------------------------------------------------+
+|                         React Frontend                              |
++---------------+--------------+---------------+----------------------+
+| SessionManager| MergeDialog  | SessionCard   | (NEW) ToastProvider  |
+| (grid+focus)  | (preview+    | (card UI)     | (stackable toasts)   |
+|               |  execute)    |               |                      |
++----------+----+----+---------+------+--------+----------------------+
+| terminal |  merge  |  branch      |  config    |  session            |
+| -store   |  -store |  -store      |  -store    |  -store             |
++----------+---------+--------------+------------+---------------------+
+|                    Tauri IPC (invoke + Channel)                      |
++----------+---------+--------------+--------------+------------------+
+| Terminal |  Git Ops|  Config      |  Process     |  Notifications   |
+| Manager  |  (merge,|  (persist,   |  (detect,    |  (OS notifs,     |
+| (PTY,    |   branch|   models)    |   launch)    |   merge-ready)   |
+|  state,  |   build,|              |              |                  |
+|  history)|   stat) |              |              |                  |
++----------+---------+--------------+--------------+------------------+
+|                         Tauri 2 Runtime                             |
+|  Managed State: Mutex<TerminalManager>, Mutex<HistoryManager>,     |
+|                 Mutex<SessionDetector>, Mutex<NotificationState>,   |
+|                 Mutex<()> (write lock)                              |
++--------------------------------------------------------------------+
 ```
 
-#### Data Flow: Terminal I/O
+### Key Existing Patterns
+
+| Pattern | Where Used | Relevance to v2.1 |
+|---------|-----------|-------------------|
+| Channel-per-terminal | PTY I/O streaming | Post-session uses Exit event from Channel |
+| Step-based state machine | `MergeStep` in merge-store | Post-session and merge queue reuse this pattern |
+| Tauri events for broadcast | `session-state-changed`, `git-changed` | Toasts subscribe to same events |
+| Write Mutex serialization | `Mutex<()>` on merge commands | Queue holds this lock for entire sequence |
+| Session state via ANSI parsing | `StateParser` in PTY reader thread | Add `Exited` detection on PTY exit |
+
+---
+
+## Feature 1: Post-Session Workflow
+
+### What It Is
+
+When a Claude Code session exits (PTY process exits), present a guided workflow: diff summary, commit, merge, worktree cleanup -- instead of just showing "[Process exited: 0]".
+
+### Integration Points
+
+**Existing hook: `TerminalEvent::Exit`.** The PTY reader thread already emits `Exit { code }` via Tauri Channel. The frontend handles this in `SessionManager > TerminalInstance > onEvent`. Currently it writes a styled "[Process exited]" line to xterm.js and marks the tab disconnected via `setTabConnected(id, false)`.
+
+**Existing infrastructure covers most needs:**
+- `terminal_get_history` -- diff stat from session start HEAD (exists)
+- `is_worktree_dirty` -- check for uncommitted changes (exists)
+- `merge_preview` + `merge_branch` -- full merge pipeline (exists)
+- `list_branches` -- refresh after merge (exists)
+
+**One new Rust command needed:** `delete_worktree` for cleanup step. Currently `create_worktree` exists but there is no delete. Use `git worktree remove` via CLI (same pattern as `create_worktree`).
+
+### Data Flow
 
 ```
-[User types in xterm.js]
-    |
-    v
-Frontend: term.onData(data => invoke('terminal_write', { id, data }))
-    |
-    v  (Tauri invoke — single message, low latency)
-Rust: terminal_write command
-    |
-    v
-pty.master.write_all(data)  -- Write to PTY stdin
-    |
-    v
-[Shell/Claude process reads stdin, produces output]
-    |
-    v
-pty.master.read() -- Background thread reads PTY stdout (blocking read in loop)
-    |
-    v
-Output parsing pipeline:
-  1. Raw bytes -> UTF-8 chunks
-  2. Fork: raw chunk -> Channel to frontend (display)
-  3. Fork: raw chunk -> parser (state detection, see Subsystem 2)
-    |
-    v
-channel.send(TerminalOutput::Data(chunk))  -- Tauri Channel (ordered, fast)
-    |
-    v
-Frontend: onEvent handler writes to xterm.js terminal
+PTY Exit
+  |
+  v
+TerminalInstance.onEvent(Exit)
+  |
+  v
+setTabConnected(id, false) + setTabState(id, 'exited')   <-- NEW state value
+  |
+  v
+SessionCard detects 'exited' state --> shows "Review" button
+  |
+  v
+User clicks --> PostSessionWorkflow mounts in focus view
+  |
+  v
+Step 1: invoke('terminal_get_history') --> show diff summary
+Step 2: invoke('is_worktree_dirty') --> if dirty, show commit prompt
+Step 3: invoke('merge_preview') --> show merge preview
+Step 4: invoke('merge_branch') --> execute merge
+Step 5: invoke('delete_worktree') --> cleanup (optional)
+  |
+  v
+closeTab(id) --> done
 ```
 
-#### Why Tauri Channels, Not WebSockets
+### Components to Create/Modify
 
-Tauri's Channel API is purpose-built for this exact use case. From official docs: "Channels are designed to be fast and deliver ordered data. They are used internally for streaming operations such as download progress, **child process output** and WebSocket messages."
+| Component | Action | Details |
+|-----------|--------|---------|
+| `PostSessionWorkflow.tsx` | **NEW** | Stepped wizard: diff summary, commit, merge, cleanup |
+| `terminal-store.ts` | **MODIFY** | Add `'exited'` to SessionState, keep tab alive after exit |
+| `SessionCard.tsx` | **MODIFY** | Show "Review" button/overlay when state is `exited` |
+| `SessionManager.tsx` | **MODIFY** | Render PostSessionWorkflow in focus view for exited tabs |
+| `session_commands.rs` | **MODIFY** | Add `delete_worktree` command |
+| `lib.rs` | **MODIFY** | Register `delete_worktree` in invoke handler |
 
-| Aspect | Tauri Channels | WebSocket Server |
-|--------|---------------|-----------------|
-| Setup complexity | Zero — built into Tauri | Need tokio + tungstenite, port management |
-| Security | IPC bridge, no open ports | Localhost port, potential for abuse |
-| Performance | Direct memory transfer | Serialization + TCP overhead |
-| Ordering | Guaranteed | Guaranteed (TCP) |
-| Multiple terminals | One channel per terminal | Multiplexing or multiple connections |
-| Error handling | Rust Result types | Connection drops, reconnects |
+### Key Design Decision: Tab Lifecycle
 
-#### Rust Types
-
-```rust
-use tauri::ipc::Channel;
-use portable_pty::{CommandBuilder, PtySize, native_pty_system};
-
-/// Unique identifier for each terminal instance
-type TerminalId = String; // UUID
-
-/// Events streamed from PTY to frontend
-#[derive(Clone, serde::Serialize)]
-#[serde(tag = "type")]
-enum TerminalEvent {
-    Data { data: String },           // Terminal output chunk
-    StateChange { state: SessionState }, // Parsed state transition
-    Exit { code: Option<u32> },      // Process exited
-    Error { message: String },       // PTY error
-}
-
-/// Managed state: all active terminal sessions
-struct TerminalManager {
-    sessions: HashMap<TerminalId, TerminalSession>,
-}
-
-struct TerminalSession {
-    pty_pair: PtyPair,       // Master + child handles
-    child: Box<dyn Child>,   // Spawned process
-    parser: OutputParser,    // State detection pipeline
-}
-```
-
-#### Tauri Commands (New)
-
-```rust
-// Spawn a new embedded terminal, returns terminal ID
-#[tauri::command]
-fn terminal_spawn(
-    working_dir: String,
-    shell: Option<String>,  // Default: powershell.exe
-    cols: u16,
-    rows: u16,
-    on_event: Channel<TerminalEvent>,
-    manager: State<Mutex<TerminalManager>>,
-) -> Result<TerminalId, String>;
-
-// Write user input to terminal
-#[tauri::command]
-fn terminal_write(
-    id: TerminalId,
-    data: String,
-    manager: State<Mutex<TerminalManager>>,
-) -> Result<(), String>;
-
-// Resize terminal
-#[tauri::command]
-fn terminal_resize(
-    id: TerminalId,
-    cols: u16,
-    rows: u16,
-    manager: State<Mutex<TerminalManager>>,
-) -> Result<(), String>;
-
-// Kill terminal
-#[tauri::command]
-fn terminal_kill(
-    id: TerminalId,
-    manager: State<Mutex<TerminalManager>>,
-) -> Result<(), String>;
-
-// List active terminals
-#[tauri::command]
-fn terminal_list(
-    manager: State<Mutex<TerminalManager>>,
-) -> Result<Vec<TerminalInfo>, String>;
-```
-
-#### Integration with Existing Modules
-
-- **process/launch.rs** — `launch_claude_session()` currently spawns external windows. Add a new path: `launch_claude_embedded()` that calls `terminal_spawn` internally and returns a terminal ID instead of a PID.
-- **process/detect.rs** — `SessionDetector` currently polls sysinfo for claude processes. Embedded terminals are known directly (we spawned them), so the detector can check both: managed terminals + external processes.
-- **session_commands.rs** — `launch_session` command gains an `embedded: bool` parameter. If true, spawns via TerminalManager; if false, uses existing external window launch.
-- **lib.rs** — Add `Mutex<TerminalManager>` to managed state, register new terminal commands.
-
-### Subsystem 2: Output Parsing Pipeline
-
-#### Architecture: Tee-based Stream Processing
-
-The PTY read loop produces raw bytes. These are "tee'd" — sent both to the frontend for display AND through a parsing pipeline for state detection.
-
-```
-PTY stdout bytes
-    |
-    +---> [Raw to frontend via Channel] (no processing, fast)
-    |
-    +---> [Parser pipeline] (async, can lag behind display)
-              |
-              1. ANSI escape sequence stripping (for text analysis only)
-              2. Line buffering (accumulate until newline)
-              3. Pattern matching (regex against known Claude output patterns)
-              4. State machine transitions
-              5. State change -> Channel<TerminalEvent::StateChange>
-```
-
-#### Session State Detection
-
-```rust
-#[derive(Clone, serde::Serialize, PartialEq)]
-enum SessionState {
-    Starting,      // Terminal spawned, Claude not yet loaded
-    Idle,          // Claude prompt visible, waiting for user input
-    Working,       // Claude is generating/executing (tool calls active)
-    WaitingInput,  // Claude asked a question, waiting for user response
-    Error,         // Error state detected in output
-    Exited,        // Process terminated
-}
-```
-
-**Detection heuristics (pattern matching on stripped output):**
-
-| Pattern | Detected State |
-|---------|---------------|
-| Claude Code startup banner | Starting -> Idle |
-| `>` prompt at line start after response | Working -> Idle |
-| `? ` or permission prompt patterns | Working -> WaitingInput |
-| Tool use indicators (file edits, bash calls) | Idle -> Working |
-| Error stack traces, "Error:" prefixed lines | -> Error |
-| Process exit | -> Exited |
-
-**Confidence:** LOW-MEDIUM — Claude Code's output format is not a stable API. Heuristics will need tuning and may break across Claude Code updates. This is explicitly called out as needing iterative refinement. JSONL log parsing (from `~/.claude/projects/`) is more reliable for post-hoc analysis but not real-time.
-
-#### Hybrid Approach: PTY Output + JSONL Logs
-
-For robustness, combine two signal sources:
-1. **Real-time PTY output parsing** — immediate but fragile (heuristic-based)
-2. **JSONL log file watching** — delayed (file write lag) but structured and reliable
-
-The existing `watcher/` module can be extended to watch `~/.claude/projects/<hash>/` for JSONL changes. New JSONL entries provide ground truth to calibrate and correct PTY-based state detection.
-
-```
-watcher/ (existing)
-  +-- claude_logs.rs (new) -- Watch ~/.claude/projects/ for session logs
-                              Parse JSONL entries for tool_use, assistant messages
-                              Emit state corrections to TerminalManager
-```
-
-### Subsystem 3: Config/Markdown Editors
-
-#### Recommended: CodeMirror 6 via @uiw/react-codemirror
-
-Use CodeMirror 6 (not Monaco) because:
-- **Bundle size:** ~300KB modular vs 5-10MB for Monaco. Grove's installed size constraint (<100MB) makes this critical.
-- **Modularity:** Only import language modes actually needed (JSON, Markdown, YAML)
-- **Mobile-friendly:** Not relevant now but good for future
-- **React integration:** `@uiw/react-codemirror` is the most popular and maintained React wrapper
-
-**Confidence:** HIGH — CodeMirror 6 is well-established, the React wrapper is actively maintained, and the language modes we need (JSON, Markdown) are official packages.
-
-#### Editor Use Cases in Grove
-
-| Editor Target | File Type | Language Mode | Special Features |
-|--------------|-----------|---------------|-----------------|
-| CLAUDE.md | Markdown | `@codemirror/lang-markdown` | Section-aware editing, preview pane |
-| .claude/settings.json | JSON | `@codemirror/lang-json` | Schema validation, key completion |
-| .claude/skills/*.md | Markdown | `@codemirror/lang-markdown` | Template snippets |
-| Project config | JSON (internal) | `@codemirror/lang-json` | Grove config schema |
-
-#### New Frontend Components
-
-```
-src-ui/src/
-  components/
-    editor/
-      CodeEditor.tsx        -- Wrapper around @uiw/react-codemirror
-      MarkdownEditor.tsx    -- CodeEditor + preview pane + section nav
-      JsonEditor.tsx        -- CodeEditor + schema validation
-      SettingsEditor.tsx    -- Structured form backed by JSON editor
-    terminal/
-      TerminalPanel.tsx     -- xterm.js terminal instance
-      TerminalTabs.tsx      -- Tab bar for multiple terminals
-      TerminalContainer.tsx -- Layout: tabs + active terminal + status bar
-      SessionBadge.tsx      -- State indicator (idle/working/error)
-  pages/
-    SessionView.tsx         -- New page: terminal + editor side-by-side
-  stores/
-    terminal-store.ts       -- Terminal state: active terminals, focus, layout
-    editor-store.ts         -- Open files, dirty state, save status
-```
-
-#### Data Flow: File Editing
-
-```
-[User opens CLAUDE.md for project X]
-    |
-    v
-invoke('read_file', { path: projectPath + '/CLAUDE.md' })
-    |
-    v
-Rust: fs::read_to_string(path) -> String
-    |
-    v
-Frontend: CodeMirror loads content, user edits
-    |
-    v
-[User saves (Ctrl+S or auto-save)]
-    |
-    v
-invoke('write_file', { path, content })
-    |
-    v
-Rust: fs::write(path, content) with atomic write (write to .tmp, rename)
-    |
-    v
-watcher/ detects file change -> emit 'file-changed' event (debounced)
-```
-
-#### New Tauri Commands for File Operations
-
-```rust
-// In commands/file_commands.rs (new)
-
-#[tauri::command]
-fn read_file(path: String) -> Result<String, String>;
-
-#[tauri::command]
-fn write_file(path: String, content: String) -> Result<(), String>;
-
-#[tauri::command]
-fn list_directory(path: String, pattern: Option<String>) -> Result<Vec<FileEntry>, String>;
-
-// For CLAUDE.md section-aware editing
-#[tauri::command]
-fn read_claude_md(project_path: String) -> Result<ClaudeMdContent, String>;
-
-// For .claude/settings.json with schema awareness
-#[tauri::command]
-fn read_claude_settings(project_path: String) -> Result<serde_json::Value, String>;
-
-#[tauri::command]
-fn write_claude_settings(project_path: String, settings: serde_json::Value) -> Result<(), String>;
-```
-
-## Component Boundaries
-
-| Component | Responsibility | Communicates With | New/Modified |
-|-----------|---------------|-------------------|-------------|
-| `terminal/` (Rust) | PTY lifecycle, I/O streaming | Frontend via Channel, process/ | **NEW** |
-| `terminal/parser.rs` | Output analysis, state detection | terminal/session.rs | **NEW** |
-| `commands/terminal_commands.rs` | Tauri command layer for terminals | terminal/, lib.rs | **NEW** |
-| `commands/file_commands.rs` | File read/write for editors | config/, lib.rs | **NEW** |
-| `process/launch.rs` | Add embedded launch path | terminal/ | **MODIFIED** |
-| `process/detect.rs` | Merge embedded + external detection | terminal/ | **MODIFIED** |
-| `commands/session_commands.rs` | Add embedded flag to launch | terminal/, process/ | **MODIFIED** |
-| `lib.rs` | Register new state + commands | All new modules | **MODIFIED** |
-| `watcher/` | Add Claude log watching | terminal/parser.rs | **MODIFIED** |
-| `TerminalPanel.tsx` | xterm.js rendering | terminal-store | **NEW** |
-| `TerminalTabs.tsx` | Multi-terminal tab management | terminal-store | **NEW** |
-| `CodeEditor.tsx` | CodeMirror wrapper | editor-store | **NEW** |
-| `MarkdownEditor.tsx` | CLAUDE.md editing | editor-store, file commands | **NEW** |
-| `SessionView.tsx` | Combined terminal + editor page | terminal-store, editor-store | **NEW** |
-| `terminal-store.ts` | Terminal state management | Tauri invoke + Channel | **NEW** |
-| `editor-store.ts` | Editor state management | Tauri invoke | **NEW** |
-
-## Patterns to Follow
-
-### Pattern 1: Channel-per-Terminal
-
-Each spawned terminal gets its own Tauri Channel. The frontend creates the Channel before invoking `terminal_spawn`, passing it as a parameter. This matches how Tauri internally handles streaming.
+Currently, when a PTY exits, `sessionState` is set to `null` and the tab is effectively dead. The critical change is adding an `exited` state that keeps the tab alive and meaningful:
 
 ```typescript
-// Frontend
-const onEvent = new Channel<TerminalEvent>();
-onEvent.onmessage = (event) => {
-  switch (event.type) {
-    case 'Data':
-      terminal.write(event.data);
-      break;
-    case 'StateChange':
-      updateSessionState(id, event.state);
-      break;
-    case 'Exit':
-      handleTerminalExit(id, event.code);
-      break;
-  }
-};
+// Current
+export type SessionState = "working" | "waiting" | "idle" | "error" | null;
 
-const id = await invoke('terminal_spawn', {
-  workingDir: worktreePath,
-  cols: terminal.cols,
-  rows: terminal.rows,
-  onEvent,
-});
+// After
+export type SessionState = "working" | "waiting" | "idle" | "error" | "exited" | null;
 ```
 
-### Pattern 2: Managed State with Interior Mutability
+Revised lifecycle:
+```
+addTab (pending-*) --> activateTab (terminal-id) --> [working/waiting/idle/error]
+                                                        |
+                                                        v
+                                                     exited --> [PostSessionWorkflow] --> closeTab
+```
 
-Follow existing pattern from `SessionDetector` — wrap `TerminalManager` in `Mutex<T>` and register as managed state. This works because terminal operations are fast (write bytes, check state) and don't hold the lock during I/O.
+---
 
-The PTY read loop runs on a separate `std::thread` (not holding the mutex), and sends data through the Channel directly.
+## Feature 2: Multi-Branch Merge Queue
+
+### What It Is
+
+Select multiple branches, define order, execute sequential merges with auto-build-bump between each. Rollback on failure.
+
+### Integration Points
+
+**Existing merge infrastructure is single-branch.** The `merge_branch` Rust function and `merge-store` Zustand store both operate on one (source, target) pair. The merge `Mutex<()>` already serializes writes, which is correct for queue processing.
+
+**Queue orchestration belongs in Rust, not frontend.** If the frontend drives sequential `merge_branch` calls, a crash mid-queue leaves the repo in a partial state with no rollback. The Rust side should:
+
+1. Accept a `Vec<String>` of branch names in merge order
+2. Record the starting HEAD as rollback point
+3. Execute merges sequentially (each bumps build, renames changelogs)
+4. On failure at branch N: `git reset --hard` to starting HEAD
+5. Return a structured result: which succeeded, which failed, why
+
+### Data Flow
+
+```
+User selects branches in SessionManager or BranchTable
+  |
+  v
+Opens MergeQueueDialog (NEW)
+  |
+  v
+For each branch: invoke('merge_preview') --> show preview per branch
+  |
+  v
+User confirms order, clicks "Execute Queue"
+  |
+  v
+invoke('merge_queue_execute', { branches, projectPath, ... })
+  |  (Rust side)
+  v
+Record HEAD --> loop merges --> on error: reset to HEAD --> return result
+  |
+  v
+MergeQueueDialog shows results: per-branch success/failure
+  |
+  v
+Toast notification for outcome + branch store refresh
+```
+
+### New Rust Types
 
 ```rust
-// In lib.rs setup
-.manage(std::sync::Mutex::new(terminal::TerminalManager::new()))
-```
+#[derive(Debug, Clone, Serialize)]
+pub struct QueueMergeResult {
+    pub completed: Vec<MergeResult>,   // Branches that merged successfully
+    pub failed: Option<QueueFailure>,   // First failure (if any)
+    pub rolled_back: bool,              // Whether rollback occurred
+    pub final_build: Option<u32>,       // Build number after all merges
+}
 
-### Pattern 3: Graceful Degradation for Session Detection
-
-The session store should merge data from three sources:
-1. Embedded terminals (known directly, highest confidence)
-2. JSONL log parsing (structured data, medium confidence)
-3. Process polling via sysinfo (existing, lowest confidence — catches external launches)
-
-```typescript
-// Enhanced session-store.ts
-interface SessionInfo {
-  source: 'embedded' | 'log' | 'process';
-  state: SessionState;
-  terminalId?: string;  // Only for embedded
-  pid?: number;         // For process-detected
+#[derive(Debug, Clone, Serialize)]
+pub struct QueueFailure {
+    pub branch: String,
+    pub error: String,
+    pub index: usize,                   // Which branch in the queue (0-based)
 }
 ```
+
+### Components to Create/Modify
+
+| Component | Action | Details |
+|-----------|--------|---------|
+| `src-tauri/src/git/queue.rs` | **NEW** | Queue executor with rollback |
+| `src-tauri/src/git/mod.rs` | **MODIFY** | Add `pub mod queue;` |
+| `src-tauri/src/commands/git_commands.rs` | **MODIFY** | Add `merge_queue_preview` and `merge_queue_execute` |
+| `lib.rs` | **MODIFY** | Register new commands |
+| `MergeQueueDialog.tsx` | **NEW** | Branch selection, ordering, preview, execution UI |
+| `merge-queue-store.ts` | **NEW** | Queue state: selected branches, order, execution progress |
+| `SessionManager.tsx` or `BranchTable.tsx` | **MODIFY** | Multi-select + "Merge Queue" button |
+
+---
+
+## Feature 3: Toast Notification System
+
+### What It Is
+
+In-app stackable toast notifications for session state changes, merge results, errors. Supplements the existing OS notifications and audio chime.
+
+### Integration Points
+
+**Current notification landscape:**
+- OS notifications: `tauri-plugin-notification` -- merge-ready, stale branch, merge complete, session-waiting
+- Audio chime: `alerts.ts` -- Web Audio API two-tone chime on session waiting
+- Taskbar flash: `requestWindowAttention` in `alerts.ts`
+
+**Toasts are purely frontend.** No Rust changes needed. The toast system subscribes to the same events the OS notifications already use, plus reacts to store action results.
+
+**Toast triggers (from existing events/actions):**
+- `session-state-changed` event -- "Session X is waiting for input"
+- Merge complete (after `executeMerge` in merge-store) -- "Merged branch-X (build 42)"
+- Merge queue results -- "3/4 branches merged successfully"
+- Session exit -- "Session X ended"
+- Errors -- any caught error in invoke calls
+
+### Data Flow
+
+```
+Event source (Tauri event, store action result, error)
+  |
+  v
+toast-store.addToast({ type, title, message, action? })
+  |
+  v
+ToastContainer renders stack (bottom-right, max 5 visible)
+  |
+  v
+Auto-dismiss after timeout (~5s default, configurable per type)
+  |
+  v
+Optional action button (e.g., "Review" --> focus session, "Retry" --> retry merge)
+```
+
+### Components to Create/Modify
+
+| Component | Action | Details |
+|-----------|--------|---------|
+| `toast-store.ts` | **NEW** | Toast state: stack of toasts, add/dismiss/clear |
+| `ToastContainer.tsx` | **NEW** | Renders toast stack, animations, auto-dismiss |
+| `Toast.tsx` | **NEW** | Individual toast: icon, title, message, action, close |
+| `SessionManager.tsx` | **MODIFY** | Fire toasts on session events (alongside existing alerts) |
+| `merge-store.ts` | **MODIFY** | Fire toast on merge complete/error |
+| `App.tsx` | **MODIFY** | Mount ToastContainer at root level |
+
+### Toast Store Design
+
+```typescript
+type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+interface Toast {
+  id: string;
+  type: ToastType;
+  title: string;
+  message?: string;
+  action?: { label: string; onClick: () => void };
+  duration?: number;  // ms, 0 = persistent
+  createdAt: number;
+}
+
+interface ToastStore {
+  toasts: Toast[];
+  addToast: (toast: Omit<Toast, 'id' | 'createdAt'>) => string;
+  dismissToast: (id: string) => void;
+  clearAll: () => void;
+}
+```
+
+---
+
+## Feature 4: Kill External Launch Path
+
+### What It Is
+
+Remove the `launch_session` command (which spawns an external terminal window) so all sessions go through `terminal_spawn` (embedded PTY).
+
+### Integration Points
+
+**`launch_session`** calls `process::launch::launch_claude_session` which spawns an external `wt.exe` terminal window. After removal:
+
+- `launchSession` in session-store becomes dead code
+- `fetchSessions` / `get_active_sessions` / `SessionDetector` become dead code
+- `process/detect.rs` can be removed entirely
+
+**Keep:** `open_in_vscode`, `open_in_explorer`, `create_worktree` from session commands.
+
+### Components to Remove/Modify
+
+| Component | Action | Details |
+|-----------|--------|---------|
+| `session-store.ts` | **REMOVE most** | Keep `openInVscode`/`openInExplorer`, move to utility or inline |
+| `session_commands.rs` | **MODIFY** | Remove `launch_session`, `get_active_sessions` |
+| `process/launch.rs` | **MODIFY** | Remove `launch_claude_session`, keep `launch_vscode` |
+| `process/detect.rs` | **REMOVE** | No longer needed |
+| `process/mod.rs` | **MODIFY** | Remove `detect` module |
+| `lib.rs` | **MODIFY** | Remove `SessionDetector` managed state, remove dead commands |
+
+---
+
+## Recommended Build Order
+
+The features have real dependencies that constrain order:
+
+### Phase 1: Toast System
+
+**Why first:** Every other feature needs to fire toasts. Building toasts first means merge queue and post-session workflow get notifications for free.
+
+Scope: `toast-store.ts`, `ToastContainer.tsx`, `Toast.tsx`, wire into `App.tsx`, retrofit existing alert sites.
+
+**Zero backend changes.** Pure frontend. Low risk, high leverage.
+
+### Phase 2: Post-Session Workflow
+
+**Why second:** Core lifecycle feature. Changes how sessions end, which affects merge queue UX (queue should fire after post-session, not instead of it).
+
+Scope: Add `exited` state, modify Exit handler, `PostSessionWorkflow.tsx`, `delete_worktree` Rust command.
+
+**Depends on:** Toast system (Phase 1) for step success/error notifications.
+
+### Phase 3: Multi-Branch Merge Queue
+
+**Why third:** Needs merge infrastructure stable, benefits from toast system for progress/results.
+
+Scope: `git/queue.rs`, queue commands, `merge-queue-store.ts`, `MergeQueueDialog.tsx`, branch selection UI.
+
+**Depends on:** Toast system (Phase 1). Independent of post-session but logically follows it.
+
+### Phase 4: Kill External Launch Path
+
+**Why last:** Removing code is low-risk but should happen after all new features are stable. Having the fallback during development is valuable.
+
+Scope: Remove `launch_session`, `process/detect.rs`, `SessionDetector`, dead code cleanup.
+
+**Depends on:** Confidence that embedded path handles all scenarios.
+
+---
+
+## Architectural Patterns
+
+### Pattern 1: Stepped Wizard with Store State Machine
+
+**What:** Post-session workflow and merge queue both have multi-step flows. Use an enum-based step in the Zustand store (like existing `MergeStep`) rather than component-local state.
+
+**When to use:** Any multi-step flow that needs to survive re-renders and be observable from other components.
+
+**Trade-offs:** Store boilerplate vs. reliable multi-component observability.
+
+```typescript
+type PostSessionStep = 'summary' | 'commit' | 'merge-preview' | 'merging' | 'cleanup' | 'done' | 'error';
+```
+
+### Pattern 2: Tauri Events for Cross-Concern Reactivity
+
+**What:** Use `emit`/`listen` for events that multiple frontend concerns react to independently (toasts, alerts, store updates).
+
+**When to use:** When a Rust-side state change triggers multiple independent frontend reactions. `session-state-changed` already follows this pattern.
+
+**Do NOT use Channels for this.** Channels are 1:1 for high-throughput PTY I/O. Events are broadcast.
+
+### Pattern 3: Server-Side Atomicity for Multi-Step Operations
+
+**What:** Merge queue execution lives in Rust, not JavaScript, to ensure atomicity and rollback.
+
+**When to use:** Any operation sequence where partial completion is worse than failure.
+
+**Trade-offs:** More complex Rust code, but crash-safe behavior.
+
+---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: WebSocket Server Inside Desktop App
-**What:** Running a localhost WebSocket server for terminal I/O
-**Why bad:** Unnecessary complexity, security surface (open port), port conflicts, connection management. Tauri Channels do the same thing with zero setup.
-**Instead:** Use Tauri Channel API for all streaming data.
+### Anti-Pattern 1: Frontend-Driven Sequential Merges
 
-### Anti-Pattern 2: Holding Mutex During PTY I/O
-**What:** Locking TerminalManager mutex while reading from PTY
-**Why bad:** PTY reads are blocking — would freeze all terminal operations. Writes from other terminals would queue behind the read.
-**Instead:** PTY read loop runs on a dedicated thread per terminal. Only locks the manager briefly to look up session metadata or update state. Channel sends happen outside the lock.
+**What:** Loop over branches in JavaScript, calling `merge_branch` for each.
 
-### Anti-Pattern 3: Synchronous Output Parsing
-**What:** Parsing output in the PTY read loop before forwarding to frontend
-**Why bad:** Adds latency to terminal display. Pattern matching on every chunk slows rendering.
-**Instead:** Tee the output — send raw data to frontend immediately, parse asynchronously on a separate path. Users see output instantly; state detection can be slightly delayed.
+**Why wrong:** App crash mid-sequence = partial merge state, no rollback. Build numbers inconsistent.
 
-### Anti-Pattern 4: Monaco for Config Editing
-**What:** Using Monaco editor for JSON/Markdown editing
-**Why bad:** 5-10MB bundle for editing config files. Grove's lightweight constraint violated. Monaco is designed for full IDE experiences, not config editing.
-**Instead:** CodeMirror 6 with selective language imports (~300KB).
+**Instead:** Single `merge_queue_execute` Rust command with atomic rollback.
 
-### Anti-Pattern 5: Relying Solely on PTY Output for State
-**What:** Using only terminal output heuristics for session state
-**Why bad:** Claude Code's output format is not stable. Updates will break patterns. ANSI sequences complicate parsing.
-**Instead:** Hybrid approach — PTY output for real-time hints, JSONL logs for ground truth correction.
+### Anti-Pattern 2: Blocking the PTY Reader Thread
 
-## Dependency Graph and Build Order
+**What:** Add post-session logic (git operations) inside the PTY reader thread's Exit handler.
 
-Build order follows dependency arrows. Each layer depends only on layers above it.
+**Why wrong:** Git operations are slow on NAS. Blocks event delivery for other terminals.
 
-```
-Layer 1 (Foundation - no new deps on each other):
-  [A] terminal/pty.rs        -- portable-pty wrapper, spawn/resize/kill
-  [B] commands/file_commands  -- read_file, write_file (simple fs ops)
-  [C] CodeEditor.tsx          -- @uiw/react-codemirror wrapper component
+**Instead:** Emit `Exit` event, let frontend trigger commands via `invoke()` on main thread.
 
-Layer 2 (Needs Layer 1):
-  [D] terminal/session.rs     -- Uses [A] for PTY management
-  [E] terminal/commands.rs    -- Uses [D] for Tauri command layer
-  [F] TerminalPanel.tsx       -- xterm.js component + invoke terminal_write
-  [G] JsonEditor.tsx          -- Uses [C] with JSON language mode
-  [H] MarkdownEditor.tsx      -- Uses [C] with Markdown mode + preview
+### Anti-Pattern 3: Toast State in Component-Local useState
 
-Layer 3 (Needs Layer 2):
-  [I] terminal/parser.rs      -- Output parsing, wired into [D]'s read loop
-  [J] TerminalTabs.tsx         -- Uses [F], manages multiple instances
-  [K] terminal-store.ts       -- Uses [E] commands, connects [F] to backend
-  [L] editor-store.ts         -- Uses [B] commands, manages [G]/[H] state
+**What:** Create toast system using local React state in a provider.
 
-Layer 4 (Integration - needs Layer 3):
-  [M] process/launch.rs mod   -- Add embedded path using [D]
-  [N] process/detect.rs mod   -- Merge embedded + external detection
-  [O] SessionView.tsx          -- Combines [J] + [H] in a page layout
-  [P] session-store.ts mod    -- Merge terminal-store data with existing
+**Why wrong:** Other Zustand stores cannot dispatch toasts without importing React components. Couples stores to component tree.
 
-Layer 5 (Polish):
-  [Q] watcher/ claude_logs    -- JSONL log watching for state correction
-  [R] Dashboard integration   -- Session badges, status indicators
-```
+**Instead:** Standalone Zustand store. Any store calls `useToastStore.getState().addToast()`.
 
-### Suggested Phase Structure
+### Anti-Pattern 4: Separate Data Structure for Exited Sessions
 
-**Phase 1: Terminal Foundation** (Layers 1A + 2D + 2E + 2F + 3K)
-- portable-pty integration, basic spawn/write/read
-- xterm.js component rendering terminal output
-- Channel-based streaming working end-to-end
-- Single terminal, no tabs yet
-- *This is the riskiest phase — ConPTY + portable-pty on Windows needs validation*
+**What:** Create separate store for sessions that exited, moving data out of terminal-store.
 
-**Phase 2: Multi-Terminal + State Detection** (Layers 3I + 3J + 4M + 4N)
-- Tab management for multiple terminals
-- Output parsing pipeline
-- Embedded launch path in existing session system
-- Merged session detection (embedded + external)
+**Why wrong:** Tab already has all data (branch, path, project ID, creation time). Duplicates data, two lifecycles to manage.
 
-**Phase 3: Editors** (Layers 1B + 1C + 2G + 2H + 3L)
-- CodeMirror integration
-- CLAUDE.md editor with preview
-- Settings.json editor
-- File read/write commands
+**Instead:** Keep exited sessions as tabs with `sessionState: 'exited'`. Close tab when workflow completes.
 
-**Phase 4: Integration** (Layers 4O + 4P + 5Q + 5R)
-- SessionView page (terminal + editor side-by-side)
-- Dashboard status badges from parsed state
-- JSONL log watching for state correction
-- Full session lifecycle management
+---
 
-## New Dependencies Required
+## Integration Summary
 
-### Rust (Cargo.toml additions)
+### New Files (7)
 
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `portable-pty` | `0.9.0` | PTY management (ConPTY on Windows) |
-| `strip-ansi-escapes` | `0.2` | ANSI escape removal for output parsing |
-| `regex` | `1` | Pattern matching in output parser |
+| File | Layer | Purpose |
+|------|-------|---------|
+| `src-tauri/src/git/queue.rs` | Rust | Merge queue execution with rollback |
+| `src-ui/src/stores/toast-store.ts` | Frontend | Toast notification state |
+| `src-ui/src/stores/merge-queue-store.ts` | Frontend | Queue selection, ordering, progress |
+| `src-ui/src/components/ui/ToastContainer.tsx` | Frontend | Toast rendering and animations |
+| `src-ui/src/components/ui/Toast.tsx` | Frontend | Individual toast component |
+| `src-ui/src/components/session/PostSessionWorkflow.tsx` | Frontend | Post-exit stepped wizard |
+| `src-ui/src/components/MergeQueueDialog.tsx` | Frontend | Queue management UI |
 
-### Frontend (package.json additions)
+### Modified Files (9)
 
-| Package | Purpose |
-|---------|---------|
-| `@xterm/xterm` | Terminal emulator UI (v5.x, scoped package) |
-| `@xterm/addon-fit` | Auto-resize terminal to container |
-| `@xterm/addon-webgl` | GPU-accelerated rendering (optional, for performance) |
-| `@xterm/addon-web-links` | Clickable URLs in terminal output |
-| `@uiw/react-codemirror` | CodeMirror 6 React wrapper |
-| `@codemirror/lang-json` | JSON language support |
-| `@codemirror/lang-markdown` | Markdown language support |
+| File | Layer | Change |
+|------|-------|--------|
+| `src-tauri/src/git/mod.rs` | Rust | Add `pub mod queue;` |
+| `src-tauri/src/commands/git_commands.rs` | Rust | Add queue commands, delete_worktree |
+| `src-tauri/src/commands/session_commands.rs` | Rust | Add delete_worktree |
+| `src-tauri/src/lib.rs` | Rust | Register new commands |
+| `src-ui/src/stores/terminal-store.ts` | Frontend | Add 'exited' state, tab lifecycle |
+| `src-ui/src/stores/merge-store.ts` | Frontend | Fire toasts on merge events |
+| `src-ui/src/components/session/SessionManager.tsx` | Frontend | PostSessionWorkflow, toast wiring |
+| `src-ui/src/components/session/SessionCard.tsx` | Frontend | 'exited' state visual treatment |
+| `src-ui/src/App.tsx` | Frontend | Mount ToastContainer |
 
-### Tauri Capabilities (default.json additions)
+### Removed Files (Phase 4)
 
-No new Tauri plugin permissions needed — PTY operations go through custom commands, file operations through custom commands. The existing `core:default` permission covers invoke().
+| File | Layer | Reason |
+|------|-------|--------|
+| `src-tauri/src/process/detect.rs` | Rust | External session detection dead code |
+| Parts of `src-ui/src/stores/session-store.ts` | Frontend | External launch + polling dead code |
 
-## Scalability Considerations
-
-| Concern | 1-3 Terminals | 5-10 Terminals | 20+ Terminals |
-|---------|--------------|----------------|---------------|
-| Memory | Minimal (~5MB per PTY) | Moderate (~50MB) | Need terminal recycling |
-| Threads | 1 read thread per terminal | Thread pool consideration | Must cap max terminals |
-| Channel throughput | No concern | No concern | Test for Channel contention |
-| xterm.js DOM | Lightweight | May need virtualization | Only render active tab |
-| Output parsing | Inline OK | Dedicated parse thread | Batch parsing, sampling |
-
-**Recommendation:** Cap at 10 simultaneous embedded terminals. This matches the worktree use case (rarely >10 active branches). Offer "detach" to external terminal for overflow.
+---
 
 ## Sources
 
-- [portable-pty crate](https://crates.io/crates/portable-pty) — v0.9.0, Feb 2025
-- [portable-pty docs](https://docs.rs/portable-pty) — MasterPty, Child, PtySize traits
-- [portable-pty-psmux](https://lib.rs/crates/portable-pty-psmux) — Fork with ConPTY flags
-- [tauri-plugin-pty](https://github.com/Tnze/tauri-plugin-pty) — Reference implementation (not recommended for production)
-- [marc2332/tauri-terminal](https://github.com/marc2332/tauri-terminal) — Reference Tauri terminal
-- [Tauri 2 Channels API](https://v2.tauri.app/develop/calling-frontend/) — Official streaming docs
-- [xterm.js](https://xtermjs.org/) — Terminal emulator library
-- [xterm.js addons](https://xtermjs.org/docs/guides/using-addons/) — fit, webgl, web-links
-- [react-xtermjs (Qovery)](https://github.com/Qovery/react-xtermjs) — React wrapper reference
-- [@uiw/react-codemirror](https://uiwjs.github.io/react-codemirror/) — CodeMirror 6 React component
-- [CodeMirror vs Monaco comparison](https://agenthicks.com/research/codemirror-vs-monaco-editor-comparison) — Bundle size analysis
-- [Sourcegraph Monaco to CodeMirror migration](https://sourcegraph.com/blog/migrating-monaco-codemirror) — 43% JS size reduction
-- [Claude Code JSONL log format](https://github.com/daaain/claude-code-log) — Log parsing reference
-- [Claude Code status line](https://code.claude.com/docs/en/statusline) — Output format reference
-- [Terminon](https://github.com/Shabari-K-S/terminon) — Full Tauri v2 terminal emulator reference
-- [Tauri high-rate IPC discussion](https://github.com/tauri-apps/tauri/discussions/7146) — Performance characteristics
+- Direct codebase analysis: `src-tauri/src/terminal/` (mod.rs, state_parser.rs, commands.rs, history.rs, pty.rs)
+- Direct codebase analysis: `src-tauri/src/git/merge.rs` (merge_preview, merge_branch, conflict resolution)
+- Direct codebase analysis: `src-tauri/src/commands/` (git_commands.rs, session_commands.rs)
+- Direct codebase analysis: `src-tauri/src/lib.rs` (managed state, invoke handler, event listeners)
+- Direct codebase analysis: `src-ui/src/stores/` (terminal-store.ts, merge-store.ts, session-store.ts, branch-store.ts)
+- Direct codebase analysis: `src-ui/src/components/session/` (SessionManager.tsx, SessionCard.tsx)
+- Direct codebase analysis: `src-ui/src/lib/alerts.ts` (chime, taskbar flash)
+- Direct codebase analysis: `src-tauri/src/notifications.rs` (OS notification infrastructure)
+
+---
+*Architecture research for: Grove v2.1 Session Lifecycle*
+*Researched: 2026-04-01*

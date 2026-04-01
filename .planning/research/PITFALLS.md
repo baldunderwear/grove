@@ -1,260 +1,297 @@
-# Domain Pitfalls: Embedded Terminals, Output Parsing, and File Editors in Tauri
+# Domain Pitfalls: Merge Automation, Merge Queues, Toast Notifications, Legacy Path Removal
 
-**Domain:** Adding PTY terminals, session state detection, and config editors to existing Tauri 2 desktop app (Windows + NAS)
-**Researched:** 2026-03-27
-**Overall Confidence:** HIGH (most pitfalls verified through multiple sources, existing codebase experience, and documented issues)
+**Domain:** Adding composable merge engine, multi-branch merge queue, toast notifications, and removing external launch path in existing Tauri 2 desktop git tool
+**Researched:** 2026-04-01
+**Overall Confidence:** HIGH (based on codebase analysis of existing merge/session implementations + domain expertise)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, data loss, or broken core functionality.
+Mistakes that cause repository corruption, data loss, or require rewrites.
 
-### Pitfall 1: ConPTY Spawning Flash-of-CMD-Window
+### Pitfall 1: Merge Queue Corrupts Repository State on Mid-Queue Failure
 
-**What goes wrong:** When portable-pty creates a ConPTY on Windows, a visible cmd.exe window briefly flashes on screen before the PTY takes over. This happens in release builds but not dev builds.
-**Why it happens:** portable-pty's ConPTY implementation does not pass `CREATE_NO_WINDOW` by default. The upstream wezterm crate focuses on being a terminal emulator itself, so it wants visible windows.
-**Consequences:** Users see flickering command windows every time a terminal tab opens. Looks broken and unprofessional.
-**Prevention:** Use a patched fork of portable-pty or wrap the process creation with `CREATE_NO_WINDOW` (0x08000000) flag. Grove already uses `CREATE_NEW_CONSOLE` for external launches in `process/launch.rs` -- the embedded PTY path needs the opposite: suppress ALL visible windows. Test in release builds specifically, not just `cargo tauri dev`.
-**Detection:** Only visible in `cargo tauri build` output, not dev mode. Always test release builds on real Windows.
-**Phase:** Must be addressed in the first PTY integration phase. Cannot ship without this.
-**Confidence:** HIGH -- documented in [wezterm issue #6946](https://github.com/wezterm/wezterm/issues/6946) and [Tauri discussion #11446](https://github.com/tauri-apps/tauri/discussions/11446).
+**What goes wrong:**
+When merging branches sequentially (A, B, C into develop), if B fails mid-merge, the repository is left in a partially merged state. Branch A's merge committed successfully with a bumped build number, but B's merge left a dirty index/working directory. The user has a repo where develop contains A's merge but the working tree is in conflict, and C cannot proceed. The current `merge_branch()` function does `repo.set_head()` and `repo.checkout_head(force)` at the start of each merge -- if called for B after A succeeded, it force-checkouts the already-bumped develop, but a conflict during B's in-memory merge leaves the forced checkout without a corresponding commit.
 
-### Pitfall 2: UNC Paths Cannot Be Working Directories for PTY
+**Why it happens:**
+The existing `merge_branch()` in `src-tauri/src/git/merge.rs` was designed for single-branch merge. It mutates HEAD, writes to disk (build bump via `bump_build_number()`, changelog rename), then creates the commit. There is no transaction boundary or savepoint. Extending to a queue without adding rollback points means any failure leaves accumulated side effects from prior successful merges plus partial effects of the failed one.
 
-**What goes wrong:** When a worktree lives on a NAS (Z: mapped to `\\the-batman\mnt`), portable-pty may resolve the drive letter to its UNC path and try to `cd` into it. Windows fundamentally cannot use UNC paths as the current working directory.
-**Why it happens:** Windows cmd.exe rejects `cd \\server\share\path`. If portable-pty or the shell resolves Z: to its UNC origin, the shell initialization fails silently or errors out.
-**Consequences:** Terminals for NAS-hosted worktrees simply don't work. User sees empty/broken terminal. This affects the PRIMARY use case since Grove's developer runs repos from Z: drive.
-**Prevention:**
-1. Always resolve paths to drive letters before passing to PTY. Use `QueryDosDevice` or check if path starts with `\\` and map to known drive letters.
-2. Set the `cwd` on the `CommandBuilder` to the drive-letter version, never the UNC version.
-3. Existing code in v1.1.4 already handles UNC-to-drive-letter resolution -- reuse that same utility for PTY working directories.
-4. Add an explicit startup test: if `cwd` starts with `\\`, reject and resolve before proceeding.
-**Detection:** Will only manifest when testing with NAS-hosted repos. Test with Z: drive paths specifically.
-**Phase:** First PTY phase. Must be solved before any terminal tab can work on NAS repos.
-**Confidence:** HIGH -- known from v1.0/v1.1 experience. Windows docs confirm UNC cannot be cwd.
+**How to avoid:**
+- Record a "snapshot OID" (develop HEAD before the queue starts) before beginning any queue execution
+- Each merge step must verify the expected HEAD OID before proceeding (guard against drift)
+- On failure: offer two recovery paths: (a) rollback entire queue by resetting develop to snapshot OID, or (b) keep successful merges and abort remaining
+- Never call `bump_build_number()` on disk until the in-memory merge tree is fully validated -- the current code bumps on disk between tree write and final commit (line ~224 of merge.rs), which is the danger zone
+- Consider making each queue merge self-contained: verify preconditions independently, checkpoint after each success
 
-### Pitfall 3: Tauri Event System Cannot Handle PTY Throughput
+**Warning signs:**
+- Build number files on disk don't match the committed tree after queue completes
+- `git status` shows modified/untracked files after a "successful" queue run
+- Queue error messages don't include which step failed or what was already committed
 
-**What goes wrong:** Using `app_handle.emit()` to stream PTY output to the frontend causes UI freezing, dropped data, and potential panics when output volume is high (e.g., `git log`, large compilation output, Claude Code verbose output).
-**Why it happens:** Tauri's event system evaluates JavaScript directly and is not designed for high-throughput streaming. Under the hood it's essentially `webview.eval(js)` per event. At hundreds of events per second, the WebView chokes.
-**Consequences:** Terminal becomes unresponsive during high-output operations. UI thread blocks. In extreme cases, events pile up and Tauri panics ([issue #10987](https://github.com/tauri-apps/tauri/issues/10987)).
-**Prevention:** Use Tauri Channels instead of events for PTY data streaming. Channels are specifically designed for ordered, high-throughput data delivery and are what Tauri uses internally for child process output and download progress. Pattern:
-```rust
-// Backend: use tauri::ipc::Channel
-#[tauri::command]
-fn spawn_terminal(on_data: Channel<Vec<u8>>) { ... }
-```
-Additionally, batch PTY reads into chunks (e.g., accumulate for 16ms then flush) rather than emitting every individual read.
-**Detection:** Test with `find / -name "*.rs"` or `cargo build --verbose` -- anything that produces large rapid output.
-**Phase:** Must be the data transport architecture from day one. Retrofitting from events to channels is painful.
-**Confidence:** HIGH -- Tauri docs explicitly warn against events for high-throughput. Channels documented at [v2.tauri.app/develop/calling-frontend](https://v2.tauri.app/develop/calling-frontend/).
-
-### Pitfall 4: xterm.js FitAddon Resize Chaos in WebView2
-
-**What goes wrong:** The xterm.js FitAddon calculates wrong dimensions in Tauri's WebView2, especially during window resize, tab switching, or when the container is initially hidden. Terminal renders at wrong size (often width=1 column) or has phantom scrollbars.
-**Why it happens:** FitAddon measures the terminal container's DOM dimensions. In WebView2, layout calculations can return stale or zero values during transitions. When a terminal tab is hidden (display:none) and then shown, the container has zero dimensions when fit() runs. Browser zoom levels also break calculations.
-**Consequences:** Terminal is unusable after resize or tab switch. Text wraps incorrectly, lines overlap, or terminal collapses to 1 column.
-**Prevention:**
-1. Debounce resize: use `ResizeObserver` on the terminal container, debounce to ~100ms, then call `fitAddon.fit()`.
-2. Never call `fit()` on a hidden container. Use `requestAnimationFrame` or `IntersectionObserver` to detect when the terminal actually becomes visible.
-3. After tab switch, wait one frame (`requestAnimationFrame`) before calling `fit()`.
-4. After fit(), propagate the new dimensions back to the PTY via `pty.resize(cols, rows)` -- forgetting this causes the PTY's line buffer to mismatch xterm's display.
-5. Lock browser zoom to 100% or compensate for devicePixelRatio in fit calculations.
-**Detection:** Resize the window rapidly while terminal has content. Switch between terminal tabs. Start a terminal in a non-active tab.
-**Phase:** Immediately when building the terminal tab UI. This is not a polish issue -- it's core functionality.
-**Confidence:** HIGH -- documented extensively: [xterm.js #4841](https://github.com/xtermjs/xterm.js/issues/4841), [#3584](https://github.com/xtermjs/xterm.js/issues/3584), [#5320](https://github.com/xtermjs/xterm.js/issues/5320).
-
-### Pitfall 5: PTY Cleanup on Tab Close Leaks Zombie Processes
-
-**What goes wrong:** When a terminal tab is closed or the app exits, the PTY child process (and its entire process tree) keeps running. cmd.exe, powershell.exe, claude processes accumulate as zombies.
-**Why it happens:** On Windows, closing a PTY handle does not automatically terminate the child process tree. `Child::kill()` only kills the immediate process, not its children. Claude Code spawns sub-processes (node, git, etc.) that form a process tree.
-**Consequences:** System resources consumed by orphaned processes. User might have multiple hidden Claude sessions burning API credits. Stale processes hold file locks on worktree files, preventing git operations.
-**Prevention:**
-1. Use Windows Job Objects: create a job object, assign the PTY child to it, configure `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`. When the job handle closes, the entire process tree dies.
-2. On tab close: send CTRL_C_EVENT first, wait 2-3 seconds, then force-kill via job object.
-3. On app exit: iterate all open PTYs and clean up. Register a `drop` handler or use Tauri's `on_exit` hook.
-4. Track PIDs in the Rust state so the detect module can reconcile "expected" vs "actual" running processes.
-**Detection:** Open 3 terminal tabs, close them, check Task Manager for orphaned cmd.exe/powershell/node processes.
-**Phase:** Must be part of the initial PTY implementation, not added later. Process leak is invisible until it causes problems.
-**Confidence:** HIGH -- standard Windows process management knowledge. Job objects are the canonical solution.
+**Phase to address:**
+Phase 1 (Composable Merge Engine) -- the engine must be transactional before the queue can use it.
 
 ---
 
-## Moderate Pitfalls
+### Pitfall 2: Build Number Race Condition in Multi-Branch Queue
 
-Cause significant bugs or poor UX but won't require full rewrites.
+**What goes wrong:**
+The current `detect_current_build()` reads build numbers from disk at merge time. In a queue of 3 branches, each merge bumps N -> N+1. But `detect_current_build()` reads from the filesystem, and the previous merge's on-disk bump may not be correctly reflected if the intermediate commit hasn't been fully checked out. Result: merge A bumps 42->43, merge B calls `detect_current_build()` and reads the disk file showing 43, bumps to 44 -- but merge C's detect call reads from the git tree (not disk) and sees 42, producing build 43 again. Two merges now share the same build number.
 
-### Pitfall 6: ANSI Escape Sequence Contamination from Claude Code
+**Why it happens:**
+`detect_current_build()` in `build.rs` uses `glob::glob` on the filesystem, not the git tree. `bump_build_number()` writes to filesystem. But `merge_branch()` then reads those disk files back into a git index via `final_index.add_frombuffer()`. The git tree and filesystem are two different states. Without a full `checkout_head()` between sequential merges, they can diverge.
 
-**What goes wrong:** Claude Code output includes ANSI escape sequences that leak into parsed content. When trying to detect session state by parsing terminal output (e.g., looking for prompts, error messages, status indicators), raw ANSI codes corrupt the pattern matching.
-**Why it happens:** Claude Code uses colored output, cursor control sequences, and status line updates. PowerLevel10k and other shell themes inject additional sequences. These get mixed into the raw PTY byte stream that Grove needs to parse for state detection.
-**Consequences:** Session state detection fails or misidentifies states. Status shows "working" when actually "idle". ANSI codes appear as garbage in any text extraction (e.g., if showing last command output in dashboard).
-**Prevention:**
-1. Strip ANSI sequences with a regex before state parsing: `/\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07|\x1b\(B/g`
-2. But do NOT strip before sending to xterm.js -- xterm.js needs the raw sequences for rendering.
-3. Fork the data stream: raw bytes go to xterm.js, stripped text goes to the state detection parser.
-4. Use Claude Code's `--output-format stream-json` if available, which provides structured output without ANSI contamination.
-5. Be aware that Claude Code can inject ANSI into commit messages and PR descriptions ([issue #32632](https://github.com/anthropics/claude-code/issues/32632)) -- any text extraction needs sanitization.
-**Detection:** Run Claude Code with PowerLevel10k or Oh My Posh enabled. Check if state detection still works.
-**Phase:** Session state detection phase. Design the dual-stream architecture from the start.
-**Confidence:** MEDIUM-HIGH -- [Claude Code issue #5428](https://github.com/anthropics/claude-code/issues/5428) documents ANSI contamination. Stripping approach is standard but edge cases exist.
+**How to avoid:**
+- Pass the "current build" into the queue orchestrator; increment it in-memory between queue steps rather than re-detecting from disk each time
+- After each successful merge commit, do a full `checkout_head()` before the next merge to synchronize disk and git tree
+- Add a post-queue assertion: final build number on disk == initial build + number of merges in queue
+- Consider reading build numbers from the git tree (via `repo.find_commit().tree()`) rather than from disk
 
-### Pitfall 7: CodeMirror 6 State vs React State Dual-Ownership
+**Warning signs:**
+- Build numbers in committed files don't increase monotonically across sequential merges
+- `detect_current_build()` returns different values depending on whether you read from the working tree or the HEAD commit's tree
 
-**What goes wrong:** Both CodeMirror and React try to own the document state. Updates from one get overwritten by the other, causing cursor jumps, lost edits, or infinite update loops.
-**Why it happens:** CodeMirror 6 has its own state management (EditorState/EditorView with transactions). React has its own state (useState/Zustand). If you naively set CodeMirror's value from React state on every render, it replaces the entire document, resetting cursor position and undo history.
-**Consequences:** Typing in the editor causes cursor to jump to end. Undo doesn't work. In worst case, edits are silently lost.
-**Prevention:**
-1. Use `@uiw/react-codemirror` wrapper which handles the bidirectional state correctly.
-2. If building custom: React should NOT control CodeMirror's content. React provides initial value only. CodeMirror owns the document. Use CodeMirror's `updateListener` extension to sync changes OUT to React/Zustand for save operations.
-3. For file save: read from CodeMirror's state (`view.state.doc.toString()`), don't rely on React state being in sync.
-4. Never set `value` prop on re-render unless loading a completely new file.
-**Detection:** Type in editor, check if cursor stays in place. Type, undo, check if undo works. Open file, edit, switch to another file, switch back, check if edits persisted.
-**Phase:** CLAUDE.md editor phase. Architectural decision at the start of that phase.
-**Confidence:** HIGH -- well-documented React+CodeMirror integration challenge. [Trevor Harmon's blog](https://thetrevorharmon.com/blog/advanced-state-management-with-react-and-codemirror/) is the canonical reference.
-
-### Pitfall 8: ConPTY Missing Flags Break Terminal Behavior
-
-**What goes wrong:** Clear screen doesn't work. Backspace shows `^H` instead of deleting. Arrow keys produce garbage. Colors don't render. Terminal feels broken even though PTY "works."
-**Why it happens:** portable-pty's default ConPTY creation doesn't set `PSEUDOCONSOLE_RESIZE_QUIRK` or configure the TERM environment variable. Release builds may not inherit the development environment's terminal settings.
-**Consequences:** Terminal appears fundamentally broken to users even though data flows correctly.
-**Prevention:**
-1. Set `TERM=xterm-256color` in the PTY's environment variables explicitly.
-2. Use the patched portable-pty that passes ConPTY flags: `PSEUDOCONSOLE_RESIZE_QUIRK` (0x2), `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4).
-3. On Windows 11 22H2+, also pass `PSEUDOCONSOLE_PASSTHROUGH_MODE` (0x8) for proper cursor rendering.
-4. Set `COLORTERM=truecolor` for full color support.
-5. Test in release builds -- dev builds may inherit working terminal settings from the developer's shell.
-**Detection:** Run `clear`, press backspace, use arrow keys, run `ls --color=auto` in the embedded terminal.
-**Phase:** First PTY phase, during ConPTY setup.
-**Confidence:** HIGH -- [portable-pty-psmux](https://lib.rs/crates/portable-pty-psmux) documents the exact flags needed.
-
-### Pitfall 9: NAS Latency Makes File Watchers Fire Excessively or Not At All
-
-**What goes wrong:** File system watchers on NAS-mounted drives either miss changes entirely (because SMB doesn't relay all change notifications) or fire hundreds of duplicate events (because SMB batches and replays notifications).
-**Why it happens:** SMB is a "chatty protocol" where directory change notifications are unreliable across the network. The `notify` crate uses `ReadDirectoryChangesW` on Windows, which works well locally but degrades on SMB mounts. Rename operations often fire as separate delete+create pairs.
-**Consequences:** CLAUDE.md editor shows stale content after external edit. Or the editor reloads frantically on every save due to duplicate notifications. File watcher CPU usage spikes on NAS paths.
-**Prevention:**
-1. Debounce aggressively for NAS paths (500ms+ vs 100ms for local). Detect NAS paths by checking if the path resolves to a UNC share.
-2. For the CLAUDE.md editor: poll on focus/tab-switch rather than relying solely on file watchers. Compare file mtime + content hash before reloading.
-3. Use `notify-debouncer-mini` (already in Cargo.toml) with increased timeout for NAS paths.
-4. When saving from the editor, temporarily suppress the watcher for that file to avoid the save triggering a reload.
-**Detection:** Edit CLAUDE.md externally while Grove's editor is open. Save from Grove's editor and check for double-reload. Test with NAS paths specifically.
-**Phase:** Relevant for editor phases. Grove already has `notify` in use -- extend the existing debounce strategy.
-**Confidence:** HIGH -- known from v1.0/v1.1 NAS experience. SMB notification unreliability is well-documented.
-
-### Pitfall 10: Blocking PTY Reads Starve the Tokio Runtime
-
-**What goes wrong:** `portable-pty`'s `MasterPty::read()` is a blocking system call. If run on a tokio async task, it blocks one of the runtime's worker threads. With multiple terminals, the entire async runtime can be starved.
-**Why it happens:** ConPTY reads use `ReadFile` on a pipe handle, which is a blocking Win32 call. portable-pty doesn't provide async readers. Naively wrapping in `tokio::spawn` puts blocking work on the async executor.
-**Consequences:** Other async operations (git commands, file watching, IPC) stall while PTY reads block worker threads. App becomes unresponsive when multiple terminals are open.
-**Prevention:**
-1. Use `tokio::task::spawn_blocking` for PTY reads, not `tokio::spawn`.
-2. Or better: dedicate a `std::thread` per terminal for the read loop, communicating via `tokio::sync::mpsc` channels back to the async world.
-3. Size the thread pool appropriately. With N terminal tabs, expect N blocking reader threads.
-4. Consider a limit on simultaneous terminal tabs (e.g., 8) to cap resource usage.
-**Detection:** Open 4+ terminals, run long-running commands in all of them, check if the UI (git status updates, file watcher) remains responsive.
-**Phase:** First PTY phase. Architecture decision that's hard to change later.
-**Confidence:** HIGH -- discussed in [wezterm discussion #3739](https://github.com/wezterm/wezterm/discussions/3739). Standard Rust async pitfall.
+**Phase to address:**
+Phase 2 (Multi-Branch Merge Queue) -- the queue orchestrator must own build number sequencing.
 
 ---
 
-## Minor Pitfalls
+### Pitfall 3: Removing External Launch Path Leaves Orphaned Session Tracking
 
-Cause small bugs or annoyances. Easy to fix but worth knowing upfront.
+**What goes wrong:**
+The external launch path (`launch_claude_session` in `process/launch.rs`) returns PIDs tracked in `session-store.ts` via `activeSessions: Record<string, number>`. The embedded terminal path uses `terminal-store.ts` with terminal IDs. When you remove the external launch function, the session store still exists with its polling (`get_active_sessions`), its PID-based tracking, and its `launchSession()` action. Any component still importing from `session-store.ts` will either silently do nothing or error. The Rust-side `get_active_sessions` command wastes cycles scanning for processes. The `launch_session` command remains registered in `main.rs`.
 
-### Pitfall 11: xterm.js WebGL Renderer Crashes on Some Integrated GPUs
+**Why it happens:**
+Two parallel tracking systems were built across milestones: `session-store.ts` (PID-based, for external terminals) and `terminal-store.ts` (terminal-ID-based, for embedded PTY). They were never unified because both paths coexisted. Removing one launch path without removing its entire tracking subsystem leaves zombie infrastructure.
 
-**What goes wrong:** The WebGL2 renderer addon for xterm.js, which improves rendering performance, crashes or produces garbled output on Intel integrated GPUs (common in laptops).
-**Why it happens:** WebGL2 in WebView2 has driver-specific quirks. Some Intel UHD drivers have bugs with the texture atlas xterm.js uses.
-**Prevention:** Use the Canvas renderer by default. Only enable WebGL renderer as an opt-in setting. Catch WebGL context creation failures and fall back gracefully.
-**Phase:** Terminal UI polish phase, not initial implementation.
+**How to avoid:**
+- Audit every consumer of `useSessionStore` and `session-store.ts` before removing the launch function
+- Remove or repurpose `session-store.ts` entirely -- do not leave it as dead code
+- Remove Rust-side commands: `launch_session`, `get_active_sessions` from the command handler registration in `main.rs`
+- Remove `process/launch.rs` and the `launch_claude_session` / `launch_claude_via_cmd` functions
+- Grep for all Tauri invoke calls referencing removed commands
+- Consider whether `openInVscode` and `openInExplorer` (currently in session-store) should move to a utility store
 
-### Pitfall 12: Large CLAUDE.md Files Cause Editor Jank
+**Warning signs:**
+- Imports from `session-store.ts` still exist in the codebase after migration
+- The `launch_session` Tauri command is still registered in `main.rs`
+- `get_active_sessions` polling still runs on an interval somewhere
+- `useSessionStore` appears in any component
 
-**What goes wrong:** CLAUDE.md files with extensive instructions (500+ lines) cause the CodeMirror editor to lag on initial load and when scrolling, especially with markdown syntax highlighting and live preview.
-**Prevention:** Use CodeMirror's viewport-based rendering (it does this by default). Disable live preview for files over a threshold (e.g., 200 lines). Load editor content asynchronously, show a loading skeleton first. Consider lazy-loading the CodeMirror bundle itself since it adds ~300KB.
-
-### Pitfall 13: Shell Profile Scripts Break PTY Initialization
-
-**What goes wrong:** The user's PowerShell profile (`$PROFILE`) or `.bashrc` outputs text, changes the prompt format, or sets environment variables that conflict with Grove's assumptions about terminal state.
-**Prevention:** Option to launch with `-NoProfile` (PowerShell) or `--norc` (bash). Or: always detect the initial prompt after profile execution completes before marking the terminal as "ready." Provide a "clean shell" option in settings.
-
-### Pitfall 14: Copy/Paste in xterm.js Requires Explicit Setup
-
-**What goes wrong:** Ctrl+C doesn't copy (it sends SIGINT). Ctrl+V doesn't paste. Right-click context menu doesn't appear. Users expect standard Windows clipboard behavior.
-**Prevention:** xterm.js needs explicit clipboard handling. Bind Ctrl+Shift+C for copy, Ctrl+Shift+V for paste (matching Windows Terminal convention). Or use selection-based auto-copy. Configure `rightClickSelectsWord` option. Integrate with Tauri's clipboard APIs for cross-platform correctness.
-
-### Pitfall 15: Terminal Tab State Lost on Window Hide/Show
-
-**What goes wrong:** When Grove minimizes to system tray and restores, terminal tabs lose their scrollback, cursor position, or connection to the PTY.
-**Why it happens:** WebView2 may discard DOM state for hidden windows to save memory. xterm.js's internal buffer survives, but the rendered view doesn't reconnect properly.
-**Prevention:** Keep the WebView alive when minimized (don't destroy the window, just hide it). On show, call `terminal.refresh(0, terminal.rows - 1)` to force a full redraw. Never dispose xterm.js instances on minimize.
+**Phase to address:**
+Phase 4 (Kill External Launch Path) -- but the audit must happen at the START of the phase, not after removal.
 
 ---
 
-## Phase-Specific Warnings
+### Pitfall 4: Composable Merge Steps Called Out of Order
 
-| Phase Topic | Likely Pitfall | Severity | Mitigation |
-|-------------|---------------|----------|------------|
-| PTY Integration | ConPTY window flash (#1) | Critical | Patch portable-pty or use fork with CREATE_NO_WINDOW |
-| PTY Integration | UNC path as cwd (#2) | Critical | Reuse existing drive-letter resolution from v1.1 |
-| PTY Integration | Blocking reads (#10) | Critical | Dedicated threads per terminal, not async tasks |
-| PTY Data Transport | Event system throughput (#3) | Critical | Use Tauri Channels from day one, not events |
-| Terminal UI | FitAddon resize (#4) | Critical | ResizeObserver + debounce + visibility check |
-| Terminal UI | Copy/paste (#14) | Minor | Configure keybindings during terminal component setup |
-| Terminal Lifecycle | Zombie processes (#5) | Critical | Windows Job Objects for process tree cleanup |
-| Session State Detection | ANSI contamination (#6) | Moderate | Dual-stream: raw to xterm.js, stripped to parser |
-| CLAUDE.md Editor | CodeMirror state ownership (#7) | Moderate | Use react-codemirror wrapper, CodeMirror owns doc |
-| CLAUDE.md Editor | NAS file watching (#9) | Moderate | Poll on focus, debounce 500ms+, suppress on save |
-| Skills/Settings Editor | Large file jank (#12) | Minor | Viewport rendering, async load, lazy bundle |
-| Multi-Terminal | Runtime starvation (#10) | Critical | Cap terminal count, dedicated reader threads |
-| System Tray Lifecycle | Tab state on hide/show (#15) | Minor | Keep WebView alive, force refresh on restore |
+**What goes wrong:**
+A composable merge engine (diff summary -> commit -> merge -> build bump -> changelog rename -> cleanup) allows steps to be skipped for projects that don't use build numbers or changelogs. But the current `merge_branch()` has implicit ordering dependencies: build bump must happen after the merge tree is written, changelog rename needs the new build number, cleanup (branch deletion) must happen after the merge commit succeeds. If steps are decomposed into independently callable functions, a bug or API misuse reorders "cleanup" before "commit" and deletes the worktree branch before the merge is committed.
+
+**Why it happens:**
+"Composable" is interpreted as "independently callable" when the steps actually have hard sequential dependencies. The current monolithic `merge_branch()` function encodes the order implicitly through its control flow. Decomposition must explicitly encode what was implicit.
+
+**How to avoid:**
+- Model the pipeline as a state machine, not a list of functions. Each step knows its prerequisites and validates them
+- Steps should be composable in terms of *inclusion* (skip build bump if no build files configured) but not *ordering* -- the order is fixed by the domain
+- Each step returns a context object that the next step requires. If step N's output is missing, step N+1 refuses to run
+- The "composable" part is: which steps are included in the pipeline, not how they are ordered
+- Use a builder pattern: `MergePipeline::new().with_build_bump().with_changelog().execute()`
+
+**Warning signs:**
+- Step functions accept raw parameters instead of a pipeline context object
+- No validation at the start of each step that prerequisites have been met
+- Steps can be called directly from outside the pipeline controller
+
+**Phase to address:**
+Phase 1 (Composable Merge Engine) -- design the step protocol before implementing individual steps.
+
+---
+
+### Pitfall 5: Merge Engine Operates on Wrong Working Directory
+
+**What goes wrong:**
+The current merge code opens the repository via `Repository::open(project_path)` and then calls `repo.checkout_head(force)` which modifies the main repo's working directory. If a user has the main repo open in VS Code or has an active Claude Code session on the main repo, force-checkout silently overwrites their files. Furthermore, `bump_build_number()` reads/writes files relative to `project_path`, but if the repo path is the main worktree, build bump files get modified while the user's editor has them open.
+
+**Why it happens:**
+libgit2's `Repository::open()` on the main repo path gives you the main repo's working directory. The merge code does `repo.set_head()` + `repo.checkout_head(force)` which changes the HEAD ref and then force-checkouts the working directory to match. This was designed for a workflow where the user isn't actively using the main repo directory. But with embedded terminals, a user may have a session running in the main repo while merging branches from worktrees.
+
+**How to avoid:**
+- Before force-checkout, check if any terminal tab has the same working directory open. If so, warn the user
+- Consider doing merges entirely in-memory (the current code already uses `merge_commits()` for in-memory merge). Extend this to build the final tree without touching the working directory, then write only the commit. Defer `checkout_head()` to an explicit user action
+- Add a pre-merge check: "Is this working directory clean? Is any process using it?"
+- The file watcher (`src-tauri/src/watcher/`) will detect the force-checkout changes and trigger UI refresh -- make sure this doesn't cause a cascade of events during merge
+
+**Warning signs:**
+- VS Code shows "file changed on disk" warnings during merge
+- Terminal tabs connected to the main repo show unexpected file changes
+- File watcher fires rapidly during merge operations
+
+**Phase to address:**
+Phase 1 (Composable Merge Engine) -- the engine must decide upfront whether merges touch the working directory.
+
+---
+
+### Pitfall 6: Post-Session Workflow Triggers on False "Session Ended" Signal
+
+**What goes wrong:**
+The session state detection (`session-state-changed` event) transitions sessions to states like "idle" or disconnected. If the post-session workflow (diff summary -> commit -> merge) triggers automatically on session end, it will fire on false signals: PTY process crash, terminal disconnect on NAS network blip, user pressing Ctrl+C to cancel a Claude operation (which may exit the process), or Claude Code finishing one task but the user wanting to continue in the same session.
+
+**Why it happens:**
+PTY exit codes are unreliable on Windows -- especially via `wt.exe` where the PID is the wrapper, not Claude. The `isConnected: false` state in terminal-store doesn't distinguish "user finished" from "process crashed." The current `setTabConnected(terminalId, false)` on `Exit` event (line 97 of SessionManager.tsx) treats all exits the same.
+
+**How to avoid:**
+- Post-session workflow must NEVER auto-trigger. Always require explicit user action
+- Offer it as a prominent call-to-action in the SessionCard when session enters terminal state (exit code 0, idle for >30s)
+- If process exits with non-zero code, show a different prompt ("Session crashed -- review changes?")
+- The composable engine should have preview/dry-run as its first step so the user sees what will happen before execution
+- Consider a "session complete" button in the focus-mode bottom bar
+
+**Warning signs:**
+- Merge workflow starts while Claude Code is still running or just restarted
+- Post-session workflow triggers on PTY reconnection failures
+- Users report branches being merged with half-finished work
+
+**Phase to address:**
+Phase 1 (Composable Merge Engine) -- the trigger mechanism is as important as the engine itself.
+
+---
+
+### Pitfall 7: Toast Notification Stack Overflow During Batch Merge
+
+**What goes wrong:**
+A multi-branch merge queue processing 5 branches emits status toasts: "Merging A...", "A merged", "Build bumped to 44", "Merging B...", "B merged", "Build bumped to 45"... That is 15+ toasts in rapid succession. They stack, overflow the viewport, obscure the merge progress UI, and auto-dismiss timers create a waterfall of appearing/disappearing elements. Actionable toasts ("Merge failed -- Retry?") get pushed off-screen by informational ones.
+
+**Why it happens:**
+Toast systems are designed for occasional notifications. Batch operations produce bursts. Without rate limiting or toast deduplication, every event produces a toast.
+
+**How to avoid:**
+- Implement toast priority levels: `critical` (persists until dismissed, has action buttons), `info` (auto-dismiss 3-5s), `progress` (replaces previous progress toast for same operation ID)
+- For batch operations, use a single "progress" toast that updates in-place: "Merging 2/5: branch-b" rather than individual toasts per step
+- Set a max visible toast count (3-4). Excess toasts queue and appear as previous ones dismiss
+- Critical toasts always take priority over info toasts and cannot be pushed off-screen
+- Auto-dismiss duration varies by type: 3s for success, never for errors requiring action
+
+**Warning signs:**
+- More than 4 toasts visible simultaneously during testing
+- Actionable toasts scroll off-screen or auto-dismiss before user can interact
+- Toast stack height exceeds viewport
+
+**Phase to address:**
+Phase 3 (Toast Notifications) -- design must account for Phase 2's batch operations.
+
+---
+
+## Technical Debt Patterns
+
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Single merge-store for both single merge and queue | Reuse existing store | Queue state (current index, rollback points, partial results) doesn't fit the single-merge step model; store becomes conditional spaghetti | Never -- create a dedicated queue store |
+| Toasts as simple `string[]` in state | Quick to implement | No priority, no deduplication, no update-in-place, no action callbacks; must rewrite when batch operations arrive | Never -- design for batch from day one |
+| Keeping `session-store.ts` alongside `terminal-store.ts` | Avoids migration risk | Two competing sources of truth for "what sessions are running"; bugs where one store says active and other says inactive | Never -- remove during kill-external-path phase |
+| Force-checkout in merge to sync working directory | Ensures disk matches commit | Destroys uncommitted work in target directory; dangerous when other processes use the same directory | Only when engine has verified no other process is using the working directory |
+| Inline toast component per-page instead of global provider | Fewer abstractions | Toasts only show on the page that created them; navigating away loses notifications | Never -- toasts must be app-global from the start |
+| Hardcoding merge step order instead of state machine | Faster initial implementation | Adding/removing steps requires modifying control flow throughout; no clean way to skip steps conditionally | Acceptable for MVP if step inclusion is the only variation (not ordering) |
+
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| libgit2 `merge_commits()` vs working directory | Assuming in-memory merge updates the working directory (it does not) | Use `merge_commits()` for validation and tree building, then explicitly handle working directory via `checkout_tree()` or manual writes |
+| libgit2 worktree handles | Opening main repo path and assuming it covers all worktree branches | Verify the opened repo's workdir matches expectations; use `repo.workdir()` to confirm |
+| `bump_build_number()` disk writes | Bumping on disk then reading back into git index creates a window where disk and index diverge | Build the new content in memory, write to both disk and index atomically, or defer disk writes until after commit |
+| Tauri event system for toasts | Emitting toast events from Rust with `window.emit()` | Use `app.emit()` (app-wide) not `window.emit()` (window-specific); use Zustand store as the toast state container, events just trigger store updates |
+| Zustand `Map<>` reactivity | Using `Map` in state and expecting React to re-render on `.set()` | Must create `new Map(...)` on every mutation (terminal-store does this correctly -- maintain the pattern in any new stores) |
+| File watcher during merge operations | Merge modifies files on disk, watcher fires, triggers branch refresh during merge | Pause watcher or add a "merge in progress" flag that suppresses watcher-triggered refreshes |
+
+## Performance Traps
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Merge preview for queue of N branches | N sequential `merge_preview()` calls, each opening the repo and walking commits | Batch preview: open repo once, run all previews in a single Rust command returning `Vec<MergePreview>` | Queue of 5+ branches |
+| Toast animation rerenders | Toast stack causes layout thrashing on add/remove | Use CSS animations for enter/exit, `position: fixed` to avoid layout recalculation, `key` props for stable DOM | 5+ toasts animating simultaneously |
+| File watcher cascade during merge | Each file write during merge triggers watcher, triggers branch refresh, triggers re-render | Add merge-in-progress guard that defers watcher events until merge completes | Any merge with build bump + changelog rename |
+| Re-creating Map on every terminal store mutation | Lag with many open sessions; each mutation copies entire Map | Profile before optimizing; consider `Record<string, TerminalTab>` if Map copy becomes measurable | 15+ concurrent sessions |
+
+## UX Pitfalls
+
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| Toast for every merge step in a queue | Information overload; cannot distinguish important from routine | Single progress toast for the queue; individual toasts only for errors or final completion |
+| Auto-dismissing error toasts | User misses the error, doesn't know why merge queue stopped | Error toasts persist until explicitly dismissed; include "Retry" or "View Details" action button |
+| Merge queue with no progress indicator beyond toasts | User doesn't know if queue is running, stuck, or finished | Show "Merging 2 of 5: branch-name" with progress bar in the merge UI, not just toasts |
+| Post-session "merge now" with no preview | User accidentally merges unfinished work | Always show diff summary first; merge button only appears after preview |
+| Removing external launch with no migration UX | Users who relied on external terminals wonder where the option went | One-time informational toast on first launch after upgrade; ensure embedded terminal handles all previous flags |
+| Branch picker for merge queue doesn't show conflict status | User selects branches that have conflicts, queue fails immediately | Show conflict/clean indicator in multi-select list before queue starts |
+| Merge queue rollback with no explanation | After rollback, user doesn't know what happened or why | Show a detailed summary: "Merged: A, B. Failed: C (reason). Rolled back: A, B. Develop restored to build 42." |
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Merge Queue:** Often missing rollback-on-failure -- verify that a mid-queue failure leaves the repo in a known-good state
+- [ ] **Merge Queue:** Often missing queue-level progress -- verify user can see which branch is being merged, how many remain, and estimated completion
+- [ ] **Toast System:** Often missing keyboard accessibility -- verify toasts can be dismissed with Escape, action buttons are focusable
+- [ ] **Toast System:** Often missing stale closure bug -- verify that "Retry" buttons on error toasts still work after minutes (closures may reference stale Zustand state)
+- [ ] **Composable Engine:** Often missing error context -- verify that when step 3 of 5 fails, the error includes which step failed, what succeeded, and what was skipped
+- [ ] **External Path Removal:** Often missing command cleanup -- verify removed Tauri commands are also removed from the handler registration in `main.rs`
+- [ ] **External Path Removal:** Often missing import cleanup -- verify no component still imports from `session-store.ts`
+- [ ] **Build Bump in Queue:** Often missing post-queue verification -- verify final build number equals (initial + merge count) after full queue run
+- [ ] **Merge Preview for Queue:** Often missing aggregate view -- verify user can see total commits, total conflicts, and build number range for entire queue
+
+## Recovery Strategies
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Mid-queue repository corruption | MEDIUM | Reset develop to pre-queue snapshot OID (must be recorded before queue starts); re-run queue from scratch |
+| Build number desync across merges | LOW | Run `detect_current_build()`, compare against `git log` for last build commit, manually set correct number; add a "repair build number" utility command |
+| Toast stack overflow blocking UI | LOW | Clear all toasts programmatically; add rate limiting; redeploy |
+| Orphaned session store references | LOW | Remove dead imports; delete `session-store.ts`; grep for `useSessionStore` and replace all references |
+| Wrong working directory modified during merge | HIGH | `git checkout -- .` to restore working directory; verify no data loss in active worktrees; may need `git stash` recovery for unsaved work |
+| Post-session workflow on incomplete work | MEDIUM | `git revert` the merge commit on develop; re-checkout the source branch; user must verify their work is intact in the worktree |
+| Composable step called out of order | LOW-HIGH | Depends on which step: cleanup before commit = branch deleted with unmerged work (HIGH); build bump before merge = wrong number (LOW, just re-bump) |
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Mid-queue repo corruption (#1) | Phase 1 (Merge Engine) | Simulate failure at each pipeline step; verify repo state is recoverable via snapshot OID |
+| Build number race condition (#2) | Phase 2 (Merge Queue) | Run 5-branch queue; verify build numbers are sequential with no gaps or duplicates |
+| Orphaned session tracking (#3) | Phase 4 (Kill External Path) | Grep for `session-store`, `launch_session`, `get_active_sessions`; zero results expected |
+| Composable step ordering (#4) | Phase 1 (Merge Engine) | Attempt to call steps out of order; verify they refuse with clear error messages |
+| Wrong working directory (#5) | Phase 1 (Merge Engine) | Run merge while another terminal has main repo open; verify no file disruption |
+| Premature post-session trigger (#6) | Phase 1 (Merge Engine) | Kill a PTY mid-session; verify merge workflow does NOT auto-start; verify explicit action required |
+| Toast stack overflow (#7) | Phase 3 (Toast System) | Trigger 20 rapid-fire toasts; verify max 4 visible, priority ordering maintained, errors persist |
 
 ---
 
 ## Architecture Decisions Forced by Pitfalls
 
-These pitfalls collectively demand specific architectural choices:
+These pitfalls collectively demand specific architectural choices for v2.1:
 
-1. **Data transport: Tauri Channels, not events.** Pitfall #3 makes this non-negotiable for PTY data.
-2. **One OS thread per terminal for PTY reads.** Pitfall #10 rules out pure async.
-3. **Process tree management via Job Objects.** Pitfall #5 requires this Windows-specific mechanism.
-4. **Path resolution layer before all PTY operations.** Pitfall #2 requires UNC-to-drive-letter conversion.
-5. **Dual data stream from PTY.** Pitfall #6 requires raw bytes for rendering and stripped text for state detection.
-6. **CodeMirror owns editor state, React observes.** Pitfall #7 dictates the state architecture.
+1. **Merge engine as state machine, not function list.** Pitfalls #1 and #4 require each step to validate preconditions and produce a context for the next step. A pipeline pattern with explicit state transitions is the only safe approach.
+
+2. **Queue orchestrator owns build number sequence.** Pitfall #2 means `detect_current_build()` should be called once before the queue starts, then incremented in-memory per merge. Do not re-detect from disk between merges.
+
+3. **Snapshot OID recorded before queue execution.** Pitfall #1 requires a rollback target. The queue orchestrator must record `develop`'s HEAD OID before step 1 and expose it for recovery.
+
+4. **Toast system designed for batch operations from day one.** Pitfall #7 means the toast store needs priority levels, max-visible limits, and update-in-place for progress toasts. Cannot be bolted on after single-event toasts are shipped.
+
+5. **Post-session workflow is always user-initiated, never automatic.** Pitfall #6 makes auto-trigger unsafe. The engine provides the workflow; the UI provides the trigger button after session completion is confirmed.
+
+6. **Full audit before external path removal.** Pitfall #3 requires a systematic grep-based audit of all `session-store.ts` consumers, all `launch_session` invoke calls, and all Rust command registrations before any code is deleted.
 
 ---
 
 ## Sources
 
-### Official Documentation and Repos
-- [Tauri v2: Calling the Frontend from Rust (Channels)](https://v2.tauri.app/develop/calling-frontend/)
-- [Tauri v2: Embedding External Binaries](https://v2.tauri.app/develop/sidecar/)
-- [xterm.js GitHub](https://github.com/xtermjs/xterm.js/)
-- [xterm.js Parser Hooks and Terminal Sequences](https://xtermjs.org/docs/guides/hooks/)
-- [portable-pty docs](https://docs.rs/portable-pty/latest/x86_64-pc-windows-msvc/portable_pty/)
-- [tauri-plugin-pty](https://github.com/Tnze/tauri-plugin-pty)
-- [react-codemirror](https://github.com/uiwjs/react-codemirror)
-
-### Issue Trackers (verified pitfalls)
-- [wezterm #6946: portable_pty cmd window with Tauri](https://github.com/wezterm/wezterm/issues/6946)
-- [Tauri #10987: Emitting events causes panic](https://github.com/tauri-apps/tauri/issues/10987)
-- [Tauri #3021: Consecutive events hang frontend](https://github.com/tauri-apps/tauri/issues/3021)
-- [Tauri #11446: Terminal window flash in production](https://github.com/tauri-apps/tauri/discussions/11446)
-- [Tauri #14182: WebSocket connection closing](https://github.com/tauri-apps/tauri/issues/14182)
-- [xterm.js #4841: FitAddon resizes incorrectly](https://github.com/xtermjs/xterm.js/issues/4841)
-- [xterm.js #3584: Fit addon erratic resize](https://github.com/xtermjs/xterm.js/issues/3584)
-- [xterm.js #5320: Fit addon width=1](https://github.com/xtermjs/xterm.js/issues/5320)
-- [xterm.js #907: ANSI color codes not rendering](https://github.com/xtermjs/xterm.js/issues/907)
-- [xterm.js #4834: Nerd Font icons cause UTF-8 rendering issues](https://github.com/xtermjs/xterm.js/issues/4834)
-- [Claude Code #5428: ANSI escape sequence contamination](https://github.com/anthropics/claude-code/issues/5428)
-- [Claude Code #32632: ANSI in commit messages](https://github.com/anthropics/claude-code/issues/32632)
-- [wezterm #3739: portable-pty multi-terminal reader](https://github.com/wezterm/wezterm/discussions/3739)
-
-### Community and Blog Posts
-- [Advanced CodeMirror + React State Management (Trevor Harmon)](https://thetrevorharmon.com/blog/advanced-state-management-with-react-and-codemirror/)
-- [Sourcegraph: Migrating Monaco to CodeMirror](https://sourcegraph.com/blog/migrating-monaco-codemirror)
-- [Claude Code Status Line Customization](https://code.claude.com/docs/en/statusline)
-- [Oh My Posh + Claude Code Integration](https://ohmyposh.dev/blog/oh-my-posh-claude-code-integration)
-- [Windows ConPTY Introduction (Microsoft)](https://devblogs.microsoft.com/commandline/windows-command-line-introducing-the-windows-pseudo-console-conpty/)
+- Codebase analysis: `src-tauri/src/git/merge.rs` -- current merge with force-checkout at line 187, disk build bump at line 224, no transaction boundary
+- Codebase analysis: `src-tauri/src/git/build.rs` -- filesystem-based build number detection via glob, disk writes before git index update
+- Codebase analysis: `src-ui/src/stores/terminal-store.ts` -- terminal-ID tracking, Map-based state with manual `new Map()` for reactivity
+- Codebase analysis: `src-ui/src/stores/session-store.ts` -- PID-based tracking, `get_active_sessions` polling, parallel to terminal-store
+- Codebase analysis: `src-ui/src/stores/merge-store.ts` -- single-merge step model (idle -> preview -> confirm -> executing -> summary)
+- Codebase analysis: `src-ui/src/components/session/SessionManager.tsx` -- session state event handling, exit detection, embedded terminal lifecycle
+- Codebase analysis: `src-tauri/src/process/launch.rs` -- external launch via wt.exe/cmd.exe, to be removed
+- Codebase analysis: `src-ui/src/lib/alerts.ts` -- current notification pattern (chime + taskbar flash + OS notification)
+- libgit2 documentation: `merge_commits()` produces in-memory index, does not touch working directory
+- General domain: git merge automation failure modes, notification system design patterns, Zustand reactivity patterns
