@@ -53,6 +53,8 @@ Exceptions: none
 
 Note: Toasts use Label (13px/600) for the toast title and Body (14px/400) for description text. No Display size needed for this phase. Heading is not used in toasts but declared at 14px/600 for consistency.
 
+**Intentional near-identical sizing:** Label (13px) and Body (14px) are deliberately 1px apart. In the constrained toast context, font weight alone carries the visual hierarchy -- Label at semibold 600 distinguishes the title from Body at regular 400. The 1px size difference is a secondary reinforcement, not the primary differentiator.
+
 ---
 
 ## Color
@@ -85,7 +87,7 @@ Accent reserved for: toast left-edge state indicator strip (3px wide vertical ba
 | Shadow | `0 4px 12px rgba(0,0,0,0.4)` |
 | Width | 356px fixed |
 | State indicator | 3px left border using state color |
-| Dismiss button | 16x16 X icon, visible on hover, `text-[var(--grove-stone)]` |
+| Dismiss button | 16x16 X icon, visible on hover, `text-[var(--grove-stone)]`, `aria-label="Dismiss notification"` |
 | Action button | Text link style, state color on hover, 13px/600 |
 
 ---
@@ -119,7 +121,7 @@ Accent reserved for: toast left-edge state indicator strip (3px wide vertical ba
 | Session state change (info) | Yes | 5000ms | Yes ("View Session") | Click X or swipe |
 | Session waiting | Yes | 5000ms | Yes ("View Session") | Click X or swipe |
 | Error (session) | No | Infinity | Yes ("View Session") | Click X only |
-| Error (system) | No | Infinity | No | Click X only |
+| Error (system) | No | Infinity | Yes ("Open Logs") | Click X only |
 | Merge success | Yes | 5000ms | No | Click X or swipe |
 
 ### Modified Components
@@ -158,6 +160,12 @@ Accent reserved for: toast left-edge state indicator strip (3px wide vertical ba
 2. Clicking the action button: switches to the relevant session tab in SessionManager and dismisses the toast
 3. Action button is right-aligned within the toast, styled as text link in state color
 
+### Toast Action: Open Logs (System Errors)
+
+1. System error toasts include an "Open Logs" action button
+2. Clicking the action button: opens the Grove log file location (via Tauri shell open) and dismisses the toast
+3. Action button is right-aligned within the toast, styled as text link in destructive color
+
 ### OS Notification Coordination
 
 1. When app window IS focused: fire toast only (no OS notification)
@@ -173,6 +181,7 @@ Accent reserved for: toast left-edge state indicator strip (3px wide vertical ba
 | Session idle | "{branch} idle" | "Session has gone idle" | "View Session" |
 | Merge success | "Merge complete" | "{branch} merged into {target}" | none |
 | Merge failure | "Merge failed" | "{branch}: {error summary}" | none |
+| System error | "Grove encountered an error" | "{error message} -- Restart Grove if the problem persists." | "Open Logs" |
 
 ---
 
@@ -184,7 +193,7 @@ Accent reserved for: toast left-edge state indicator strip (3px wide vertical ba
 | Empty state heading | Not applicable (toasts are event-driven; no empty state) |
 | Empty state body | Not applicable |
 | Error state (session) | "{branch} error" / "Session encountered an error" + "View Session" action |
-| Error state (system) | "Something went wrong" / "{error message}" + dismiss X |
+| Error state (system) | "Grove encountered an error" / "{error message} -- Restart Grove if the problem persists." + "Open Logs" action |
 | Destructive confirmation | Not applicable (no destructive actions in this phase; launch path removal is code-only) |
 
 ---
