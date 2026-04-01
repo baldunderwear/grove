@@ -1,38 +1,17 @@
-use std::collections::HashMap;
 use std::os::windows::process::CommandExt;
-use std::sync::Mutex;
 
 use crate::git::error::GitError;
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
-use crate::process::detect::SessionDetector;
-
-/// Launch a Claude Code session in a new terminal window.
-/// Returns the spawned process PID.
-#[tauri::command]
-pub fn launch_session(
-    worktree_path: String,
-    worktree_name: String,
-    launch_flags: Vec<String>,
-) -> Result<u32, String> {
-    crate::process::launch::launch_claude_session(&worktree_path, &worktree_name, &launch_flags)
-}
-
-/// Poll for active Claude Code sessions across the given worktree paths.
-/// Returns a map of worktree_path -> PID for detected sessions.
-#[tauri::command]
-pub fn get_active_sessions(
-    worktree_paths: Vec<String>,
-    detector: tauri::State<'_, Mutex<SessionDetector>>,
-) -> Result<HashMap<String, u32>, String> {
-    let mut detector = detector.lock().map_err(|e| e.to_string())?;
-    Ok(detector.detect_active_sessions(&worktree_paths))
-}
 
 /// Open a worktree path in VS Code (or Cursor).
 #[tauri::command]
 pub fn open_in_vscode(worktree_path: String) -> Result<(), String> {
-    crate::process::launch::launch_vscode(&worktree_path)
+    std::process::Command::new("code")
+        .arg(&worktree_path)
+        .spawn()
+        .map_err(|e| format!("Failed to open VS Code: {}", e))?;
+    Ok(())
 }
 
 /// Reveal a worktree path in Windows Explorer via tauri-plugin-opener.
