@@ -115,32 +115,32 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOAST-01 | TBD | Pending |
-| TOAST-02 | TBD | Pending |
-| TOAST-03 | TBD | Pending |
-| TOAST-04 | TBD | Pending |
-| TOAST-05 | TBD | Pending |
-| POST-01 | TBD | Pending |
-| POST-02 | TBD | Pending |
-| POST-03 | TBD | Pending |
-| POST-04 | TBD | Pending |
-| POST-05 | TBD | Pending |
-| POST-06 | TBD | Pending |
-| MERGE-01 | TBD | Pending |
-| MERGE-02 | TBD | Pending |
-| MERGE-03 | TBD | Pending |
-| MERGE-04 | TBD | Pending |
-| MERGE-05 | TBD | Pending |
-| MERGE-06 | TBD | Pending |
-| MERGE-07 | TBD | Pending |
-| LPATH-01 | TBD | Pending |
-| LPATH-02 | TBD | Pending |
-| LPATH-03 | TBD | Pending |
+| TOAST-01 | Phase 14 | Pending |
+| TOAST-02 | Phase 14 | Pending |
+| TOAST-03 | Phase 14 | Pending |
+| TOAST-04 | Phase 14 | Pending |
+| TOAST-05 | Phase 17 | Pending |
+| POST-01 | Phase 15 | Pending |
+| POST-02 | Phase 15 | Pending |
+| POST-03 | Phase 18 | Pending |
+| POST-04 | Phase 18 | Pending |
+| POST-05 | Phase 15 | Pending |
+| POST-06 | Phase 15 | Pending |
+| MERGE-01 | Phase 16 | Pending |
+| MERGE-02 | Phase 17 | Pending |
+| MERGE-03 | Phase 17 | Pending |
+| MERGE-04 | Phase 17 | Pending |
+| MERGE-05 | Phase 17 | Pending |
+| MERGE-06 | Phase 17 | Pending |
+| MERGE-07 | Phase 17 | Pending |
+| LPATH-01 | Phase 14 | Pending |
+| LPATH-02 | Phase 14 | Pending |
+| LPATH-03 | Phase 14 | Pending |
 
 **Coverage:**
-- v2.1 requirements: 20 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 20
+- v2.1 requirements: 21 total
+- Mapped to phases: 21/21
+- Unmapped: 0
 
 ### v2.0 — Mission Control (Complete)
 
@@ -181,4 +181,4 @@
 
 ---
 *Requirements defined: 2026-04-01*
-*Last updated: 2026-04-01 after v2.1 milestone definition*
+*Last updated: 2026-04-01 after v2.1 roadmap creation*
