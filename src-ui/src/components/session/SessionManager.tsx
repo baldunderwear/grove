@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { sendNotification } from '@tauri-apps/plugin-notification';
 import { ArrowLeft, X, Clock, GitBranch, Code, FolderOpen, Plus, RefreshCw, Settings, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTerminal } from '@/hooks/useTerminal';
@@ -10,7 +9,6 @@ import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
 import { useSessionStore } from '@/stores/session-store';
 import { SessionCard } from './SessionCard';
-import { fireWaitingAlert } from '@/lib/alerts';
 import type { SessionState, TerminalTab } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
 
@@ -331,7 +329,7 @@ export function SessionManager() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.path, project?.branch_prefix, project?.merge_target]);
 
-  // Session state changes — alerts
+  // Session state changes — terminal-store's setTabState handles all alerting centrally
   useEffect(() => {
     let cancelled = false;
     const unlistenPromise = listen<{ terminal_id: string; state: string; timestamp: number }>(
@@ -339,20 +337,7 @@ export function SessionManager() {
       (event) => {
         if (cancelled) return;
         const { terminal_id, state } = event.payload;
-        const prevTab = useTerminalStore.getState().tabs.get(terminal_id);
-        const prevState = prevTab?.sessionState;
         setTabState(terminal_id, state as SessionState);
-
-        if (state === 'waiting' && prevState !== 'waiting') {
-          fireWaitingAlert();
-          const tab = useTerminalStore.getState().tabs.get(terminal_id);
-          try {
-            sendNotification({
-              title: 'Waiting for input',
-              body: `${tab?.branchName ?? 'Session'} needs your attention`,
-            });
-          } catch { /* notification not available */ }
-        }
       },
     );
     return () => {

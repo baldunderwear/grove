@@ -93,3 +93,37 @@ code, kbd, .font-mono {
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: var(--grove-moss);
 }
+
+/* Sonner toast theme overrides */
+[data-sonner-toaster] [data-sonner-toast] {
+  --normal-bg: var(--grove-deep);
+  --normal-border: var(--grove-canopy);
+  --normal-text: var(--grove-fog);
+  font-family: 'Syne', sans-serif;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  width: 356px;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  border-left: 3px solid #ef4444;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-button] {
+  font-size: 13px;
+  font-weight: 600;
+}
+.grove-toast-waiting {
+  border-left: 3px solid #fbbf24; /* amber-400 */
+}
+.grove-toast-idle {
+  border-left: 3px solid #71717a; /* zinc-500 */
+}

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { fireSessionAlert } from '@/lib/alerts';
 
 export type SessionState = "working" | "waiting" | "idle" | "error" | null;
 
@@ -159,9 +160,15 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
     const tab = current.get(tabId);
     if (!tab) return;
 
+    const oldState = tab.sessionState;
     const next = new Map(current);
     next.set(tabId, { ...tab, sessionState: state });
     set({ tabs: next });
+
+    // Fire toast alert on state transitions to waiting/idle/error
+    if (state !== oldState && (state === 'waiting' || state === 'idle' || state === 'error')) {
+      fireSessionAlert(tabId, tab.branchName, state);
+    }
   },
 
   getTabForWorktree: (worktreePath: string) => {
