@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useConfigStore } from '@/stores/config-store';
 import type { BranchInfo } from '@/types/branch';
 import { relativeTime, isStale } from '@/lib/utils';
-import { useSessionStore } from '@/stores/session-store';
+import { useTerminalStore } from '@/stores/terminal-store';
 import { useState } from 'react';
 
 interface ProjectBranches {
@@ -28,16 +28,13 @@ export function AllProjects() {
 
   const [projectData, setProjectData] = useState<ProjectBranches[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const activeSessions = useSessionStore((s) => s.activeSessions);
-  const fetchSessions = useSessionStore((s) => s.fetchSessions);
-  const launchSession = useSessionStore((s) => s.launchSession);
+  const tabs = useTerminalStore((s) => s.tabs);
   const mountedRef = useRef(true);
 
   const fetchAll = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);
 
     const results: ProjectBranches[] = [];
-    const allWorktreePaths: string[] = [];
 
     for (const project of projects) {
       try {
@@ -53,7 +50,6 @@ export function AllProjects() {
           loading: false,
           error: null,
         });
-        branches.forEach((b) => allWorktreePaths.push(b.worktree_path));
       } catch (e) {
         results.push({
           projectId: project.id,
@@ -69,11 +65,7 @@ export function AllProjects() {
       setProjectData(results);
       setRefreshing(false);
     }
-
-    if (allWorktreePaths.length > 0) {
-      fetchSessions(allWorktreePaths);
-    }
-  }, [projects, fetchSessions]);
+  }, [projects]);
 
   // Initial fetch
   useEffect(() => {
@@ -94,6 +86,12 @@ export function AllProjects() {
     const unlisten = listen('git-changed', () => fetchAll(true));
     return () => { unlisten.then((fn) => fn()); };
   }, [fetchAll]);
+
+  // Derive activeSessions from terminal-store tabs
+  const activeSessions: Record<string, number> = {};
+  for (const tab of tabs.values()) {
+    activeSessions[tab.worktreePath] = 1;
+  }
 
   const totalBranches = projectData.reduce((sum, p) => sum + p.branches.length, 0);
 
@@ -210,7 +208,10 @@ export function AllProjects() {
                         size="icon"
                         className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--grove-stone)] hover:text-[var(--grove-sprout)]"
                         disabled={hasSession}
-                        onClick={() => launchSession(branch.worktree_path, branch.name, [])}
+                        onClick={() => {
+                          useTerminalStore.getState().addTab(branch.worktree_path, branch.name, pd.projectId);
+                          selectProject(pd.projectId);
+                        }}
                       >
                         <span className="text-xs">▶</span>
                       </Button>

@@ -7,7 +7,7 @@ import { useTerminal } from '@/hooks/useTerminal';
 import { useTerminalStore } from '@/stores/terminal-store';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
-import { useSessionStore } from '@/stores/session-store';
+import { openInVscode, openInExplorer } from '@/lib/shell';
 import { SessionCard } from './SessionCard';
 import type { SessionState, TerminalTab } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
@@ -148,8 +148,6 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
 // FocusBar — top bar in focus mode
 // ─────────────────────────────────────────────
 function FocusTopBar({ tab, onBack, onClose }: { tab: TerminalTab; onBack: () => void; onClose: () => void }) {
-  const openInVscode = useSessionStore((s) => s.openInVscode);
-  const openInExplorer = useSessionStore((s) => s.openInExplorer);
   const [, setTick] = useState(0);
 
   useEffect(() => {

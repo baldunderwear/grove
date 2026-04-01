@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { useTerminalStore } from '@/stores/terminal-store';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -51,14 +52,10 @@ export function NewWorktreeDialog({
       onOpenChange(false);
       onCreated(worktreePath, name);
 
-      // If launch after is checked, launch a session
+      // If launch after is checked, open an embedded terminal tab
       if (launchAfter) {
         const fullName = `${branchPrefix}${name}`;
-        await invoke<number>('launch_session', {
-          worktreePath,
-          worktreeName: fullName,
-          launchFlags: [],
-        });
+        useTerminalStore.getState().addTab(worktreePath, fullName);
       }
     } catch (err) {
       setError(String(err));

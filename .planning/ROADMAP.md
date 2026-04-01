@@ -22,10 +22,8 @@
 
 </details>
 
-## v2.1 Session Lifecycle (Phases 14+)
+### v2.1 Session Lifecycle
 
-### Phase 14: Toast System & Launch Path Cleanup
-
-| Plan | Name | Status |
-|------|------|--------|
-| 14-01 | Toast notification system (Sonner) | COMPLETE |
+| Phase | Name | Plans | Complete | Status |
+|-------|------|-------|----------|--------|
+| 14 | Toast System & Launch Path Cleanup | 2 | 2 | DONE |
