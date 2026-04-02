@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
-status: defining-requirements
-stopped_at: null
-last_updated: "2026-04-01"
-last_activity: 2026-04-01
+status: executing
+stopped_at: "Completed 15-02-PLAN.md"
+last_updated: "2026-04-02"
+last_activity: 2026-04-02
 progress:
-  total_phases: 0
+  total_phases: 1
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-01 — Milestone v2.1 started
+Phase: 15-post-session-flow
+Plan: 02 (complete)
+Status: Executing phase 15
+Last activity: 2026-04-02 — Completed 15-02 post-session UI components
 
 ## Accumulated Context
 
@@ -40,6 +40,9 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
 - [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
+- [15-02]: Used branch-store ahead count for merge button visibility
+- [15-02]: MergeDialog rendered via IIFE pattern in SessionManager JSX
+- [15-02]: PostSessionActions uses fixed duration (createdAt to exitedAt)
 
 ### Blockers/Concerns
 
@@ -48,6 +51,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-01
-Stopped at: Milestone v2.1 initialization
-Resume file: None
+Last session: 2026-04-02
+Stopped at: Completed 15-02-PLAN.md (post-session UI components)
+Resume file: .planning/phases/15-post-session-flow/15-02-SUMMARY.md
