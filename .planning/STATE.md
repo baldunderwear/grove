@@ -3,15 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
-stopped_at: "Completed 15-01-PLAN.md"
-last_updated: "2026-04-02"
-last_activity: 2026-04-02
+stopped_at: Completed 14-02-PLAN.md (launch path cleanup)
+last_updated: "2026-04-01T20:46:21.645Z"
+last_activity: 2026-04-01 -- Phase 15 execution started
 progress:
-  total_phases: 1
-  completed_phases: 0
-  total_plans: 2
-  completed_plans: 1
-  percent: 50
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 2
 ---
 
 # Project State
@@ -20,15 +19,15 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-01)
 
-**Core value:** Complete session lifecycle — launch -> monitor -> alert -> close -> merge -> cleanup
-**Current focus:** Phase 15 - Post-Session Flow
+**Core value:** Complete session lifecycle — launch → monitor → alert → close → merge → cleanup
+**Current focus:** Phase 15 — post-session-flow
 
 ## Current Position
 
-Phase: 15-post-session-flow
-Plan: 01 complete, 02 pending
-Status: Executing phase 15
-Last activity: 2026-04-02 — Completed 15-01 (data layer for post-session flow)
+Phase: 15 (post-session-flow) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 15
+Last activity: 2026-04-01 -- Phase 15 execution started
 
 ## Accumulated Context
 
@@ -40,23 +39,16 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
 - [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
-- [15-01]: Used portable_pty success() boolean mapping (0 vs 1) since raw exit codes not exposed
-- [15-01]: Added sonner to worktree (was in main repo, missing from worktree)
-- [15-01]: Arc<Mutex<>> pattern for sharing PTY child between session owner and reader thread
+- [14-02]: Derived activeSessions from terminal-store tabs for BranchTable compatibility
+- [14-02]: AllProjects launch navigates to project dashboard after addTab
 
 ### Blockers/Concerns
 
 - ConPTY CREATE_NO_WINDOW: exact code mitigation not pinned (portable-pty flags? psmux fork? direct windows-rs?)
 - JSONL format stability: Claude Code session log format is community-observed, not formally versioned
 
-## Performance Metrics
-
-| Phase | Plan | Duration | Tasks | Files |
-|-------|------|----------|-------|-------|
-| 15 | 01 | 23min | 2 | 12 |
-
 ## Session Continuity
 
-Last session: 2026-04-02
-Stopped at: Completed 15-01-PLAN.md
-Resume file: .planning/phases/15-post-session-flow/15-02-PLAN.md
+Last session: 2026-04-01
+Stopped at: Completed 14-02-PLAN.md (launch path cleanup)
+Resume file: None
