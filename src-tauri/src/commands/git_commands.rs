@@ -86,6 +86,17 @@ pub fn merge_branch(
     Ok(result)
 }
 
+/// Get a diff summary between a source branch and its merge target.
+/// Returns files changed, per-file stats, aggregate stats, and commit list.
+#[tauri::command]
+pub fn get_branch_diff_summary(
+    project_path: String,
+    source_branch: String,
+    merge_target: String,
+) -> Result<crate::git::diff::DiffSummaryData, crate::git::error::GitError> {
+    crate::git::diff::get_branch_diff_summary(&project_path, &source_branch, &merge_target)
+}
+
 /// Standalone build conflict resolution for partial merge recovery.
 /// Opens repo, checks index for build file conflicts, resolves them.
 #[tauri::command]

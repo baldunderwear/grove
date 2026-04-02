@@ -50,6 +50,7 @@ pub fn run() {
             commands::git_commands::merge_preview,
             commands::git_commands::merge_branch,
             commands::git_commands::resolve_build_conflicts,
+            commands::git_commands::get_branch_diff_summary,
             commands::session_commands::launch_session,
             commands::session_commands::get_active_sessions,
             commands::session_commands::open_in_vscode,
