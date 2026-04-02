@@ -3,14 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
-stopped_at: Completed 15-02-PLAN.md (post-session UI components)
-last_updated: "2026-04-02T14:38:01.183Z"
+stopped_at: "Completed 16-01-PLAN.md"
+last_updated: "2026-04-02"
 last_activity: 2026-04-02
 progress:
-  total_phases: 2
-  completed_phases: 2
+  total_phases: 3
+  completed_phases: 0
   total_plans: 4
-  completed_plans: 4
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -24,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 ## Current Position
 
-Phase: 15
-Plan: Not started
-Status: Executing phase 15
-Last activity: 2026-04-02
+Phase: 16-composable-merge-engine
+Plan: 1 of 2 complete
+Status: Executing
+Last activity: 2026-04-02 — Completed 16-01 (composable merge pipeline)
 
 ## Accumulated Context
 
@@ -39,9 +40,9 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
 - [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
-- [15-02]: Used branch-store ahead count for merge button visibility
-- [15-02]: MergeDialog rendered via IIFE pattern in SessionManager JSX
-- [15-02]: PostSessionActions uses fixed duration (createdAt to exitedAt)
+- [16-01]: Store only git2::Oid in MergeContext, re-open Repository in each step to avoid lifetime issues
+- [16-01]: merge_execute() does initial checkout, merge_commit() does final checkout -- disk state correct for build detection between steps
+- [16-01]: override_build: Option<u32> on MergeContext from day one for Phase 17 queue
 
 ### Blockers/Concerns
 
@@ -51,5 +52,5 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 ## Session Continuity
 
 Last session: 2026-04-02
-Stopped at: Completed 15-02-PLAN.md (post-session UI components)
-Resume file: .planning/phases/15-post-session-flow/15-02-SUMMARY.md
+Stopped at: Completed 16-01-PLAN.md
+Resume file: None

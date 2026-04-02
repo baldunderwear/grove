@@ -4,4 +4,5 @@ pub mod changelog;
 pub mod diff;
 pub mod error;
 pub mod merge;
+pub mod pipeline;
 pub mod status;

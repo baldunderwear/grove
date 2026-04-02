@@ -1,9 +1,10 @@
-use git2::{BranchType, MergeAnalysis, Repository, Signature, Sort};
+use git2::{BranchType, MergeAnalysis, Repository, Sort};
 use serde::Serialize;
 
 use super::build;
 use super::changelog::{self, ChangelogFragment};
 use super::error::GitError;
+use super::pipeline;
 use crate::config::models::{BuildFileConfig, ChangelogConfig};
 
 /// Preview of what a merge will do, without mutating anything.
@@ -133,16 +134,14 @@ pub fn merge_preview(
     })
 }
 
-/// Execute an atomic merge of source_branch into merge_target.
+/// Execute a full merge pipeline. This is the backward-compatible entry point
+/// that calls all pipeline steps in sequence.
 ///
 /// Steps:
-/// 1. Merge commits in-memory, check for conflicts
-/// 2. Auto-resolve build file conflicts (take target version)
-/// 3. Write merged tree
-/// 4. Bump build numbers on disk and update tree
-/// 5. Rename changelog fragments and update tree
-/// 6. Create merge commit with two parents
-/// 7. Checkout HEAD to update working directory
+/// 1. merge_execute: Merge commits in-memory, handle conflicts, write merged tree
+/// 2. merge_bump: Detect and bump build numbers on disk
+/// 3. merge_changelog: Rename changelog fragments on disk
+/// 4. merge_commit: Build final tree with disk changes, create merge commit, checkout
 ///
 /// If unexpected (non-build) conflicts are found, returns
 /// `GitError::UnexpectedConflict` without modifying HEAD.
@@ -153,235 +152,25 @@ pub fn merge_branch(
     build_patterns: &[BuildFileConfig],
     changelog_config: &Option<ChangelogConfig>,
 ) -> Result<MergeResult, GitError> {
-    let repo = Repository::open(project_path)
-        .map_err(|_| GitError::RepoNotFound(project_path.to_string()))?;
+    let mut ctx = pipeline::MergeContext::new(
+        project_path,
+        source_branch,
+        merge_target,
+        build_patterns,
+        changelog_config,
+        None, // No override_build for single-branch merge
+    );
 
-    let mut warnings = Vec::new();
+    pipeline::merge_execute(&mut ctx)?;
+    pipeline::merge_bump(&mut ctx)?;
+    pipeline::merge_changelog(&mut ctx)?;
+    pipeline::merge_commit(&mut ctx)?;
 
-    // Resolve source and target
-    let source = repo
-        .find_branch(source_branch, BranchType::Local)
-        .map_err(|_| GitError::BranchNotFound(source_branch.to_string()))?;
-    let source_oid = source
-        .get()
-        .target()
-        .ok_or_else(|| GitError::BranchNotFound(source_branch.to_string()))?;
-
-    let target = repo
-        .find_branch(merge_target, BranchType::Local)
-        .map_err(|_| GitError::BranchNotFound(merge_target.to_string()))?;
-    let target_oid = target
-        .get()
-        .target()
-        .ok_or_else(|| GitError::BranchNotFound(merge_target.to_string()))?;
-
-    // Count commits being merged (for the result)
-    let mut revwalk = repo.revwalk()?;
-    revwalk.set_sorting(Sort::TOPOLOGICAL)?;
-    revwalk.push(source_oid)?;
-    revwalk.hide(target_oid)?;
-    let commits_merged = revwalk.count();
-
-    // Ensure HEAD is on merge_target
-    repo.set_head(&format!("refs/heads/{}", merge_target))?;
-    repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))?;
-
-    let our_commit = repo.find_commit(target_oid)?;
-    let their_commit = repo.find_commit(source_oid)?;
-
-    // Perform in-memory merge
-    let mut merged_index = repo.merge_commits(&our_commit, &their_commit, None)?;
-
-    // Handle conflicts
-    if merged_index.has_conflicts() {
-        let conflicts = classify_conflicts(&merged_index, build_patterns);
-
-        // If ANY non-build conflicts exist, abort
-        let unexpected: Vec<String> = conflicts
-            .iter()
-            .filter(|c| !c.is_build_file)
-            .map(|c| c.path.clone())
-            .collect();
-
-        if !unexpected.is_empty() {
-            return Err(GitError::UnexpectedConflict(unexpected));
-        }
-
-        // Auto-resolve build file conflicts: take "ours" (target) version
-        resolve_build_conflicts_in_index(&repo, &mut merged_index, &our_commit)?;
-        warnings.push("Build file conflicts auto-resolved (target version kept)".to_string());
-    }
-
-    // Write merged tree
-    let tree_oid = merged_index.write_tree_to(&repo)?;
-
-    // Detect and bump build number
-    let new_build = if !build_patterns.is_empty() {
-        let current = build::detect_current_build(project_path, build_patterns)?;
-        let next = current.map(|n| n + 1).unwrap_or(1);
-
-        // Bump on disk
-        let modified_files = build::bump_build_number(project_path, build_patterns, next)?;
-
-        if !modified_files.is_empty() {
-            // Need to update the tree with bumped files
-            // We do this by reading the bumped file contents and writing a new tree
-            Some(next)
-        } else {
-            Some(next)
-        }
-    } else {
-        None
-    };
-
-    // Rename changelog fragments
-    let changelog_renames = if let Some(config) = changelog_config {
-        let worktree_name = extract_worktree_name(source_branch);
-        if let Some(build_num) = new_build {
-            match changelog::rename_changelog_fragments(
-                project_path,
-                config,
-                &worktree_name,
-                build_num,
-            ) {
-                Ok(renames) => renames,
-                Err(e) => {
-                    warnings.push(format!("Changelog rename failed: {}", e));
-                    Vec::new()
-                }
-            }
-        } else {
-            Vec::new()
-        }
-    } else {
-        Vec::new()
-    };
-
-    // Build the final tree incorporating disk changes (build bump + changelog renames)
-    // Re-read the working directory state into an index for the commit
-    let final_tree = if new_build.is_some() || !changelog_renames.is_empty() {
-        // We need to add the on-disk changes to the merged tree
-        let mut final_index = repo.index()?;
-
-        // First, read the merged tree into the index
-        let merged_tree = repo.find_tree(tree_oid)?;
-        final_index.read_tree(&merged_tree)?;
-
-        // Add bumped build files from disk
-        if !build_patterns.is_empty() {
-            let repo_path_normalized = project_path.replace('\\', "/");
-            for pattern in build_patterns {
-                let full_pattern = format!("{}/{}", repo_path_normalized, pattern.pattern);
-                if let Ok(entries) = glob::glob(&full_pattern) {
-                    for entry in entries.flatten() {
-                        let rel = entry
-                            .to_string_lossy()
-                            .replace('\\', "/");
-                        let rel = rel
-                            .strip_prefix(&repo_path_normalized)
-                            .unwrap_or(&rel)
-                            .trim_start_matches('/');
-                        let content = std::fs::read_to_string(&entry)?;
-                        let blob_oid = repo.blob(content.as_bytes())?;
-                        let index_entry = git2::IndexEntry {
-                            ctime: git2::IndexTime::new(0, 0),
-                            mtime: git2::IndexTime::new(0, 0),
-                            dev: 0,
-                            ino: 0,
-                            mode: 0o100644,
-                            uid: 0,
-                            gid: 0,
-                            file_size: content.len() as u32,
-                            id: blob_oid,
-                            flags: 0,
-                            flags_extended: 0,
-                            path: rel.as_bytes().to_vec(),
-                        };
-                        final_index.add_frombuffer(&index_entry, content.as_bytes())?;
-                    }
-                }
-            }
-        }
-
-        // Add renamed changelog files
-        for (old_path, new_path) in &changelog_renames {
-            let repo_path_normalized = project_path.replace('\\', "/");
-
-            // Remove old path from index
-            let old_rel = old_path
-                .replace('\\', "/")
-                .strip_prefix(&format!("{}/", repo_path_normalized))
-                .unwrap_or(old_path)
-                .to_string();
-            let _ = final_index.remove(std::path::Path::new(&old_rel), 0);
-
-            // Add new path
-            if let Ok(content) = std::fs::read_to_string(new_path) {
-                let blob_oid = repo.blob(content.as_bytes())?;
-                let new_rel = new_path
-                    .replace('\\', "/")
-                    .strip_prefix(&format!("{}/", repo_path_normalized))
-                    .unwrap_or(new_path)
-                    .to_string();
-                let index_entry = git2::IndexEntry {
-                    ctime: git2::IndexTime::new(0, 0),
-                    mtime: git2::IndexTime::new(0, 0),
-                    dev: 0,
-                    ino: 0,
-                    mode: 0o100644,
-                    uid: 0,
-                    gid: 0,
-                    file_size: content.len() as u32,
-                    id: blob_oid,
-                    flags: 0,
-                    flags_extended: 0,
-                    path: new_rel.as_bytes().to_vec(),
-                };
-                final_index.add_frombuffer(&index_entry, content.as_bytes())?;
-            }
-        }
-
-        let final_tree_oid = final_index.write_tree_to(&repo)?;
-        repo.find_tree(final_tree_oid)?
-    } else {
-        repo.find_tree(tree_oid)?
-    };
-
-    // Get commit signature (fallback to Grove default per Pitfall 6)
-    let sig = repo
-        .signature()
-        .unwrap_or_else(|_| Signature::now("Grove", "grove@localhost").unwrap());
-
-    // Build commit message
-    let mut message = format!("Merge {} into {}", source_branch, merge_target);
-    if let Some(build_num) = new_build {
-        message.push_str(&format!("\n\nBuild: {}", build_num));
-    }
-
-    // Create merge commit with 2 parents
-    repo.commit(
-        Some("HEAD"),
-        &sig,
-        &sig,
-        &message,
-        &final_tree,
-        &[&our_commit, &their_commit],
-    )?;
-
-    // Checkout HEAD to update working directory
-    repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))?;
-
-    Ok(MergeResult {
-        success: true,
-        new_build,
-        commits_merged,
-        changelog_renames,
-        warnings,
-    })
+    Ok(ctx.into_result())
 }
 
 /// Classify conflicts in a merged index as build-file or non-build-file.
-fn classify_conflicts(
+pub(crate) fn classify_conflicts(
     index: &git2::Index,
     build_patterns: &[BuildFileConfig],
 ) -> Vec<ConflictInfo> {
@@ -412,7 +201,7 @@ fn classify_conflicts(
 }
 
 /// Auto-resolve build file conflicts in the index by taking "ours" (target) version.
-fn resolve_build_conflicts_in_index(
+pub(crate) fn resolve_build_conflicts_in_index(
     repo: &Repository,
     index: &mut git2::Index,
     our_commit: &git2::Commit,
@@ -479,7 +268,7 @@ fn is_build_file_conflict(path: &str, build_patterns: &[BuildFileConfig]) -> boo
 
 /// Extract the worktree name from a branch name by stripping common prefixes.
 /// e.g. "wt/feature-x" -> "feature-x", "worktree-feature" -> "feature"
-fn extract_worktree_name(branch_name: &str) -> String {
+pub(crate) fn extract_worktree_name(branch_name: &str) -> String {
     // Try common prefixes
     for prefix in &["wt/", "worktree-", "worktree/"] {
         if let Some(name) = branch_name.strip_prefix(prefix) {
