@@ -381,7 +381,7 @@ pub fn merge_branch(
 }
 
 /// Classify conflicts in a merged index as build-file or non-build-file.
-fn classify_conflicts(
+pub(crate) fn classify_conflicts(
     index: &git2::Index,
     build_patterns: &[BuildFileConfig],
 ) -> Vec<ConflictInfo> {
@@ -412,7 +412,7 @@ fn classify_conflicts(
 }
 
 /// Auto-resolve build file conflicts in the index by taking "ours" (target) version.
-fn resolve_build_conflicts_in_index(
+pub(crate) fn resolve_build_conflicts_in_index(
     repo: &Repository,
     index: &mut git2::Index,
     our_commit: &git2::Commit,
@@ -479,7 +479,7 @@ fn is_build_file_conflict(path: &str, build_patterns: &[BuildFileConfig]) -> boo
 
 /// Extract the worktree name from a branch name by stripping common prefixes.
 /// e.g. "wt/feature-x" -> "feature-x", "worktree-feature" -> "feature"
-fn extract_worktree_name(branch_name: &str) -> String {
+pub(crate) fn extract_worktree_name(branch_name: &str) -> String {
     // Try common prefixes
     for prefix in &["wt/", "worktree-", "worktree/"] {
         if let Some(name) = branch_name.strip_prefix(prefix) {
