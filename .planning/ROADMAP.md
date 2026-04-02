@@ -55,7 +55,11 @@
   1. Single-branch merge still works identically from the user's perspective (no regression)
   2. Merge pipeline internals are composed of distinct steps (preview, execute, bump, changelog, commit) that can be orchestrated independently
   3. Each step validates its prerequisites before running and refuses to execute out of order
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 16-01-PLAN.md -- Create pipeline module and refactor merge_branch into thin wrapper
+- [ ] 16-02-PLAN.md -- Unit tests for phase validation and full suite verification
 
 ### Phase 17: Multi-Branch Merge Queue
 **Goal**: Users can batch-merge multiple branches sequentially with automatic build number handling and safety rollback
@@ -86,6 +90,6 @@
 |-------|-----------|----------------|--------|-----------|
 | 14. Toast + Launch Cleanup | v2.1 | 2/2 | Complete | 2026-04-01 |
 | 15. Post-Session Flow | v2.1 | 2/2 | Complete | 2026-04-02 |
-| 16. Composable Merge Engine | v2.1 | 0/? | Not started | - |
+| 16. Composable Merge Engine | v2.1 | 0/2 | Not started | - |
 | 17. Multi-Branch Merge Queue | v2.1 | 0/? | Not started | - |
 | 18. Post-Session Wizard + Cleanup | v2.1 | 0/? | Not started | - |
