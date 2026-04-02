@@ -21,3 +21,11 @@
 5 phases, 16 plans. Full archive: milestones/v2.0-ROADMAP.md
 
 </details>
+
+### v2.1 Session Lifecycle
+
+| Phase | Name | Plans | Summaries | Status |
+|-------|------|-------|-----------|--------|
+| 14 | Toast System & Launch Path Cleanup | TBD | 0 | Planned |
+| 15 | Post-Session Flow | TBD | 0 | Planned |
+| 16 | Composable Merge Engine | 2 | 1 | In Progress |
