@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react';
 import { X, Maximize2, Clock } from 'lucide-react';
+import { ExitBanner } from './ExitBanner';
+import { DiffSummary } from './DiffSummary';
+import { PostSessionActions } from './PostSessionActions';
+import { useConfigStore } from '@/stores/config-store';
+import { useBranchStore } from '@/stores/branch-store';
 import type { TerminalTab } from '@/stores/terminal-store';
 
 const stateConfig: Record<string, { label: string; color: string; bg: string }> = {
-  working:  { label: 'Working',  color: 'bg-emerald-400', bg: 'from-emerald-500/5' },
-  waiting:  { label: 'Waiting',  color: 'bg-amber-400',   bg: 'from-amber-500/8' },
-  idle:     { label: 'Idle',     color: 'bg-zinc-500',    bg: 'from-zinc-500/3' },
-  error:    { label: 'Error',    color: 'bg-red-500',     bg: 'from-red-500/5' },
+  working:        { label: 'Working',      color: 'bg-emerald-400', bg: 'from-emerald-500/5' },
+  waiting:        { label: 'Waiting',      color: 'bg-amber-400',   bg: 'from-amber-500/8' },
+  idle:           { label: 'Idle',         color: 'bg-zinc-500',    bg: 'from-zinc-500/3' },
+  error:          { label: 'Error',        color: 'bg-red-500',     bg: 'from-red-500/5' },
+  exited:         { label: 'Exited',       color: 'bg-emerald-500', bg: 'from-emerald-500/5' },
+  'exited-crash': { label: 'Crashed',      color: 'bg-red-500',     bg: 'from-red-500/5' },
+  disconnected:   { label: 'Disconnected', color: 'bg-zinc-500',    bg: 'from-zinc-500/3' },
 };
 
 function formatDuration(createdAt: number): string {
@@ -23,19 +31,38 @@ interface SessionCardProps {
   lastLines: string[];
   onFocus: (tabId: string) => void;
   onClose: (tabId: string) => void;
+  onMerge: (tabId: string) => void;
 }
 
-export function SessionCard({ tab, lastLines, onFocus, onClose }: SessionCardProps) {
+export function SessionCard({ tab, lastLines, onFocus, onClose, onMerge }: SessionCardProps) {
   const [, setTick] = useState(0);
 
   useEffect(() => {
+    // Don't tick if exited (duration is fixed)
+    if (tab.sessionState === 'exited' || tab.sessionState === 'disconnected') return;
     const interval = setInterval(() => setTick((t) => t + 1), 30_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tab.sessionState]);
 
   const state = tab.sessionState;
-  const cfg = state ? stateConfig[state] : null;
+  const isExited = state === 'exited';
+  const isDisconnected = state === 'disconnected';
+  const isCrash = isExited && tab.exitCode !== null && tab.exitCode !== 0;
+
+  // Derive stateConfig key
+  const configKey = isExited ? (isCrash ? 'exited-crash' : 'exited') : (state ?? '');
+  const cfg = stateConfig[configKey] ?? null;
   const isWaiting = state === 'waiting';
+
+  // Look up merge target from project config
+  const config = useConfigStore((s) => s.config);
+  const project = config?.projects.find((p) => p.id === tab.projectId);
+  const mergeTarget = project?.merge_target ?? 'main';
+
+  // Check if branch has commits ahead (for merge button)
+  const branches = useBranchStore((s) => s.branches);
+  const branchInfo = branches.find((b) => b.worktree_path === tab.worktreePath);
+  const hasCommitsAhead = (branchInfo?.ahead ?? 0) > 0;
 
   const shortName = tab.branchName.includes('/')
     ? tab.branchName.split('/').pop() ?? tab.branchName
@@ -86,48 +113,79 @@ export function SessionCard({ tab, lastLines, onFocus, onClose }: SessionCardPro
         </div>
       </div>
 
-      {/* Terminal preview — last N lines of output as styled text */}
-      <div
-        className="relative z-10 flex-1 mx-3 mb-1 rounded-lg overflow-hidden font-mono text-[10px] leading-[14px] p-2"
-        style={{ background: '#0a0e0c' }}
-      >
-        <div className="h-full overflow-hidden text-[var(--grove-bright)] opacity-60">
-          {lastLines.length > 0 ? (
-            lastLines.map((line, i) => (
-              <div key={i} className="truncate whitespace-pre">{line || '\u00A0'}</div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center h-full text-[var(--grove-stone)] text-xs font-sans">
-              {tab.isConnected ? 'Waiting for output...' : 'Connecting...'}
-            </div>
-          )}
+      {/* Body: exited/disconnected state or terminal preview */}
+      {isExited ? (
+        <div className="relative z-10 mx-3 mb-1 space-y-2">
+          <ExitBanner exitCode={tab.exitCode} sessionState="exited" />
+          <DiffSummary
+            worktreePath={tab.worktreePath}
+            branchName={tab.branchName}
+            mergeTarget={mergeTarget}
+          />
         </div>
-        {/* Fade-out gradient at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0a0e0c] to-transparent pointer-events-none" />
-      </div>
+      ) : isDisconnected ? (
+        <div className="relative z-10 mx-3 mb-1">
+          <ExitBanner exitCode={null} sessionState="disconnected" />
+        </div>
+      ) : (
+        /* Terminal preview — last N lines of output as styled text */
+        <div
+          className="relative z-10 flex-1 mx-3 mb-1 rounded-lg overflow-hidden font-mono text-[10px] leading-[14px] p-2"
+          style={{ background: '#0a0e0c' }}
+        >
+          <div className="h-full overflow-hidden text-[var(--grove-bright)] opacity-60">
+            {lastLines.length > 0 ? (
+              lastLines.map((line, i) => (
+                <div key={i} className="truncate whitespace-pre">{line || '\u00A0'}</div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full text-[var(--grove-stone)] text-xs font-sans">
+                {tab.isConnected ? 'Waiting for output...' : 'Connecting...'}
+              </div>
+            )}
+          </div>
+          {/* Fade-out gradient at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0a0e0c] to-transparent pointer-events-none" />
+        </div>
+      )}
 
       {/* Footer */}
-      <div className="relative z-10 flex items-center justify-between px-4 pb-2.5 pt-1">
-        <div className="flex items-center gap-3 text-xs text-[var(--grove-stone)]">
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {formatDuration(tab.createdAt)}
-          </span>
-          {cfg && (
-            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
-              isWaiting
-                ? 'bg-amber-400/15 text-amber-300'
-                : state === 'error'
-                  ? 'bg-red-500/15 text-red-300'
-                  : state === 'working'
-                    ? 'bg-emerald-500/15 text-emerald-300'
-                    : 'bg-zinc-500/15 text-zinc-400'
-            }`}>
-              {cfg.label}
-            </span>
-          )}
+      {isExited ? (
+        <div className="relative z-10">
+          <PostSessionActions
+            tab={tab}
+            hasCommitsAhead={hasCommitsAhead}
+            onMerge={() => onMerge(tab.id)}
+          />
         </div>
-      </div>
+      ) : (
+        <div className="relative z-10 flex items-center justify-between px-4 pb-2.5 pt-1">
+          <div className="flex items-center gap-3 text-xs text-[var(--grove-stone)]">
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {formatDuration(tab.createdAt)}
+            </span>
+            {cfg && !isDisconnected && (
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
+                isWaiting
+                  ? 'bg-amber-400/15 text-amber-300'
+                  : state === 'error'
+                    ? 'bg-red-500/15 text-red-300'
+                    : state === 'working'
+                      ? 'bg-emerald-500/15 text-emerald-300'
+                      : 'bg-zinc-500/15 text-zinc-400'
+              }`}>
+                {cfg.label}
+              </span>
+            )}
+            {isDisconnected && cfg && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider bg-zinc-500/15 text-zinc-400">
+                {cfg.label}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

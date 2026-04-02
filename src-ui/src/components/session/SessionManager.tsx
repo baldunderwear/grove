@@ -1,14 +1,17 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import { sendNotification } from '@tauri-apps/plugin-notification';
 import { ArrowLeft, X, Clock, GitBranch, Code, FolderOpen, Plus, RefreshCw, Settings, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTerminal } from '@/hooks/useTerminal';
 import { useTerminalStore } from '@/stores/terminal-store';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
-import { openInVscode, openInExplorer } from '@/lib/shell';
+import { useSessionStore } from '@/stores/session-store';
 import { SessionCard } from './SessionCard';
+import { MergeDialog } from '@/components/MergeDialog';
+import { fireWaitingAlert } from '@/lib/alerts';
 import type { SessionState, TerminalTab } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
 
@@ -151,6 +154,8 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
 // FocusBar — top bar in focus mode
 // ─────────────────────────────────────────────
 function FocusTopBar({ tab, onBack, onClose }: { tab: TerminalTab; onBack: () => void; onClose: () => void }) {
+  const openInVscode = useSessionStore((s) => s.openInVscode);
+  const openInExplorer = useSessionStore((s) => s.openInExplorer);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -281,6 +286,7 @@ export function SessionManager() {
 
   const [showBranchPicker, setShowBranchPicker] = useState(false);
   const [branchFilter, setBranchFilter] = useState('');
+  const [mergeTabId, setMergeTabId] = useState<string | null>(null);
 
   const project = config?.projects.find((p) => p.id === selectedProjectId);
   const settings = config?.settings;
@@ -330,7 +336,7 @@ export function SessionManager() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.path, project?.branch_prefix, project?.merge_target]);
 
-  // Session state changes — terminal-store's setTabState handles all alerting centrally
+  // Session state changes — alerts
   useEffect(() => {
     let cancelled = false;
     const unlistenPromise = listen<{ terminal_id: string; state: string; timestamp: number }>(
@@ -338,7 +344,20 @@ export function SessionManager() {
       (event) => {
         if (cancelled) return;
         const { terminal_id, state } = event.payload;
+        const prevTab = useTerminalStore.getState().tabs.get(terminal_id);
+        const prevState = prevTab?.sessionState;
         setTabState(terminal_id, state as SessionState);
+
+        if (state === 'waiting' && prevState !== 'waiting') {
+          fireWaitingAlert();
+          const tab = useTerminalStore.getState().tabs.get(terminal_id);
+          try {
+            sendNotification({
+              title: 'Waiting for input',
+              body: `${tab?.branchName ?? 'Session'} needs your attention`,
+            });
+          } catch { /* notification not available */ }
+        }
       },
     );
     return () => {
@@ -385,7 +404,7 @@ export function SessionManager() {
 
   const handleClose = useCallback((tabId: string) => {
     const tab = useTerminalStore.getState().tabs.get(tabId);
-    if (tab && !tab.id.startsWith('pending-')) {
+    if (tab && !tab.id.startsWith('pending-') && tab.sessionState !== 'exited' && tab.isConnected) {
       invoke('terminal_kill', { terminalId: tab.id }).catch(() => {});
     }
     useTerminalStore.getState().closeTab(tabId);
@@ -393,6 +412,17 @@ export function SessionManager() {
       unfocusSession();
     }
   }, [focusedSessionId, unfocusSession]);
+
+  const handleMerge = useCallback((tabId: string) => {
+    const tab = useTerminalStore.getState().tabs.get(tabId);
+    if (!tab) return;
+    // Ensure branches are fresh
+    const branchInfo = useBranchStore.getState().branches.find((b) => b.worktree_path === tab.worktreePath);
+    if (!branchInfo && project) {
+      useBranchStore.getState().silentRefresh(project.path, project.branch_prefix, project.merge_target);
+    }
+    setMergeTabId(tabId);
+  }, [project]);
 
   if (!project) return null;
 
@@ -513,6 +543,7 @@ export function SessionManager() {
                   lastLines={t.lastLines}
                   onFocus={focusSession}
                   onClose={handleClose}
+                  onMerge={handleMerge}
                 />
               ))}
               <button
@@ -553,6 +584,23 @@ export function SessionManager() {
           ))}
         </div>
       )}
+
+      {/* ── Merge Dialog (triggered from post-session card) ── */}
+      {mergeTabId && (() => {
+        const mergeTab = tabs.get(mergeTabId);
+        const mergeBranchInfo = mergeTab
+          ? branches.find((b) => b.worktree_path === mergeTab.worktreePath)
+          : null;
+        return mergeTab && mergeBranchInfo ? (
+          <MergeDialog
+            open={true}
+            onOpenChange={(open) => { if (!open) setMergeTabId(null); }}
+            branch={mergeBranchInfo}
+            project={project}
+            onComplete={() => setMergeTabId(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }

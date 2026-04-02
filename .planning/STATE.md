@@ -3,14 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
-stopped_at: Completed 14-02-PLAN.md (launch path cleanup)
-last_updated: "2026-04-01T20:46:21.645Z"
-last_activity: 2026-04-01 -- Phase 15 execution started
+stopped_at: "Completed 15-02-PLAN.md"
+last_updated: "2026-04-02"
+last_activity: 2026-04-02
 progress:
-  total_phases: 5
-  completed_phases: 1
-  total_plans: 4
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 2
   completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -20,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-01)
 
 **Core value:** Complete session lifecycle — launch → monitor → alert → close → merge → cleanup
-**Current focus:** Phase 15 — post-session-flow
+**Current focus:** Defining requirements
 
 ## Current Position
 
-Phase: 15 (post-session-flow) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 15
-Last activity: 2026-04-01 -- Phase 15 execution started
+Phase: 15-post-session-flow
+Plan: 02 (complete)
+Status: Executing phase 15
+Last activity: 2026-04-02 — Completed 15-02 post-session UI components
 
 ## Accumulated Context
 
@@ -39,8 +40,9 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
 - [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
-- [14-02]: Derived activeSessions from terminal-store tabs for BranchTable compatibility
-- [14-02]: AllProjects launch navigates to project dashboard after addTab
+- [15-02]: Used branch-store ahead count for merge button visibility
+- [15-02]: MergeDialog rendered via IIFE pattern in SessionManager JSX
+- [15-02]: PostSessionActions uses fixed duration (createdAt to exitedAt)
 
 ### Blockers/Concerns
 
@@ -49,6 +51,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-01
-Stopped at: Completed 14-02-PLAN.md (launch path cleanup)
-Resume file: None
+Last session: 2026-04-02
+Stopped at: Completed 15-02-PLAN.md (post-session UI components)
+Resume file: .planning/phases/15-post-session-flow/15-02-SUMMARY.md

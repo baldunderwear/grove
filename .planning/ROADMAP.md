@@ -26,4 +26,4 @@
 
 | Phase | Name | Plans | Completed | Status |
 |-------|------|-------|-----------|--------|
-| 15 | Post-Session Flow | 2 | 1 | In Progress |
+| 15 | Post-Session Flow | 2 | 2 | In Progress (checkpoint pending) |
