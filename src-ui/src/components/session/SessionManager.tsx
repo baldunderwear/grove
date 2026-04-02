@@ -10,6 +10,7 @@ import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
 import { useSessionStore } from '@/stores/session-store';
 import { SessionCard } from './SessionCard';
+import { MergeDialog } from '@/components/MergeDialog';
 import { fireWaitingAlert } from '@/lib/alerts';
 import type { SessionState, TerminalTab } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
@@ -26,7 +27,7 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalIdRef = useRef<string | null>(null);
   const autoSendDoneRef = useRef(false);
-  const { activateTab, setTabConnected, clearInitialPrompt, appendOutput } = useTerminalStore();
+  const { activateTab, setTabConnected, setTabExited, setTabDisconnected, clearInitialPrompt, appendOutput } = useTerminalStore();
 
   const onData = useCallback((data: string) => {
     const id = terminalIdRef.current;
@@ -95,11 +96,14 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
         case 'Exit':
           write(`\r\n\x1b[90m[Process exited: ${event.code ?? '?'}]\x1b[0m\r\n`);
           if (terminalIdRef.current) {
-            setTabConnected(terminalIdRef.current, false);
+            setTabExited(terminalIdRef.current, event.code ?? null);
           }
           break;
         case 'Error':
           write(`\r\n\x1b[31m[${event.message}]\x1b[0m\r\n`);
+          if (terminalIdRef.current) {
+            setTabDisconnected(terminalIdRef.current);
+          }
           break;
       }
     };
@@ -282,6 +286,7 @@ export function SessionManager() {
 
   const [showBranchPicker, setShowBranchPicker] = useState(false);
   const [branchFilter, setBranchFilter] = useState('');
+  const [mergeTabId, setMergeTabId] = useState<string | null>(null);
 
   const project = config?.projects.find((p) => p.id === selectedProjectId);
   const settings = config?.settings;
@@ -399,7 +404,7 @@ export function SessionManager() {
 
   const handleClose = useCallback((tabId: string) => {
     const tab = useTerminalStore.getState().tabs.get(tabId);
-    if (tab && !tab.id.startsWith('pending-')) {
+    if (tab && !tab.id.startsWith('pending-') && tab.sessionState !== 'exited' && tab.isConnected) {
       invoke('terminal_kill', { terminalId: tab.id }).catch(() => {});
     }
     useTerminalStore.getState().closeTab(tabId);
@@ -407,6 +412,17 @@ export function SessionManager() {
       unfocusSession();
     }
   }, [focusedSessionId, unfocusSession]);
+
+  const handleMerge = useCallback((tabId: string) => {
+    const tab = useTerminalStore.getState().tabs.get(tabId);
+    if (!tab) return;
+    // Ensure branches are fresh
+    const branchInfo = useBranchStore.getState().branches.find((b) => b.worktree_path === tab.worktreePath);
+    if (!branchInfo && project) {
+      useBranchStore.getState().silentRefresh(project.path, project.branch_prefix, project.merge_target);
+    }
+    setMergeTabId(tabId);
+  }, [project]);
 
   if (!project) return null;
 
@@ -527,6 +543,7 @@ export function SessionManager() {
                   lastLines={t.lastLines}
                   onFocus={focusSession}
                   onClose={handleClose}
+                  onMerge={handleMerge}
                 />
               ))}
               <button
@@ -567,6 +584,23 @@ export function SessionManager() {
           ))}
         </div>
       )}
+
+      {/* ── Merge Dialog (triggered from post-session card) ── */}
+      {mergeTabId && (() => {
+        const mergeTab = tabs.get(mergeTabId);
+        const mergeBranchInfo = mergeTab
+          ? branches.find((b) => b.worktree_path === mergeTab.worktreePath)
+          : null;
+        return mergeTab && mergeBranchInfo ? (
+          <MergeDialog
+            open={true}
+            onOpenChange={(open) => { if (!open) setMergeTabId(null); }}
+            branch={mergeBranchInfo}
+            project={project}
+            onComplete={() => setMergeTabId(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }
