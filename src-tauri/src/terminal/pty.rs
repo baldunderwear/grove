@@ -1,7 +1,7 @@
 use portable_pty::{CommandBuilder, NativePtySystem, PtySize, PtySystem};
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::ipc::Channel;
 use tauri::Emitter;
@@ -89,6 +89,10 @@ pub fn spawn_pty(
     #[cfg(not(windows))]
     let job_handle: Option<isize> = None;
 
+    // Wrap child in Arc<Mutex<>> so the reader thread can call wait() for exit code
+    let child: Arc<Mutex<Box<dyn portable_pty::Child + Send>>> = Arc::new(Mutex::new(child));
+    let child_for_reader = Arc::clone(&child);
+
     // Drop slave immediately -- we only need the master side
     drop(pair.slave);
 
@@ -160,8 +164,13 @@ pub fn spawn_pty(
             loop {
                 match reader.read(&mut buf) {
                     Ok(0) => {
-                        // EOF -- process exited
-                        let _ = on_event.send(TerminalEvent::Exit { code: None });
+                        // EOF -- process exited. Wait for child to get real exit code.
+                        let code = child_for_reader
+                            .lock()
+                            .ok()
+                            .and_then(|mut c| c.wait().ok())
+                            .map(|status| if status.success() { 0 } else { 1 });
+                        let _ = on_event.send(TerminalEvent::Exit { code });
                         break;
                     }
                     Ok(n) => {

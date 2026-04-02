@@ -26,7 +26,7 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalIdRef = useRef<string | null>(null);
   const autoSendDoneRef = useRef(false);
-  const { activateTab, setTabConnected, clearInitialPrompt, appendOutput } = useTerminalStore();
+  const { activateTab, setTabConnected, setTabExited, setTabDisconnected, clearInitialPrompt, appendOutput } = useTerminalStore();
 
   const onData = useCallback((data: string) => {
     const id = terminalIdRef.current;
@@ -95,11 +95,14 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
         case 'Exit':
           write(`\r\n\x1b[90m[Process exited: ${event.code ?? '?'}]\x1b[0m\r\n`);
           if (terminalIdRef.current) {
-            setTabConnected(terminalIdRef.current, false);
+            setTabExited(terminalIdRef.current, event.code ?? null);
           }
           break;
         case 'Error':
           write(`\r\n\x1b[31m[${event.message}]\x1b[0m\r\n`);
+          if (terminalIdRef.current) {
+            setTabDisconnected(terminalIdRef.current);
+          }
           break;
       }
     };
