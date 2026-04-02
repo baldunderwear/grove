@@ -5,6 +5,7 @@ mod config;
 mod fetch;
 mod git;
 mod notifications;
+mod process;
 mod terminal;
 mod tray;
 mod utils;
@@ -13,6 +14,7 @@ mod watcher;
 pub fn run() {
     tauri::Builder::default()
         .manage(std::sync::Mutex::new(()))
+        .manage(std::sync::Mutex::new(process::detect::SessionDetector::new()))
         .manage(std::sync::Mutex::new(notifications::NotificationState::new()))
         .manage(std::sync::Mutex::new(terminal::TerminalManager::new()))
         .manage(std::sync::Mutex::new(terminal::HistoryManager::new()))
@@ -48,6 +50,9 @@ pub fn run() {
             commands::git_commands::merge_preview,
             commands::git_commands::merge_branch,
             commands::git_commands::resolve_build_conflicts,
+            commands::git_commands::get_branch_diff_summary,
+            commands::session_commands::launch_session,
+            commands::session_commands::get_active_sessions,
             commands::session_commands::open_in_vscode,
             commands::session_commands::open_in_explorer,
             commands::session_commands::create_worktree,

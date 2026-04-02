@@ -172,6 +172,43 @@ export function fireErrorToast(title: string, description: string) {
 }
 
 /**
+ * Fire a toast when a session exits (clean or crash).
+ * Clean exit: info toast with 5s auto-dismiss.
+ * Crash: persistent error toast until manually dismissed.
+ */
+export function fireExitToast(terminalId: string, branchName: string, exitCode: number | null) {
+  const isClean = exitCode === null || exitCode === 0;
+  dismissOldestIfAtCapacity();
+
+  const action = {
+    label: 'View Session',
+    onClick: () => useTerminalStore.getState().focusSession(terminalId),
+  };
+  const onDismiss = (t: { id: string | number }) => untrackToast(t.id);
+  const onAutoClose = (t: { id: string | number }) => untrackToast(t.id);
+
+  if (isClean) {
+    const id = toast(`${branchName} exited`, {
+      description: 'Session completed successfully',
+      duration: 5000,
+      action,
+      onDismiss,
+      onAutoClose,
+    });
+    trackToast(id, false);
+  } else {
+    const id = toast.error(`${branchName} crashed`, {
+      description: `Exited with code ${exitCode}`,
+      duration: Infinity,
+      action,
+      onDismiss,
+      onAutoClose,
+    });
+    trackToast(id, true);
+  }
+}
+
+/**
  * Main entry point for session state change alerts.
  * Fires in-app toast always. Fires OS notification + chime for waiting state only when unfocused.
  */

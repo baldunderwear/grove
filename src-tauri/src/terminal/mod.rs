@@ -10,12 +10,13 @@ pub use state_parser::SessionState;
 use portable_pty::{Child, MasterPty};
 use std::collections::HashMap;
 use std::io::Write;
+use std::sync::{Arc, Mutex};
 
 /// Represents a single active terminal session.
 pub struct TerminalSession {
     pub(crate) writer: Box<dyn Write + Send>,
     pub(crate) master: Box<dyn MasterPty + Send>,
-    pub(crate) child: Box<dyn Child + Send>,
+    pub(crate) child: Arc<Mutex<Box<dyn Child + Send>>>,
     #[allow(dead_code)]
     pub(crate) working_dir: String,
     /// Windows Job Object handle for process tree cleanup.
@@ -121,10 +122,11 @@ impl TerminalManager {
 
         // Belt-and-suspenders: also kill the direct child process.
         // This should return quickly since the Job Object already killed it.
-        let _ = session.child.kill();
-
-        // Wait for child to fully exit (should be near-instant after job close)
-        let _ = session.child.wait();
+        if let Ok(mut child) = session.child.lock() {
+            let _ = child.kill();
+            // Wait for child to fully exit (should be near-instant after job close)
+            let _ = child.wait();
+        }
 
         Ok(())
     }
