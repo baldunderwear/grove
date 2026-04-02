@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
-stopped_at: Completed 15-02-PLAN.md (post-session UI components)
-last_updated: "2026-04-02T14:53:15.864Z"
-last_activity: 2026-04-02 -- Phase 16 execution started
+stopped_at: Completed 16-02-PLAN.md (pipeline unit tests)
+last_updated: "2026-04-02T18:49:11.384Z"
+last_activity: 2026-04-02
 progress:
-  total_phases: 5
-  completed_phases: 2
+  total_phases: 3
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 6
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 ## Current Position
 
 Phase: 16 (composable-merge-engine) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 16
-Last activity: 2026-04-02 -- Phase 16 execution started
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-04-02
 
 ## Accumulated Context
 
@@ -42,6 +42,7 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [15-02]: Used branch-store ahead count for merge button visibility
 - [15-02]: MergeDialog rendered via IIFE pattern in SessionManager JSX
 - [15-02]: PostSessionActions uses fixed duration (createdAt to exitedAt)
+- [Phase 16]: Unit tests use dummy MergeContext with fake paths -- no real git repo needed for state machine validation
 
 ### Blockers/Concerns
 
@@ -50,6 +51,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-02
-Stopped at: Completed 15-02-PLAN.md (post-session UI components)
-Resume file: .planning/phases/15-post-session-flow/15-02-SUMMARY.md
+Last session: 2026-04-02T18:49:11.368Z
+Stopped at: Completed 16-02-PLAN.md (pipeline unit tests)
+Resume file: None

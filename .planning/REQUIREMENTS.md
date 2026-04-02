@@ -66,7 +66,7 @@
 
 ### Merge Engine
 
-- [ ] **MERGE-01**: Merge pipeline is decomposed into composable steps (preview → execute → bump → changelog → commit)
+- [x] **MERGE-01**: Merge pipeline is decomposed into composable steps (preview → execute → bump → changelog → commit)
 - [ ] **MERGE-02**: User can select multiple branches and merge them sequentially with auto-build-bump between each
 - [ ] **MERGE-03**: User can drag-reorder branches in the merge queue before execution
 - [ ] **MERGE-04**: If any branch fails to merge, all completed merges in the queue roll back to pre-queue state
@@ -139,7 +139,7 @@
 | POST-04 | Phase 18 | Pending |
 | POST-05 | Phase 15 | Pending |
 | POST-06 | Phase 15 | Pending |
-| MERGE-01 | Phase 16 | Pending |
+| MERGE-01 | Phase 16 | Complete |
 | MERGE-02 | Phase 17 | Pending |
 | MERGE-03 | Phase 17 | Pending |
 | MERGE-04 | Phase 17 | Pending |
