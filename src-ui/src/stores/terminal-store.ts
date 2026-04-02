@@ -1,6 +1,7 @@
 import { create } from 'zustand';
+import { fireExitToast } from '@/lib/alerts';
 
-export type SessionState = "working" | "waiting" | "idle" | "error" | null;
+export type SessionState = "working" | "waiting" | "idle" | "error" | "exited" | "disconnected" | null;
 
 export interface TerminalTab {
   id: string;
@@ -10,6 +11,8 @@ export interface TerminalTab {
   isConnected: boolean;
   createdAt: number;
   sessionState: SessionState;
+  exitCode: number | null;
+  exitedAt: number | null;
   initialPrompt?: string;
   contextFiles?: string[];
   lastLines: string[];
@@ -25,6 +28,7 @@ interface SessionCounts {
   waiting: number;
   idle: number;
   error: number;
+  exited: number;
 }
 
 interface TerminalStoreState {
@@ -43,6 +47,8 @@ interface TerminalStoreState {
   switchTab: (tabId: string) => void;
   closeTab: (tabId: string) => void;
   setTabConnected: (tabId: string, connected: boolean) => void;
+  setTabExited: (tabId: string, exitCode: number | null) => void;
+  setTabDisconnected: (tabId: string) => void;
   setTabState: (tabId: string, state: SessionState) => void;
   getTabForWorktree: (worktreePath: string) => TerminalTab | undefined;
   focusSession: (tabId: string) => void;
@@ -58,7 +64,7 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
   hasAnyTabs: () => get().tabs.size > 0,
 
   getSessionCounts: () => {
-    const counts: SessionCounts = { working: 0, waiting: 0, idle: 0, error: 0 };
+    const counts: SessionCounts = { working: 0, waiting: 0, idle: 0, error: 0, exited: 0 };
     for (const tab of get().tabs.values()) {
       if (tab.sessionState && tab.sessionState in counts) {
         counts[tab.sessionState as keyof SessionCounts]++;
@@ -77,6 +83,8 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
       isConnected: false,
       createdAt: Date.now(),
       sessionState: null,
+      exitCode: null,
+      exitedAt: null,
       initialPrompt: launchOptions?.prompt,
       contextFiles: launchOptions?.contextFiles,
       lastLines: [],
@@ -149,7 +157,41 @@ export const useTerminalStore = create<TerminalStoreState>()((set, get) => ({
     next.set(tabId, {
       ...tab,
       isConnected: connected,
-      sessionState: connected ? tab.sessionState : null,
+      // Don't overwrite exited state when disconnecting
+      sessionState: connected ? tab.sessionState : (tab.sessionState === 'exited' ? 'exited' : null),
+    });
+    set({ tabs: next });
+  },
+
+  setTabExited: (tabId: string, exitCode: number | null) => {
+    const current = get().tabs;
+    const tab = current.get(tabId);
+    if (!tab) return;
+
+    const next = new Map(current);
+    next.set(tabId, {
+      ...tab,
+      sessionState: 'exited',
+      isConnected: false,
+      exitCode,
+      exitedAt: Date.now(),
+    });
+    set({ tabs: next });
+
+    // Fire exit toast
+    fireExitToast(tabId, tab.branchName, exitCode);
+  },
+
+  setTabDisconnected: (tabId: string) => {
+    const current = get().tabs;
+    const tab = current.get(tabId);
+    if (!tab) return;
+
+    const next = new Map(current);
+    next.set(tabId, {
+      ...tab,
+      sessionState: 'disconnected',
+      isConnected: false,
     });
     set({ tabs: next });
   },
