@@ -420,3 +420,125 @@ pub fn merge_commit(ctx: &mut MergeContext) -> Result<(), GitError> {
     ctx.phase = MergePhase::Committed;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Helper: create a MergeContext with dummy values for unit testing.
+    /// No real git repo needed -- these tests exercise the state machine only.
+    fn dummy_ctx() -> MergeContext {
+        MergeContext::new(
+            "/tmp/fake",
+            "test-source",
+            "main",
+            &[],
+            &None,
+            None,
+        )
+    }
+
+    #[test]
+    fn new_initializes_with_init_phase_and_empty_fields() {
+        let ctx = dummy_ctx();
+        assert_eq!(ctx.phase, MergePhase::Init);
+        assert!(ctx.merged_tree_oid.is_none());
+        assert!(ctx.source_oid.is_none());
+        assert!(ctx.target_oid.is_none());
+        assert!(ctx.new_build.is_none());
+        assert!(ctx.changelog_renames.is_empty());
+        assert!(ctx.commit_oid.is_none());
+        assert!(ctx.warnings.is_empty());
+        assert_eq!(ctx.commits_merged, 0);
+    }
+
+    #[test]
+    fn into_result_returns_failure_when_not_committed() {
+        let ctx = dummy_ctx();
+        // phase is Init, not Committed
+        let result = ctx.into_result();
+        assert!(!result.success);
+    }
+
+    #[test]
+    fn into_result_returns_success_when_committed() {
+        let mut ctx = dummy_ctx();
+        ctx.phase = MergePhase::Committed;
+        ctx.commits_merged = 5;
+        ctx.new_build = Some(42);
+        let result = ctx.into_result();
+        assert!(result.success);
+        assert_eq!(result.commits_merged, 5);
+        assert_eq!(result.new_build, Some(42));
+    }
+
+    #[test]
+    fn merge_execute_rejects_non_init_phase() {
+        let mut ctx = dummy_ctx();
+        ctx.phase = MergePhase::Bumped;
+        let err = merge_execute(&mut ctx).unwrap_err();
+        let msg = err.to_string();
+        assert!(msg.contains("merge_execute requires Init phase"), "got: {msg}");
+    }
+
+    #[test]
+    fn merge_bump_rejects_non_executed_phase() {
+        let mut ctx = dummy_ctx();
+        // phase is Init, not Executed
+        let err = merge_bump(&mut ctx).unwrap_err();
+        let msg = err.to_string();
+        assert!(msg.contains("merge_bump requires Executed phase"), "got: {msg}");
+    }
+
+    #[test]
+    fn merge_changelog_rejects_non_bumped_phase() {
+        let mut ctx = dummy_ctx();
+        // phase is Init, not Bumped
+        let err = merge_changelog(&mut ctx).unwrap_err();
+        let msg = err.to_string();
+        assert!(msg.contains("merge_changelog requires Bumped phase"), "got: {msg}");
+    }
+
+    #[test]
+    fn merge_commit_rejects_non_changelogged_phase() {
+        let mut ctx = dummy_ctx();
+        // phase is Init, not Changelogged
+        let err = merge_commit(&mut ctx).unwrap_err();
+        let msg = err.to_string();
+        assert!(msg.contains("merge_commit requires Changelogged phase"), "got: {msg}");
+    }
+
+    #[test]
+    fn merge_bump_skips_when_build_patterns_empty() {
+        let mut ctx = dummy_ctx();
+        ctx.phase = MergePhase::Executed;
+        // build_patterns is already empty from dummy_ctx()
+        let result = merge_bump(&mut ctx);
+        assert!(result.is_ok());
+        assert_eq!(ctx.phase, MergePhase::Bumped);
+        assert!(ctx.new_build.is_none());
+    }
+
+    #[test]
+    fn merge_changelog_skips_when_no_config() {
+        let mut ctx = dummy_ctx();
+        ctx.phase = MergePhase::Bumped;
+        // changelog_config is None from dummy_ctx()
+        let result = merge_changelog(&mut ctx);
+        assert!(result.is_ok());
+        assert_eq!(ctx.phase, MergePhase::Changelogged);
+        assert!(ctx.changelog_renames.is_empty());
+    }
+
+    #[test]
+    fn into_result_carries_warnings_and_changelog_renames() {
+        let mut ctx = dummy_ctx();
+        ctx.phase = MergePhase::Committed;
+        ctx.warnings.push("test warning".to_string());
+        ctx.changelog_renames.push(("old.md".to_string(), "new.md".to_string()));
+        let result = ctx.into_result();
+        assert!(result.success);
+        assert_eq!(result.warnings.len(), 1);
+        assert_eq!(result.changelog_renames.len(), 1);
+    }
+}

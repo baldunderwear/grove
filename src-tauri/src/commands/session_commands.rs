@@ -4,6 +4,25 @@ use crate::git::error::GitError;
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
+/// Launch a Claude Code session in a worktree directory.
+/// Stub -- full implementation uses SessionManager (Phase 15+).
+#[tauri::command]
+pub fn launch_session(worktree_path: String) -> Result<(), String> {
+    std::process::Command::new("claude")
+        .creation_flags(CREATE_NO_WINDOW)
+        .current_dir(&worktree_path)
+        .spawn()
+        .map_err(|e| format!("Failed to launch session: {}", e))?;
+    Ok(())
+}
+
+/// Get list of currently active Claude Code sessions.
+/// Stub -- returns empty vec until full SessionManager integration.
+#[tauri::command]
+pub fn get_active_sessions() -> Vec<String> {
+    Vec::new()
+}
+
 /// Open a worktree path in VS Code (or Cursor).
 #[tauri::command]
 pub fn open_in_vscode(worktree_path: String) -> Result<(), String> {
