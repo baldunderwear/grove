@@ -4,7 +4,7 @@ milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
 stopped_at: Completed 16-02-PLAN.md (pipeline unit tests)
-last_updated: "2026-04-02T18:49:11.384Z"
+last_updated: "2026-04-02T18:50:04.411Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 3
@@ -24,8 +24,8 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 ## Current Position
 
-Phase: 16 (composable-merge-engine) — EXECUTING
-Plan: 2 of 2
+Phase: 16
+Plan: Not started
 Status: Ready to execute
 Last activity: 2026-04-02
 

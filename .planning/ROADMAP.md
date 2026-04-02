@@ -28,4 +28,4 @@
 |-------|------|-------|-----------|--------|
 | 14 | Toast System & Launch Path Cleanup | TBD | 0 | Planned |
 | 15 | Post-Session Flow | TBD | 0 | Planned |
-| 16 | Composable Merge Engine | 2/2 | Complete   | 2026-04-02 |
+| 16 | Composable Merge Engine | 2/2 | Complete    | 2026-04-02 |
