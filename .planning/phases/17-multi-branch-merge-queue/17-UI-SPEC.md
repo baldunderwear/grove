@@ -52,7 +52,9 @@ Exceptions: none
 | Heading | 14px | 600 (semibold) | 1.3 |
 | Mono | 12px | 400 (regular) | 1.4 |
 
-Consistent with Phase 14 and Phase 15. Heading is used for the dialog title. Label is used for queue item branch names and progress status text. Mono is used for commit counts and build numbers in queue items.
+The 12/13/14px scale is intentional continuity from the Phase 14 and Phase 15 design system, which established these sizes for Grove's dense information layout. This phase does not introduce new sizes; it reuses the existing scale to maintain visual consistency across all dashboard surfaces.
+
+Heading is used for the dialog title. Label is used for queue item branch names and progress status text. Mono is used for commit counts and build numbers in queue items.
 
 ---
 
@@ -86,6 +88,12 @@ Consistent with Phase 14 and Phase 15. Heading is used for the dialog title. Lab
 | Border radius | 2px (rounded-full) |
 
 Accent reserved for: "Start Queue" button background, progress bar fill, completed item checkmarks, active item spinner
+
+---
+
+## Focal Point
+
+Primary visual anchor: "Merge Selected ({N})" button in BranchTable header when 2+ branches are checked. This is the entry point to the entire merge queue flow and must be immediately visible against the table header background. Inside the dialog, the focal point shifts to the "Start Queue" primary button in the footer.
 
 ---
 
@@ -138,7 +146,7 @@ Accent reserved for: "Start Queue" button background, progress bar fill, complet
 2. **Queue List** (pre-execution): Sortable list of branch items inside a `scroll-area` with max-height 320px. Each `<QueueItem />`:
    - Left: 6-dot drag handle icon (`GripVertical` lucide, 14px) in `var(--grove-stone)`, cursor grab
    - Center: branch name at Label (13px/600) in `var(--grove-fog)`, below it "+{N} commits" at Mono (12px/400) in `var(--grove-stone)`
-   - Right: remove button (X icon, 14px) in `var(--grove-stone)`, visible on hover
+   - Right: remove button (X icon, 14px) in `var(--grove-stone)`, visible on hover, with `aria-label="Remove {branch-name} from queue"` for screen reader accessibility
    - Background: `var(--grove-forest)` with `border border-[var(--grove-canopy)]`, rounded-md (4px)
    - Spacing: 8px padding inside item, 8px gap between items
    - Drag active state: item gets `ring-1 ring-[var(--grove-moss)]` and slight scale `scale-[1.02]` with `shadow-lg`
@@ -155,8 +163,8 @@ Accent reserved for: "Start Queue" button background, progress bar fill, complet
    - Status text: "Merging {current}/{total}: {branch-name}" at Label (13px/600) in `var(--grove-fog)`, centered below bar with 8px top gap
 
 5. **Footer**:
-   - Pre-execution: "Cancel" ghost button (left), "Start Queue" primary button (right) with `bg-[var(--grove-leaf)] hover:bg-[var(--grove-sprout)] text-[var(--grove-void)]`
-   - During execution: "Start Queue" replaced with disabled "Merging..." button with `Loader2` spinner; "Cancel" hidden (queue cannot be interrupted mid-execution)
+   - Pre-execution: "Discard Queue" ghost button (left), "Start Queue" primary button (right) with `bg-[var(--grove-leaf)] hover:bg-[var(--grove-sprout)] text-[var(--grove-void)]`
+   - During execution: "Start Queue" replaced with disabled "Merging..." button with `Loader2` spinner; "Discard Queue" hidden (queue cannot be interrupted mid-execution)
    - After success: "Done" primary button (right), closes dialog
    - After failure: "Close" ghost button (right), closes dialog
 
@@ -225,6 +233,7 @@ Accent reserved for: "Start Queue" button background, progress bar fill, complet
 | Primary CTA (Dialog) | "Start Queue" (begins execution) |
 | Dialog title | "Merge Queue" |
 | Dialog description | "{N} branches selected" |
+| Dialog dismiss (pre-execution) | "Discard Queue" (ghost button, closes dialog without executing) |
 | Progress status | "Merging {current}/{total}: {branch-name}" |
 | Success status | "Queue complete: {total}/{total} merged" |
 | Failure status | "Queue failed on {branch-name} ({current}/{total}). Rolled back." |
