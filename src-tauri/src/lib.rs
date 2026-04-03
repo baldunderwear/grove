@@ -12,12 +12,17 @@ mod utils;
 mod watcher;
 
 pub fn run() {
+    // Create shared AtomicBool for queue/watcher communication.
+    // The Arc is shared between QueueActiveFlag (managed state) and the watcher thread.
+    let queue_active = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+
     tauri::Builder::default()
         .manage(std::sync::Mutex::new(()))
         .manage(std::sync::Mutex::new(process::detect::SessionDetector::new()))
         .manage(std::sync::Mutex::new(notifications::NotificationState::new()))
         .manage(std::sync::Mutex::new(terminal::TerminalManager::new()))
         .manage(std::sync::Mutex::new(terminal::HistoryManager::new()))
+        .manage(git::queue::QueueActiveFlag(queue_active.clone()))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
@@ -49,6 +54,7 @@ pub fn run() {
             commands::git_commands::is_worktree_dirty,
             commands::git_commands::merge_preview,
             commands::git_commands::merge_branch,
+            commands::git_commands::merge_queue_execute,
             commands::git_commands::resolve_build_conflicts,
             commands::git_commands::get_branch_diff_summary,
             commands::session_commands::launch_session,
@@ -67,7 +73,7 @@ pub fn run() {
             commands::file_commands::list_directory,
             commands::file_commands::delete_file,
         ])
-        .setup(|app| {
+        .setup(move |app| {
             // Build tray icon with dynamic menu and event handlers
             tray::build_tray(app)?;
 
@@ -88,7 +94,7 @@ pub fn run() {
                 let paths: Vec<String> = config.projects.iter().map(|p| p.path.clone()).collect();
                 if !paths.is_empty() {
                     // Start watcher in background -- log errors but don't block app startup
-                    if let Err(e) = crate::watcher::start_watcher(app_handle, paths) {
+                    if let Err(e) = crate::watcher::start_watcher(app_handle, paths, queue_active) {
                         eprintln!("[grove] Warning: file watcher failed to start: {}", e);
                     }
                 }

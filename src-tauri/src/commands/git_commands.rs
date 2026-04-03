@@ -97,6 +97,37 @@ pub fn get_branch_diff_summary(
     crate::git::diff::get_branch_diff_summary(&project_path, &source_branch, &merge_target)
 }
 
+/// Execute a sequential merge queue: merges multiple branches into the target
+/// with in-memory build number sequencing and atomic rollback on failure.
+/// Takes the write lock for the entire queue duration.
+#[tauri::command]
+pub fn merge_queue_execute(
+    app_handle: tauri::AppHandle,
+    project_path: String,
+    project_name: String,
+    branches: Vec<String>,
+    merge_target: String,
+    build_patterns: Vec<BuildFileConfig>,
+    changelog_config: Option<ChangelogConfig>,
+    _lock: tauri::State<'_, Mutex<()>>,
+    queue_flag: tauri::State<'_, crate::git::queue::QueueActiveFlag>,
+) -> Result<crate::git::queue::QueueResult, GitError> {
+    let _guard = _lock.lock().map_err(|e| {
+        GitError::MergeAborted(format!("Failed to acquire write lock: {}", e))
+    })?;
+    // project_name accepted for IPC symmetry with merge_branch but unused in queue logic
+    let _ = project_name;
+    crate::git::queue::execute_queue(
+        &app_handle,
+        &project_path,
+        branches,
+        &merge_target,
+        &build_patterns,
+        &changelog_config,
+        &queue_flag,
+    )
+}
+
 /// Standalone build conflict resolution for partial merge recovery.
 /// Opens repo, checks index for build file conflicts, resolves them.
 #[tauri::command]

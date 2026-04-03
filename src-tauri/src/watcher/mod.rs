@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
+use std::sync::Arc;
 use std::time::Duration;
 
 use notify::RecursiveMode;
@@ -21,7 +23,11 @@ pub struct GitChangeEvent {
 /// refresh the dashboard in real time.
 ///
 /// Falls back to `PollWatcher` when the OS-native watcher fails (e.g. NAS/network drives).
-pub fn start_watcher(app: tauri::AppHandle, project_paths: Vec<String>) -> Result<(), String> {
+pub fn start_watcher(
+    app: tauri::AppHandle,
+    project_paths: Vec<String>,
+    queue_active: Arc<AtomicBool>,
+) -> Result<(), String> {
     if project_paths.is_empty() {
         return Ok(());
     }
@@ -67,7 +73,7 @@ pub fn start_watcher(app: tauri::AppHandle, project_paths: Vec<String>) -> Resul
     let paths = project_paths.clone();
 
     std::thread::spawn(move || {
-        process_events(rx, &app, &paths);
+        process_events(rx, &app, &paths, queue_active);
     });
 
     Ok(())
@@ -187,10 +193,16 @@ fn process_events(
     rx: mpsc::Receiver<Result<Vec<notify_debouncer_mini::DebouncedEvent>, notify::Error>>,
     app: &tauri::AppHandle,
     project_paths: &[String],
+    queue_active: Arc<AtomicBool>,
 ) {
     loop {
         match rx.recv() {
             Ok(Ok(events)) => {
+                // Skip all events while merge queue is executing (MERGE-06).
+                // The queue orchestrator will emit a forced refresh when done.
+                if queue_active.load(Ordering::SeqCst) {
+                    continue;
+                }
                 // Deduplicate: emit at most one event per project per batch.
                 let mut emitted: std::collections::HashSet<String> = std::collections::HashSet::new();
 
