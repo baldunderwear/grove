@@ -72,4 +72,4 @@ Plans:
 | 15. Post-Session Flow | v2.1 | 2/2 | Complete | 2026-04-02 |
 | 16. Composable Merge Engine | v2.1 | 2/2 | Complete | 2026-04-02 |
 | 17. Multi-Branch Merge Queue | v2.1 | 3/3 | Complete    | 2026-04-03 |
-| 18. Post-Session Wizard + Cleanup | v2.1 | 3/3 | Complete | 2026-04-03 |
+| 18. Post-Session Wizard + Cleanup | v2.1 | 3/3 | Complete    | 2026-04-03 |
