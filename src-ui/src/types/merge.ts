@@ -39,3 +39,32 @@ export interface MergeHistoryEntry {
   result: MergeResult;
   timestamp: number;
 }
+
+// -- Queue types (Phase 17) --
+
+export type QueueItemStatus = 'pending' | 'active' | 'complete' | 'failed' | 'rolled_back';
+
+export interface QueueBranch {
+  name: string;
+  worktreePath: string;
+  ahead: number;
+  status: QueueItemStatus;
+}
+
+export interface QueueProgress {
+  index: number;
+  total: number;
+  branch: string;
+  status: 'active' | 'complete' | 'failed' | 'rolled_back';
+}
+
+export interface QueueResult {
+  success: boolean;
+  completed: number;
+  total: number;
+  failed_branch: string | null;
+  error: string | null;
+  build_range: [number, number] | null;
+}
+
+export type QueueStep = 'idle' | 'ready' | 'executing' | 'success' | 'failure';
