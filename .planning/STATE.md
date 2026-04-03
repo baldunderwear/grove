@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
-status: verifying
-stopped_at: Completed 17-03-PLAN.md (merge queue dialog and branch table wiring)
-last_updated: "2026-04-03T19:30:55.492Z"
+status: executing
+stopped_at: Completed 18-01-PLAN.md (worktree and branch cleanup backend)
+last_updated: "2026-04-03T20:20:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 6
+  completed_plans: 4
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-01)
 
 **Core value:** Complete session lifecycle -- launch -> monitor -> alert -> close -> merge -> cleanup
-**Current focus:** Phase 17 -- multi-branch-merge-queue
+**Current focus:** Phase 18 -- post-session-wizard-worktree-cleanup
 
 ## Current Position
 
 Phase: 18
-Plan: Not started
-Status: Phase complete — ready for verification
+Plan: 02 (next)
+Status: Executing phase 18
 Last activity: 2026-04-03
 
 ## Accumulated Context
@@ -51,6 +51,8 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [17-02]: Event listener set up before invoke to avoid missing early events
 - [Phase 17]: SortableQueueItem uses render-props pattern to expose containerRef, handleRef, isDragging
 - [Phase 17]: Dialog state managed locally in BranchTable (self-contained, no prop threading)
+- [18-01]: Used git CLI (not git2) for worktree/branch operations -- NAS/UNC path compatibility
+- [18-01]: Force-delete branch (-D) since user explicitly opted in via checkbox
 
 ### Blockers/Concerns
 
@@ -59,6 +61,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-03T19:24:48.307Z
-Stopped at: Completed 17-03-PLAN.md (merge queue dialog and branch table wiring)
+Last session: 2026-04-03T20:20:00Z
+Stopped at: Completed 18-01-PLAN.md (worktree and branch cleanup backend)
 Resume file: None

@@ -58,7 +58,7 @@
 **Plans**: 3 plans
 
 Plans:
-- [ ] 18-01-PLAN.md — Rust backend for worktree and branch cleanup (delete_worktree command)
+- [x] 18-01-PLAN.md — Rust backend for worktree and branch cleanup (delete_worktree command)
 - [ ] 18-02-PLAN.md — PostSessionWizard dialog and all step components (frontend)
 - [ ] 18-03-PLAN.md — Wire wizard into SessionManager and verify full flow
 
@@ -72,4 +72,4 @@ Plans:
 | 15. Post-Session Flow | v2.1 | 2/2 | Complete | 2026-04-02 |
 | 16. Composable Merge Engine | v2.1 | 2/2 | Complete | 2026-04-02 |
 | 17. Multi-Branch Merge Queue | v2.1 | 3/3 | Complete    | 2026-04-03 |
-| 18. Post-Session Wizard + Cleanup | v2.1 | 0/3 | Planned | - |
+| 18. Post-Session Wizard + Cleanup | v2.1 | 1/3 | In Progress | - |
