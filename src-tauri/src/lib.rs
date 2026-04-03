@@ -57,6 +57,7 @@ pub fn run() {
             commands::git_commands::merge_queue_execute,
             commands::git_commands::resolve_build_conflicts,
             commands::git_commands::get_branch_diff_summary,
+            commands::git_commands::delete_worktree,
             commands::session_commands::launch_session,
             commands::session_commands::get_active_sessions,
             commands::session_commands::open_in_vscode,

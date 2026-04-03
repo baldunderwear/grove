@@ -128,6 +128,27 @@ pub fn merge_queue_execute(
     )
 }
 
+/// Delete a worktree and/or its local branch.
+/// Worktree is removed before branch to avoid "branch in use" error.
+/// Boolean flags control which operations run, matching frontend checkbox toggles.
+#[tauri::command]
+pub fn delete_worktree(
+    project_path: String,
+    worktree_path: String,
+    branch_name: String,
+    remove_worktree: bool,
+    remove_branch: bool,
+) -> Result<(), GitError> {
+    // Worktree MUST be removed before branch (git refuses to delete a branch checked out in a worktree)
+    if remove_worktree {
+        crate::git::worktree::remove_worktree(&project_path, &worktree_path)?;
+    }
+    if remove_branch {
+        crate::git::worktree::delete_local_branch(&project_path, &branch_name)?;
+    }
+    Ok(())
+}
+
 /// Standalone build conflict resolution for partial merge recovery.
 /// Opens repo, checks index for build file conflicts, resolves them.
 #[tauri::command]
