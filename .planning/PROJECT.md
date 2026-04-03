@@ -101,7 +101,9 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 
 **v2.0 shipped** (2026-03-29) — Mission Control: embedded terminal tabs (portable-pty + xterm.js), session state detection (working/waiting/idle/error), CLAUDE.md/skills/settings editors (CodeMirror 6), multi-account profiles, prompt templates, context file picker, batch launch. 5 phases, 16 plans.
 
-**v2.0.x in-progress** — SessionManager card-based grid, focus mode, live terminal preview, session alerts (chime + taskbar flash + OS notification), branch picker launcher.
+**v2.0.x shipped** (2026-04-02) — SessionManager card-based grid, focus mode, live terminal preview, session alerts (chime + taskbar flash + OS notification), branch picker launcher.
+
+**v2.1 Phase 17 complete** (2026-04-03) — Multi-branch merge queue: Rust queue orchestrator with sequential merge + snapshot rollback, Zustand store, @dnd-kit/react drag-reorder dialog, in-place toast progress.
 
 ## Evolution
 
@@ -120,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
-Last updated: 2026-04-01 after milestone v2.1 start
+Last updated: 2026-04-03 after Phase 17 complete
