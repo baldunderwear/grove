@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Clock, Code2, FolderOpen, GitMerge, Play } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { isStale, relativeTime } from '@/lib/utils';
+import { MergeQueueDialog } from '@/components/MergeQueueDialog';
+import { useMergeQueueStore } from '@/stores/merge-queue-store';
+import { useConfigStore } from '@/stores/config-store';
 import type { BranchInfo, SortMode } from '@/types/branch';
 
 interface BranchTableProps {
@@ -77,14 +80,45 @@ export function BranchTable({
   showSelection = false,
 }: BranchTableProps) {
   const sorted = useMemo(() => sortBranches(branches, sortMode), [branches, sortMode]);
+  const [queueDialogOpen, setQueueDialogOpen] = useState(false);
+
+  const config = useConfigStore((s) => s.config);
+  const selectedProjectId = useConfigStore((s) => s.selectedProjectId);
+  const project = config?.projects.find((p) => p.id === selectedProjectId);
+
+  const eligibleSelected = branches.filter(
+    (b) => selectedBranches.has(b.worktree_path) && b.ahead > 0 && !b.is_dirty,
+  );
 
   return (
+    <>
     <ScrollArea className="flex-1">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider border-b border-[var(--grove-canopy)] sticky top-0 z-10" style={{ background: 'var(--grove-deep)', color: 'var(--grove-stone)' }}>
         {showSelection && <div className="w-5 shrink-0" />}
         <div className="w-3 shrink-0" />
         <div className="flex-1 min-w-0">Branch</div>
+        {showSelection && eligibleSelected.length >= 2 && (
+          <Button
+            size="sm"
+            className="bg-[var(--grove-leaf)] hover:bg-[var(--grove-sprout)] text-[var(--grove-void)] normal-case tracking-normal"
+            onClick={() => {
+              const setBranches = useMergeQueueStore.getState().setBranches;
+              setBranches(
+                eligibleSelected.map((b) => ({
+                  name: b.name,
+                  worktreePath: b.worktree_path,
+                  ahead: b.ahead,
+                  status: 'pending' as const,
+                })),
+              );
+              setQueueDialogOpen(true);
+            }}
+          >
+            <GitMerge className="h-3.5 w-3.5 mr-1" />
+            Merge Selected ({eligibleSelected.length})
+          </Button>
+        )}
         <div className="w-16 shrink-0 text-right">+/-</div>
         <div className="w-16 shrink-0 text-right">When</div>
         <div className="w-24 shrink-0" />
@@ -207,5 +241,21 @@ export function BranchTable({
         )}
       </div>
     </ScrollArea>
+    {project && (
+      <MergeQueueDialog
+        open={queueDialogOpen}
+        onOpenChange={(open) => {
+          setQueueDialogOpen(open);
+          if (!open) {
+            onSelectionChange(new Set());
+          }
+        }}
+        projectPath={project.path}
+        mergeTarget={mergeTarget}
+        buildPatterns={project.build_files ?? []}
+        changelogConfig={project.changelog ?? null}
+      />
+    )}
+    </>
   );
 }
