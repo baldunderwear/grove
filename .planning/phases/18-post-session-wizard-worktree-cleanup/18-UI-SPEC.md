@@ -32,7 +32,7 @@ Declared values (must be multiples of 4):
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4px | Icon-to-text gaps, step indicator dot spacing |
-| sm | 8px | Internal padding within wizard content sections, gap between commit list items |
+| sm | 8px | Internal padding within wizard content sections, gap between commit list items, checkbox row vertical gap, checkbox-to-label gap |
 | md | 16px | Dialog body padding (all sides), gap between wizard sections |
 | lg | 24px | Dialog header-to-stepper gap, stepper-to-content gap, content-to-footer gap |
 | xl | 32px | Not used this phase |
@@ -52,7 +52,9 @@ Exceptions: none
 | Heading | 14px | 600 (semibold) | 1.3 |
 | Mono | 12px | 400 (regular) | 1.4 |
 
-Continuity: same scale as Phases 14, 15, and 17. Body for descriptions and paragraph text. Label for step titles, file names, and stat labels. Heading for dialog title. Mono for commit hashes, file stat numbers (+/-), and branch names in code contexts.
+Step indicator labels below circles use Mono (12px/400) instead of a separate 11px size, keeping all text on declared type scale sizes.
+
+Continuity: same scale as Phases 14, 15, and 17. Body for descriptions and paragraph text. Label for step titles, file names, and stat labels. Heading for dialog title. Mono for commit hashes, file stat numbers (+/-), branch names in code contexts, and step indicator labels.
 
 ---
 
@@ -62,7 +64,7 @@ Continuity: same scale as Phases 14, 15, and 17. Body for descriptions and parag
 |------|-------|-------|
 | Dominant (60%) | `var(--grove-void)` #080f0a | App background behind dialog overlay |
 | Secondary (30%) | `var(--grove-deep)` #0c1810 | Dialog background, diff stat rows, commit list rows |
-| Accent (10%) | `var(--grove-leaf)` #4fa362 | Active step indicator, "Next" / "Merge" / "Clean Up" primary buttons, success checkmark |
+| Accent (10%) | `var(--grove-leaf)` #4fa362 | Active step indicator, "Next" primary buttons, "Clean Up" primary button, success checkmark |
 | Destructive | #ef4444 (red-500) | Merge failure error text, crash exit banner icon |
 
 ### Step Indicator Colors
@@ -84,7 +86,7 @@ Continuity: same scale as Phases 14, 15, and 17. Body for descriptions and parag
 | File name | `var(--grove-fog)` #eaede8 |
 | File stat numbers | `var(--grove-stone)` #a0a89e |
 
-Accent reserved for: active and completed step indicators, "Next" button, "Merge Branch" button, "Clean Up" button, success state checkmark icon
+Accent reserved for: active and completed step indicators, "Next" button, "Clean Up" button, success state checkmark icon. Note: "Merge Branch" button intentionally uses `bg-emerald-600` instead of `var(--grove-leaf)` for visual continuity with the existing MergeDialog pattern -- this is a scoped override, not a design system violation.
 
 ---
 
@@ -143,7 +145,7 @@ Primary visual anchor: the step indicator bar at the top of the dialog. It provi
    - Active: `bg-[var(--grove-leaf)]` with step number (12px/600, white)
    - Upcoming: `bg-transparent border-[var(--grove-canopy)]` with step number (12px/400) in `var(--grove-stone)`
    - Connectors: 1px lines between circles, `var(--grove-leaf)` for completed, `var(--grove-canopy)` for pending
-   - Step labels below circles: "Summary", "Commits", "Merge", "Cleanup" at 11px/400 in `var(--grove-stone)` (active label in `var(--grove-fog)`)
+   - Step labels below circles: "Summary", "Commits", "Merge", "Cleanup" at Mono (12px/400) in `var(--grove-stone)` (active label in `var(--grove-fog)`)
    - Full width with flex justify-between, 24px gap below header
 
 3. **Step Content Area**: Variable content based on active step. Minimum height 200px to prevent dialog size jumping between steps. Content wraps in `scroll-area` with max-height 360px.
@@ -155,7 +157,7 @@ Primary visual anchor: the step indicator bar at the top of the dialog. It provi
 - Section header: "Changes" at Label (13px/600) in `var(--grove-fog)`
 - Summary stats row: "{N} files changed, {N} insertions, {N} deletions" at Body (14px/400) in `var(--grove-fog)`, `var(--grove-stone)` for labels
 - File list: each row shows file path at Body (14px/400) in `var(--grove-fog)`, right-aligned stat "+{N}" in emerald-400, "-{N}" in red-400, at Mono (12px/400)
-- File list rows have `py-1.5 px-2` padding, alternating `bg-[var(--grove-forest)]/50` for even rows
+- File list rows have `py-2 px-2` padding (8px vertical, 8px horizontal), alternating `bg-[var(--grove-forest)]/50` for even rows
 - Max 50 files shown; if more, show "{N} more files" link at bottom in `var(--grove-stone)`
 - Footer button: "Next" primary button
 
@@ -166,7 +168,7 @@ Primary visual anchor: the step indicator bar at the top of the dialog. It provi
   - Left: abbreviated hash (7 chars) at Mono (12px/400) in `var(--grove-stone)`
   - Center: commit message at Body (14px/400) in `var(--grove-fog)`, truncated with ellipsis
   - Right: relative timestamp ("2h ago") at Mono (12px/400) in `var(--grove-stone)`
-- Rows have `py-1.5 px-2` padding, 1px bottom border in `var(--grove-canopy)`
+- Rows have `py-2 px-2` padding (8px vertical, 8px horizontal), 1px bottom border in `var(--grove-canopy)`
 - Scrollable via `scroll-area`
 - Footer button: "Next" primary button
 
@@ -180,7 +182,7 @@ Primary visual anchor: the step indicator bar at the top of the dialog. It provi
 - During merge: centered `Loader2` spinner (24px, `animate-spin`) in `var(--grove-sprout)` with "Merging..." at Body (14px/400)
 - After success: `CheckCircle2` icon (20px) in emerald-400 with "Merge complete" at Label (13px/600) in emerald-300, result summary below
 - On failure: `AlertTriangle` icon (20px) in red-400 with error message at Body (14px/400) in `text-destructive`, "Retry" and "Close" buttons
-- Footer button (pre-merge): "Merge Branch" primary button with `bg-emerald-600 hover:bg-emerald-500` (matches existing MergeDialog pattern)
+- Footer button (pre-merge): "Merge Branch" primary button with `bg-emerald-600 hover:bg-emerald-500` (intentional MergeDialog continuity -- see accent note above)
 - Footer button (post-success): "Next" primary button (advances to cleanup)
 - Dialog cannot be closed during merge execution (escape and overlay click disabled)
 
@@ -191,7 +193,7 @@ Primary visual anchor: the step indicator bar at the top of the dialog. It provi
 - Checkbox row 1: `Checkbox` (default checked) + "Delete worktree directory" at Body (14px/400) in `var(--grove-fog)`, path below at Mono (12px/400) in `var(--grove-stone)`
 - Checkbox row 2: `Checkbox` (default checked) + "Delete local branch" at Body (14px/400) in `var(--grove-fog)`, branch name below at Mono (12px/400) in `var(--grove-stone)`
 - Note: "Remote branch will not be affected." at 12px in `var(--grove-stone)`, italic
-- Checkbox rows have 12px vertical gap between them, 8px gap between checkbox and label
+- Checkbox rows have 8px (`sm`) vertical gap between them, 8px (`sm`) gap between checkbox and label
 - Footer button: "Clean Up & Close" primary button with `bg-[var(--grove-leaf)] hover:bg-[var(--grove-sprout)] text-[var(--grove-void)]`
 - If both checkboxes unchecked: button changes to "Close" (skip cleanup, just close dialog)
 - During cleanup: button shows `Loader2` spinner, disabled state
