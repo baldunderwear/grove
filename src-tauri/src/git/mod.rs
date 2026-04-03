@@ -7,3 +7,4 @@ pub mod merge;
 pub mod pipeline;
 pub mod queue;
 pub mod status;
+pub mod worktree;
