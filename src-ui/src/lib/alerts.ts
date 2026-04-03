@@ -208,6 +208,39 @@ export function fireExitToast(terminalId: string, branchName: string, exitCode: 
   }
 }
 
+// --- Merge queue toast helpers (TOAST-05) ---
+
+const MERGE_QUEUE_TOAST_ID = 'merge-queue';
+
+/**
+ * Show/update the merge queue progress toast (in-place via stable ID).
+ */
+export function fireMergeQueueToast(current: number, total: number, branch: string) {
+  toast.loading(`Merging ${current}/${total}: ${branch}`, {
+    id: MERGE_QUEUE_TOAST_ID,
+  });
+}
+
+/**
+ * Update the queue toast to show success. Auto-dismisses after 5s.
+ */
+export function completeMergeQueueToast(total: number) {
+  toast.success(`Queue complete: ${total}/${total} merged`, {
+    id: MERGE_QUEUE_TOAST_ID,
+    duration: 5000,
+  });
+}
+
+/**
+ * Update the queue toast to show failure. Persists until dismissed.
+ */
+export function failMergeQueueToast(branch: string, current: number, total: number) {
+  toast.error(`Queue failed on ${branch} (${current}/${total}). Rolled back.`, {
+    id: MERGE_QUEUE_TOAST_ID,
+    duration: Infinity,
+  });
+}
+
 /**
  * Main entry point for session state change alerts.
  * Fires in-app toast always. Fires OS notification + chime for waiting state only when unfocused.
