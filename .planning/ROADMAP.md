@@ -30,7 +30,7 @@
 - [x] **Phase 14: Toast System + Launch Path Cleanup** *(2026-04-01)*
 - [x] **Phase 15: Post-Session Flow** *(2026-04-02)*
 - [x] **Phase 16: Composable Merge Engine** *(2026-04-02)*
-- [ ] **Phase 17: Multi-Branch Merge Queue**
+- [x] **Phase 17: Multi-Branch Merge Queue** (completed 2026-04-03)
 - [ ] **Phase 18: Post-Session Wizard + Worktree Cleanup**
 
 ## Phase Details
@@ -65,5 +65,5 @@
 | 14. Toast + Launch Cleanup | v2.1 | 2/2 | Complete | 2026-04-01 |
 | 15. Post-Session Flow | v2.1 | 2/2 | Complete | 2026-04-02 |
 | 16. Composable Merge Engine | v2.1 | 2/2 | Complete | 2026-04-02 |
-| 17. Multi-Branch Merge Queue | v2.1 | 2/3 | In Progress | - |
+| 17. Multi-Branch Merge Queue | v2.1 | 3/3 | Complete   | 2026-04-03 |
 | 18. Post-Session Wizard + Cleanup | v2.1 | 0/? | Not started | - |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
-status: executing
-stopped_at: Completed 17-02-PLAN.md (queue frontend infrastructure)
-last_updated: "2026-04-03"
-last_activity: 2026-04-03 -- Completed 17-02
+status: verifying
+stopped_at: Completed 17-03-PLAN.md (merge queue dialog and branch table wiring)
+last_updated: "2026-04-03T19:24:48.317Z"
+last_activity: 2026-04-03
 progress:
   total_phases: 2
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 Phase: 17 (multi-branch-merge-queue) -- EXECUTING
 Plan: 3 of 3 (plans 01-02 complete)
-Status: Executing Phase 17
-Last activity: 2026-04-03 -- Completed 17-02 (queue frontend infrastructure)
+Status: Phase complete — ready for verification
+Last activity: 2026-04-03
 
 ## Accumulated Context
 
@@ -49,6 +49,8 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [17-02]: Local arrayMove helper instead of @dnd-kit/helpers import
 - [17-02]: Queue toast uses stable Sonner ID outside activeToasts capacity system
 - [17-02]: Event listener set up before invoke to avoid missing early events
+- [Phase 17]: SortableQueueItem uses render-props pattern to expose containerRef, handleRef, isDragging
+- [Phase 17]: Dialog state managed locally in BranchTable (self-contained, no prop threading)
 
 ### Blockers/Concerns
 
@@ -57,6 +59,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-03
-Stopped at: Completed 17-02-PLAN.md (queue frontend infrastructure)
+Last session: 2026-04-03T19:24:48.307Z
+Stopped at: Completed 17-03-PLAN.md (merge queue dialog and branch table wiring)
 Resume file: None
