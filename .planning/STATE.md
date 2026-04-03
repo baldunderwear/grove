@@ -7,11 +7,11 @@ stopped_at: null
 last_updated: "2026-04-01"
 last_activity: 2026-04-01
 progress:
-  total_phases: 0
+  total_phases: 1
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 3
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-01 — Milestone v2.1 started
+Phase: 18-post-session-wizard-worktree-cleanup
+Plan: 2 of 3
+Status: Executing
+Last activity: 2026-04-03 — Completed 18-02-PLAN.md (PostSessionWizard UI)
 
 ## Accumulated Context
 
@@ -40,6 +40,8 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
 - [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
+- [18-02]: Used local useState for wizard state (ephemeral, not Zustand store)
+- [18-02]: CleanupStep uses fully controlled props — parent owns checkbox state
 
 ### Blockers/Concerns
 
@@ -48,6 +50,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-01
-Stopped at: Milestone v2.1 initialization
+Last session: 2026-04-03
+Stopped at: Completed 18-02-PLAN.md
 Resume file: None
