@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
-stopped_at: Completed 17-01-PLAN.md (queue orchestrator backend)
+stopped_at: Completed 17-02-PLAN.md (queue frontend infrastructure)
 last_updated: "2026-04-03"
-last_activity: 2026-04-03 -- Completed 17-01
+last_activity: 2026-04-03 -- Completed 17-02
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 ## Current Position
 
 Phase: 17 (multi-branch-merge-queue) -- EXECUTING
-Plan: 2 of 3 (plan 01 complete)
+Plan: 3 of 3 (plans 01-02 complete)
 Status: Executing Phase 17
-Last activity: 2026-04-03 -- Completed 17-01 (queue orchestrator backend)
+Last activity: 2026-04-03 -- Completed 17-02 (queue frontend infrastructure)
 
 ## Accumulated Context
 
@@ -46,6 +46,9 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [17-01]: QueueActiveFlag wraps Arc<AtomicBool> for zero-cost sharing with watcher thread
 - [17-01]: Setup closure uses move to capture queue_active Arc before passing clone to start_watcher
 - [17-01]: Sync (non-async) Tauri command to match existing merge_branch pattern
+- [17-02]: Local arrayMove helper instead of @dnd-kit/helpers import
+- [17-02]: Queue toast uses stable Sonner ID outside activeToasts capacity system
+- [17-02]: Event listener set up before invoke to avoid missing early events
 
 ### Blockers/Concerns
 
@@ -55,5 +58,5 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: Completed 17-01-PLAN.md (queue orchestrator backend)
+Stopped at: Completed 17-02-PLAN.md (queue frontend infrastructure)
 Resume file: None

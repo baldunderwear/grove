@@ -53,7 +53,7 @@
 - [x] **TOAST-02**: User can click "View Session" on toast to navigate to that session tab
 - [x] **TOAST-03**: Error toasts persist until dismissed; info toasts auto-dismiss after 5s
 - [x] **TOAST-04**: Max 3 toasts visible simultaneously with priority ordering
-- [ ] **TOAST-05**: Merge queue progress updates existing toast in-place rather than spawning new ones
+- [x] **TOAST-05**: Merge queue progress updates existing toast in-place rather than spawning new ones
 
 ### Post-Session Flow
 
@@ -68,11 +68,11 @@
 
 - [x] **MERGE-01**: Merge pipeline is decomposed into composable steps (preview → execute → bump → changelog → commit)
 - [x] **MERGE-02**: User can select multiple branches and merge them sequentially with auto-build-bump between each
-- [ ] **MERGE-03**: User can drag-reorder branches in the merge queue before execution
+- [x] **MERGE-03**: User can drag-reorder branches in the merge queue before execution
 - [x] **MERGE-04**: If any branch fails to merge, all completed merges in the queue roll back to pre-queue state
 - [x] **MERGE-05**: Build numbers are sequenced in-memory by the queue orchestrator (no disk-read between merges)
 - [x] **MERGE-06**: File watcher is suppressed during queue execution to prevent cascade refreshes
-- [ ] **MERGE-07**: User sees per-branch progress during queue execution
+- [x] **MERGE-07**: User sees per-branch progress during queue execution
 
 ### Launch Path Cleanup
 
@@ -132,7 +132,7 @@
 | TOAST-02 | Phase 14 | Complete |
 | TOAST-03 | Phase 14 | Complete |
 | TOAST-04 | Phase 14 | Complete |
-| TOAST-05 | Phase 17 | Pending |
+| TOAST-05 | Phase 17 | Complete |
 | POST-01 | Phase 15 | Pending |
 | POST-02 | Phase 15 | Pending |
 | POST-03 | Phase 18 | Pending |
@@ -141,11 +141,11 @@
 | POST-06 | Phase 15 | Pending |
 | MERGE-01 | Phase 16 | Complete |
 | MERGE-02 | Phase 17 | Complete |
-| MERGE-03 | Phase 17 | Pending |
+| MERGE-03 | Phase 17 | Complete |
 | MERGE-04 | Phase 17 | Complete |
 | MERGE-05 | Phase 17 | Complete |
 | MERGE-06 | Phase 17 | Complete |
-| MERGE-07 | Phase 17 | Pending |
+| MERGE-07 | Phase 17 | Complete |
 | LPATH-01 | Phase 14 | Complete |
 | LPATH-02 | Phase 14 | Complete |
 | LPATH-03 | Phase 14 | Complete |
