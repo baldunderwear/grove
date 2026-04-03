@@ -59,8 +59,8 @@
 
 - [ ] **POST-01**: User sees a diff summary (files changed, insertions, deletions, commits) when a session exits
 - [ ] **POST-02**: User can initiate merge from an exited session card with one click
-- [ ] **POST-03**: User is guided through a multi-step wizard: diff summary → commit review → merge → cleanup
-- [ ] **POST-04**: User is prompted to delete worktree and branch after successful merge
+- [x] **POST-03**: User is guided through a multi-step wizard: diff summary → commit review → merge → cleanup
+- [x] **POST-04**: User is prompted to delete worktree and branch after successful merge
 - [ ] **POST-05**: Non-zero exit codes show a distinct "session crashed" prompt vs clean exit
 - [ ] **POST-06**: Post-session workflow never auto-triggers; always requires explicit user action
 
@@ -135,8 +135,8 @@
 | TOAST-05 | Phase 17 | Complete |
 | POST-01 | Phase 15 | Pending |
 | POST-02 | Phase 15 | Pending |
-| POST-03 | Phase 18 | Pending |
-| POST-04 | Phase 18 | Pending |
+| POST-03 | Phase 18 | Complete |
+| POST-04 | Phase 18 | Complete |
 | POST-05 | Phase 15 | Pending |
 | POST-06 | Phase 15 | Pending |
 | MERGE-01 | Phase 16 | Complete |
