@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Session Lifecycle
 status: executing
-stopped_at: Completed 16-02-PLAN.md (pipeline unit tests)
-last_updated: "2026-04-02T18:50:04.411Z"
-last_activity: 2026-04-02
+stopped_at: Completed 17-01-PLAN.md (queue orchestrator backend)
+last_updated: "2026-04-03"
+last_activity: 2026-04-03 -- Completed 17-01
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 2
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
 ---
 
 # Project State
@@ -19,15 +19,15 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-01)
 
-**Core value:** Complete session lifecycle — launch → monitor → alert → close → merge → cleanup
-**Current focus:** Phase 16 — composable-merge-engine
+**Core value:** Complete session lifecycle -- launch -> monitor -> alert -> close -> merge -> cleanup
+**Current focus:** Phase 17 -- multi-branch-merge-queue
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-02
+Phase: 17 (multi-branch-merge-queue) -- EXECUTING
+Plan: 2 of 3 (plan 01 complete)
+Status: Executing Phase 17
+Last activity: 2026-04-03 -- Completed 17-01 (queue orchestrator backend)
 
 ## Accumulated Context
 
@@ -38,11 +38,14 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 - [Milestone]: Single-branch merge engine built first as composable unit, multi-branch queue composes on top
 - [Milestone]: Toast stack for notifications (not sidebar or bell dropdown)
 - [Milestone]: Session persistence/PTY reconnect deferred to v2.2+
-- [Milestone]: External launch path (wt.exe/cmd.exe) to be removed — SessionManager is sole path
+- [Milestone]: External launch path (wt.exe/cmd.exe) to be removed -- SessionManager is sole path
 - [15-02]: Used branch-store ahead count for merge button visibility
 - [15-02]: MergeDialog rendered via IIFE pattern in SessionManager JSX
 - [15-02]: PostSessionActions uses fixed duration (createdAt to exitedAt)
 - [Phase 16]: Unit tests use dummy MergeContext with fake paths -- no real git repo needed for state machine validation
+- [17-01]: QueueActiveFlag wraps Arc<AtomicBool> for zero-cost sharing with watcher thread
+- [17-01]: Setup closure uses move to capture queue_active Arc before passing clone to start_watcher
+- [17-01]: Sync (non-async) Tauri command to match existing merge_branch pattern
 
 ### Blockers/Concerns
 
@@ -51,6 +54,6 @@ Decisions from v1.0/v1.1/v2.0 archived in STATE history.
 
 ## Session Continuity
 
-Last session: 2026-04-02T18:49:11.368Z
-Stopped at: Completed 16-02-PLAN.md (pipeline unit tests)
+Last session: 2026-04-03
+Stopped at: Completed 17-01-PLAN.md (queue orchestrator backend)
 Resume file: None

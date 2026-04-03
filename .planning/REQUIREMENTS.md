@@ -67,11 +67,11 @@
 ### Merge Engine
 
 - [x] **MERGE-01**: Merge pipeline is decomposed into composable steps (preview → execute → bump → changelog → commit)
-- [ ] **MERGE-02**: User can select multiple branches and merge them sequentially with auto-build-bump between each
+- [x] **MERGE-02**: User can select multiple branches and merge them sequentially with auto-build-bump between each
 - [ ] **MERGE-03**: User can drag-reorder branches in the merge queue before execution
-- [ ] **MERGE-04**: If any branch fails to merge, all completed merges in the queue roll back to pre-queue state
-- [ ] **MERGE-05**: Build numbers are sequenced in-memory by the queue orchestrator (no disk-read between merges)
-- [ ] **MERGE-06**: File watcher is suppressed during queue execution to prevent cascade refreshes
+- [x] **MERGE-04**: If any branch fails to merge, all completed merges in the queue roll back to pre-queue state
+- [x] **MERGE-05**: Build numbers are sequenced in-memory by the queue orchestrator (no disk-read between merges)
+- [x] **MERGE-06**: File watcher is suppressed during queue execution to prevent cascade refreshes
 - [ ] **MERGE-07**: User sees per-branch progress during queue execution
 
 ### Launch Path Cleanup
@@ -140,11 +140,11 @@
 | POST-05 | Phase 15 | Pending |
 | POST-06 | Phase 15 | Pending |
 | MERGE-01 | Phase 16 | Complete |
-| MERGE-02 | Phase 17 | Pending |
+| MERGE-02 | Phase 17 | Complete |
 | MERGE-03 | Phase 17 | Pending |
-| MERGE-04 | Phase 17 | Pending |
-| MERGE-05 | Phase 17 | Pending |
-| MERGE-06 | Phase 17 | Pending |
+| MERGE-04 | Phase 17 | Complete |
+| MERGE-05 | Phase 17 | Complete |
+| MERGE-06 | Phase 17 | Complete |
 | MERGE-07 | Phase 17 | Pending |
 | LPATH-01 | Phase 14 | Complete |
 | LPATH-02 | Phase 14 | Complete |

@@ -65,5 +65,5 @@
 | 14. Toast + Launch Cleanup | v2.1 | 2/2 | Complete | 2026-04-01 |
 | 15. Post-Session Flow | v2.1 | 2/2 | Complete | 2026-04-02 |
 | 16. Composable Merge Engine | v2.1 | 2/2 | Complete | 2026-04-02 |
-| 17. Multi-Branch Merge Queue | v2.1 | 0/? | Not started | - |
+| 17. Multi-Branch Merge Queue | v2.1 | 1/3 | In Progress | - |
 | 18. Post-Session Wizard + Cleanup | v2.1 | 0/? | Not started | - |
