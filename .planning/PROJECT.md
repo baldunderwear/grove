@@ -83,16 +83,6 @@ Each registered project has a config like:
 
 Projects without build numbers or changelogs simply omit those fields — Grove handles plain merges too.
 
-## Current Milestone: v2.1 Session Lifecycle
-
-**Goal:** Complete the session lifecycle — from launch through merge and cleanup — with a composable merge engine, multi-branch queue, and in-app toast notifications.
-
-**Target features:**
-- Post-session workflow (diff summary → commit → merge → cleanup) as a composable merge engine
-- Multi-branch merge queue (select → order → sequential merge with auto-bump → rollback on failure)
-- Toast notification system (stackable, actionable, for session state changes)
-- Kill external launch path (SessionManager is the sole launch path)
-
 ## Current State
 
 **v1.0 shipped** (2026-03-28) — Full worktree manager with project registry, git operations backend, dashboard UI, session launch, merge workflow, system tray with notifications, and auto-update distribution. 8 phases, 22 plans, 6,535 LOC (Rust + TypeScript).
@@ -103,9 +93,13 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 
 **v2.0.x shipped** (2026-04-02) — SessionManager card-based grid, focus mode, live terminal preview, session alerts (chime + taskbar flash + OS notification), branch picker launcher.
 
-**v2.1 Phase 17 complete** (2026-04-03) — Multi-branch merge queue: Rust queue orchestrator with sequential merge + snapshot rollback, Zustand store, @dnd-kit/react drag-reorder dialog, in-place toast progress.
+**v2.1 shipped** (2026-04-03) — Session Lifecycle: toast notification system (Sonner, priority queue, session state alerts), post-session flow (exit banners, diff summary, one-click merge), composable merge pipeline (4-step decomposition with unit tests), multi-branch merge queue (drag-reorder, sequential execution, atomic rollback, in-place toast progress), post-session wizard (4-step stepper: diff → commits → merge → cleanup with worktree deletion). 5 phases, 12 plans.
 
-**v2.1 Phase 18 complete** (2026-04-03) — Post-session wizard: 4-step stepper dialog (diff summary → commit review → merge → cleanup), worktree+branch deletion via git CLI, auto-close session tab after cleanup.
+## Known Gaps (v2.1)
+
+- TOAST-01/03/04: `fireSessionAlert` exported but never called from `setTabState` — session state toasts don't fire
+- LPATH-03: Tray launch handler still calls old `launch_session` stub
+- POST-01/02: `DiffSummary.tsx` passes `worktreePath` instead of `project.path`
 
 ## Evolution
 
@@ -124,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
-Last updated: 2026-04-03 after Phase 18 complete (v2.1 milestone complete)
+Last updated: 2026-04-03 after v2.1 milestone shipped
