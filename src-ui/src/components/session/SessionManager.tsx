@@ -8,10 +8,10 @@ import { useTerminal } from '@/hooks/useTerminal';
 import { useTerminalStore } from '@/stores/terminal-store';
 import { useBranchStore } from '@/stores/branch-store';
 import { useConfigStore } from '@/stores/config-store';
-import { useSessionStore } from '@/stores/session-store';
 import { SessionCard } from './SessionCard';
-import { MergeDialog } from '@/components/MergeDialog';
+import { PostSessionWizard } from './PostSessionWizard';
 import { fireWaitingAlert } from '@/lib/alerts';
+import { openInVscode, openInExplorer } from '@/lib/shell';
 import type { SessionState, TerminalTab } from '@/stores/terminal-store';
 import type { BranchInfo } from '@/types/branch';
 
@@ -27,7 +27,7 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalIdRef = useRef<string | null>(null);
   const autoSendDoneRef = useRef(false);
-  const { activateTab, setTabConnected, setTabExited, setTabDisconnected, clearInitialPrompt, appendOutput } = useTerminalStore();
+  const { activateTab, setTabExited, setTabDisconnected, clearInitialPrompt, appendOutput } = useTerminalStore();
 
   const onData = useCallback((data: string) => {
     const id = terminalIdRef.current;
@@ -154,8 +154,6 @@ function TerminalInstance({ tab, isVisible }: { tab: TerminalTab; isVisible: boo
 // FocusBar — top bar in focus mode
 // ─────────────────────────────────────────────
 function FocusTopBar({ tab, onBack, onClose }: { tab: TerminalTab; onBack: () => void; onClose: () => void }) {
-  const openInVscode = useSessionStore((s) => s.openInVscode);
-  const openInExplorer = useSessionStore((s) => s.openInExplorer);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -585,19 +583,20 @@ export function SessionManager() {
         </div>
       )}
 
-      {/* ── Merge Dialog (triggered from post-session card) ── */}
+      {/* ── Post-Session Wizard (triggered from post-session card) ── */}
       {mergeTabId && (() => {
         const mergeTab = tabs.get(mergeTabId);
         const mergeBranchInfo = mergeTab
           ? branches.find((b) => b.worktree_path === mergeTab.worktreePath)
           : null;
-        return mergeTab && mergeBranchInfo ? (
-          <MergeDialog
+        return mergeTab && mergeBranchInfo && project ? (
+          <PostSessionWizard
             open={true}
             onOpenChange={(open) => { if (!open) setMergeTabId(null); }}
-            branch={mergeBranchInfo}
+            tab={mergeTab}
             project={project}
-            onComplete={() => setMergeTabId(null)}
+            branchName={mergeBranchInfo.name}
+            mergeTarget={project.merge_target}
           />
         ) : null;
       })()}
