@@ -66,7 +66,7 @@ export function PostSessionWizard({
       invoke<DiffSummaryData>('get_branch_diff_summary', {
         projectPath: project.path,
         sourceBranch: branchName,
-        targetBranch: mergeTarget,
+        mergeTarget,
       })
         .then((data) => {
           setDiffData(data);
@@ -92,8 +92,8 @@ export function PostSessionWizard({
         projectPath: project.path,
         worktreePath: tab.worktreePath,
         branchName,
-        deleteWorktree,
-        deleteBranch,
+        removeWorktree: deleteWorktree,
+        removeBranch: deleteBranch,
       });
       onOpenChange(false);
       // Delay tab close to avoid race condition with dialog animation
