@@ -105,6 +105,8 @@ Projects without build numbers or changelogs simply omit those fields — Grove 
 
 **v2.1 Phase 17 complete** (2026-04-03) — Multi-branch merge queue: Rust queue orchestrator with sequential merge + snapshot rollback, Zustand store, @dnd-kit/react drag-reorder dialog, in-place toast progress.
 
+**v2.1 Phase 18 complete** (2026-04-03) — Post-session wizard: 4-step stepper dialog (diff summary → commit review → merge → cleanup), worktree+branch deletion via git CLI, auto-close session tab after cleanup.
+
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
@@ -122,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
-Last updated: 2026-04-03 after Phase 17 complete
+Last updated: 2026-04-03 after Phase 18 complete (v2.1 milestone complete)
